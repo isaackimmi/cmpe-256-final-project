@@ -44,14 +44,10 @@ export function TripResults({
         Recommended places
       </h1>
       <div className="subtitle" role="status">
-        {loading ? (
-          <>
-            <span className="sr-only">{results.length ? "Updating places in this map area…" : "Finding places…"}</span>
-            <Skeleton aria-hidden="true" className="loading-placeholder my-1 h-4 w-36" />
-          </>
-        ) : (
-          <>For your visit to {destination}</>
-        )}
+        {loading && results.length > 0
+          ? "Updating places in this map area…"
+          : `For your visit to ${destination}`}
+        {loading && !results.length && <span className="sr-only"> Finding places…</span>}
       </div>
       {resetBounds && (
         <Button variant="outline" className="reset" onClick={resetBounds}>
