@@ -23,7 +23,17 @@ Download the core 421 MB TripWorld files into `data/tripworld/` (gitignored), th
 
 ---
 
-## 2. Folder Ownership (Zero Merge Conflicts)
+## 2. Google Colab Notebooks (1 per Teammate — With Visualizations)
+
+Once pushed to `main`, each teammate can open their notebook directly in Google Colab (Cell 1 auto-clones the repo, installs dependencies, and downloads TripWorld):
+
+| Teammate | Colab Notebook | Runtime | Charts Generated (`reports/figures/`) |
+| :--- | :--- | :--- | :--- |
+| **Person 1** (KDD, Data Eng, Locality, HPC ETL) | [`notebooks/tripworld_kdd.ipynb`](../notebooks/tripworld_kdd.ipynb) — [Open in Colab](https://colab.research.google.com/github/isaackimmi/cmpe-256-final-project/blob/main/notebooks/tripworld_kdd.ipynb) | CPU | Geography & trip lengths, Home→Travel lift & noise, Opportunity lift & tourist ratio, Pandas vs. DuckDB HPC speedup |
+| **Person 2** (Stage 1: Embeddings, FAISS, Two-Tower) | [`notebooks/02_stage1_retrieval_embeddings_twotower.ipynb`](../notebooks/02_stage1_retrieval_embeddings_twotower.ipynb) — [Open in Colab](https://colab.research.google.com/github/isaackimmi/cmpe-256-final-project/blob/main/notebooks/02_stage1_retrieval_embeddings_twotower.ipynb) | **T4 / L4 GPU** | GPU vs. CPU encoding HPC benchmark, 2D PCA cross-city embedding clusters (London + Madrid), Two-Tower InfoNCE loss curve |
+| **Person 3** (Stage 2: LightGBM, Optuna, SHAP, Agent) | [`notebooks/03_stage2_ranking_automl_shap.ipynb`](../notebooks/03_stage2_ranking_automl_shap.ipynb) — [Open in Colab](https://colab.research.google.com/github/isaackimmi/cmpe-256-final-project/blob/main/notebooks/03_stage2_ranking_automl_shap.ipynb) | CPU | Optuna AutoML history, Leaderboard comparison, Global SHAP beeswarm, Local museum SHAP waterfall, Active Learning feedback lift |
+
+## 3. Folder Ownership (Zero Merge Conflicts)
 
 | Teammate | Branch | Folder They Own | North Star Metric | Outputs |
 | :--- | :--- | :--- | :--- | :--- |
