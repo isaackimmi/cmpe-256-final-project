@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import { Skeleton } from "./ui/Skeleton";
 import { Command, CommandInput, CommandList, CommandItem } from "./ui/Command";
 import { Label } from "./ui/Label";
@@ -35,11 +35,23 @@ export function SearchField<T extends Option>(props: Props<T>) {
   const input = useRef<HTMLInputElement>(null);
   const { expanded, onOpenChange: setOpen } = props;
 
-  // The action button can disappear when the query succeeds or reaches its final page.
-  function runSearchAction(action: () => void) {
-    input.current?.focus({ preventScroll: true });
-    action();
-  }
+  const sentinel = useRef<HTMLDivElement>(null);
+  const { loadMore } = props;
+  const canLoadMore = expanded && props.hasMore && !props.loading && !props.loadingMore && !props.failed;
+
+  useEffect(() => {
+    const target = sentinel.current;
+    if (!canLoadMore || !target) return;
+    const viewport = target.closest("[data-slot='scroll-area-viewport']");
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        observer.disconnect();
+        loadMore();
+      }
+    }, { root: viewport });
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, [canLoadMore, loadMore]);
 
   function choose(item: T) {
     onSelect(item);
@@ -112,7 +124,10 @@ export function SearchField<T extends Option>(props: Props<T>) {
                   Search failed.{" "}
                   <Button
                     variant="ghost"
-                    onClick={() => runSearchAction(props.retry)}
+                    onClick={() => {
+                      input.current?.focus({ preventScroll: true });
+                      props.retry();
+                    }}
                   >
                     Try again
                   </Button>
@@ -136,15 +151,7 @@ export function SearchField<T extends Option>(props: Props<T>) {
                   </div>
                 )
               )}
-              {props.hasMore && !props.loadingMore && !props.failed && (
-                <Button
-                  variant="ghost"
-                  className="more"
-                  onClick={() => runSearchAction(props.loadMore)}
-                >
-                  Load more
-                </Button>
-              )}
+              {canLoadMore && <div ref={sentinel} aria-hidden="true" className="h-px" />}
             </div>
           </ScrollArea>
         </div>
