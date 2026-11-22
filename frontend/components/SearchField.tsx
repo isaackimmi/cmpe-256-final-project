@@ -117,10 +117,17 @@ export function SearchField<T extends Option>(props: Props<T>) {
                     Try again
                   </Button>
                 </div>
-              ) : props.loading ? (
-                <div className="dropdown-note" role="status">
-                  <span className="sr-only">Searching…</span>
-                  <Skeleton aria-hidden="true" className="loading-placeholder h-3 w-32" />
+              ) : props.loading || props.loadingMore ? (
+                <div role="status">
+                  <span className="sr-only">
+                    {props.loadingMore ? "Loading more results…" : "Searching…"}
+                  </span>
+                  {[0, 1, 2].map((row) => (
+                    <div key={row} aria-hidden="true" className="grid h-14 content-center gap-2 px-2.5">
+                      <Skeleton className="loading-placeholder h-3.5 w-3/5" />
+                      <Skeleton className="loading-placeholder h-3 w-1/3" />
+                    </div>
+                  ))}
                 </div>
               ) : (
                 !items.length && (
@@ -129,19 +136,13 @@ export function SearchField<T extends Option>(props: Props<T>) {
                   </div>
                 )
               )}
-              {props.hasMore && !props.failed && (
+              {props.hasMore && !props.loadingMore && !props.failed && (
                 <Button
                   variant="ghost"
                   className="more"
-                  disabled={props.loadingMore}
                   onClick={() => runSearchAction(props.loadMore)}
                 >
-                  {props.loadingMore ? (
-                    <>
-                      <span className="sr-only">Loading more results…</span>
-                      <Skeleton aria-hidden="true" className="loading-placeholder h-3 w-16" />
-                    </>
-                  ) : "Load more"}
+                  Load more
                 </Button>
               )}
             </div>
