@@ -5,7 +5,6 @@ import { Compass, Moon, Sun } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
 } from "../components/ui/Sidebar";
 import { ExploreMenu } from "../components/ExploreMenu";
 import { PlannerLoading } from "../components/PlannerLoading";
@@ -113,9 +112,6 @@ export default function Home() {
             />
           )}
         </SidebarContent>
-        <SidebarFooter className="p-0">
-          Interactive prototype · Sample catalog
-        </SidebarFooter>
       </Sidebar>
     </main>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useRef } from "react";
-import { LoaderCircle } from "lucide-react";
+import { Skeleton } from "./ui/Skeleton";
 import { Command, CommandInput, CommandList, CommandItem } from "./ui/Command";
 import { Label } from "./ui/Label";
 import { ScrollArea } from "./ui/ScrollArea";
@@ -119,7 +119,8 @@ export function SearchField<T extends Option>(props: Props<T>) {
                 </div>
               ) : props.loading ? (
                 <div className="dropdown-note" role="status">
-                  <LoaderCircle className="spin" size={14} /> Searching…
+                  <span className="sr-only">Searching…</span>
+                  <Skeleton aria-hidden="true" className="loading-placeholder h-3 w-32" />
                 </div>
               ) : (
                 !items.length && (
@@ -135,7 +136,12 @@ export function SearchField<T extends Option>(props: Props<T>) {
                   disabled={props.loadingMore}
                   onClick={() => runSearchAction(props.loadMore)}
                 >
-                  {props.loadingMore ? "Loading…" : "Load more"}
+                  {props.loadingMore ? (
+                    <>
+                      <span className="sr-only">Loading more results…</span>
+                      <Skeleton aria-hidden="true" className="loading-placeholder h-3 w-16" />
+                    </>
+                  ) : "Load more"}
                 </Button>
               )}
             </div>
