@@ -2,8 +2,8 @@
 
 import { useId, useRef, useState } from "react";
 import { LoaderCircle, Search } from "lucide-react";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import { Input } from "./ui/Input";
+import { Button } from "./ui/Button";
 
 type Option = { id: string; name: string };
 

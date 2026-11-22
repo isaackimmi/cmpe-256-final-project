@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { Globe2, Moon, Sun } from "lucide-react";
-import MapView from "../components/map-view";
-import { TripResults } from "../components/trip-results";
-import { TripSetup } from "../components/trip-setup";
-import { Button } from "../components/ui/button";
-import { useRecommendations } from "../hooks/use-recommendations";
-import { useTheme } from "../hooks/use-theme";
+import MapView from "../components/MapView";
+import { TripResults } from "../components/TripResults";
+import { TripSetup } from "../components/TripSetup";
+import { Button } from "../components/ui/Button";
+import { useRecommendations } from "../hooks/useRecommendations";
+import { useTheme } from "../hooks/useTheme";
 import type {
   Bounds,
   Destination,

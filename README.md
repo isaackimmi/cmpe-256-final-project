@@ -83,3 +83,9 @@ The stub returns up to ten deterministic fixture results and model version
 
 `POST /feedback` is optional for this milestone and deferred. The recommendation
 flow works without it.
+
+### Frontend file naming
+
+Use PascalCase for React component files (`MapView.tsx`) and camelCase for
+hook files (`useSearch.ts`). Next.js route entry files follow its prescribed
+names, including `page.tsx`, `layout.tsx`, and `route.ts`.

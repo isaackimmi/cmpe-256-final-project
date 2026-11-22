@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { ArrowRight, MapPin, X } from "lucide-react";
-import { useDestinationSearch, usePlaceSearch } from "../hooks/use-search";
+import { useDestinationSearch, usePlaceSearch } from "../hooks/useSearch";
 import type { Destination, Place } from "../lib/types";
-import { SearchField } from "./search-field";
-import { Button } from "./ui/button";
+import { SearchField } from "./SearchField";
+import { Button } from "./ui/Button";
 
 type Props = {
   visited: Place[];

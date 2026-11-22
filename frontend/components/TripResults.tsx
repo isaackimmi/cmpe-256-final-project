@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { ArrowLeft, Crosshair, LoaderCircle, MapPin } from "lucide-react";
 import type { Recommendation } from "../lib/types";
-import { Button } from "./ui/button";
+import { Button } from "./ui/Button";
 
 type Props = {
   destination: string;
