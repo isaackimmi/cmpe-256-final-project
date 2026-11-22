@@ -1,0 +1,7 @@
+{
+  "name": "tripworld",
+  "private": true,
+  "scripts": {
+    "dev": "./dev"
+  }
+}
