@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ChevronDown, MapPin, X } from "lucide-react";
+import { ArrowRight, ChevronDown, MapPin, X } from "lucide-react";
 import { useDestinationSearch, usePlaceSearch } from "../hooks/useSearch";
 import type { Destination, Place } from "../lib/types";
 import { cn } from "../lib/utils";
@@ -16,6 +16,8 @@ type Props = {
   setVisited: (places: Place[]) => void;
   setDestination: (destination: Destination) => void;
   onInteract: () => void;
+  submit: () => void;
+  autoFocusSubmit: boolean;
 };
 
 export function TripSetup({
@@ -24,6 +26,8 @@ export function TripSetup({
   setVisited,
   setDestination,
   onInteract,
+  submit,
+  autoFocusSubmit,
 }: Props) {
   const [placeText, setPlaceText] = useState("");
   const [destinationText, setDestinationText] = useState("");
@@ -144,6 +148,14 @@ export function TripSetup({
           </ul>
         </ScrollArea>
       </section>
+      <Button
+        className={plannerStyles.primaryButton}
+        autoFocus={autoFocusSubmit}
+        disabled={!visited.length || !destination || editingDestination}
+        onClick={submit}
+      >
+        Find places <ArrowRight size={18} />
+      </Button>
     </section>
   );
 }

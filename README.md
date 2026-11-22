@@ -28,6 +28,11 @@ Open [the app](http://localhost:3000) or [the frontend-to-backend health check](
 
 For a single service, see the [frontend instructions](frontend/README.md) or [backend instructions](backend/README.md).
 
+### Try the local planner
+
+The A1 planner opens with Kyoto and two sample Maui visits. Select **Find places**
+to see four Kyoto recommendations. Select a row to highlight it.
+
 ## Deploy
 
 1. In Render, create a **Blueprint** from this repository. The root `render.yaml` configures the Python web service, build command, start command, and health check. After deployment, open `/health` on its Render URL.
@@ -60,8 +65,7 @@ The stub returns up to ten deterministic fixture results and model version
 `stub-v1`. For viewport searches, add a `bounds` object with numeric `west`,
 `south`, `east`, and `north` fields. Bounds narrow the selected destination.
 
-`POST /feedback` is optional for this milestone and deferred. The recommendation
-flow works without it.
+`POST /feedback` is optional for this milestone and deferred.
 
 ### Frontend file naming
 

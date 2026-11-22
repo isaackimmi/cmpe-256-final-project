@@ -7,11 +7,13 @@ import {
   Sidebar,
   SidebarContent,
 } from "../components/ui/Sidebar";
+import { TripResults } from "../components/TripResults";
 import { TripSetup } from "../components/TripSetup";
 import { Button } from "../components/ui/Button";
 import { useDemoTrip } from "../hooks/useDemoTrip";
+import { useRecommendations } from "../hooks/useRecommendations";
 import { useTheme } from "../hooks/useTheme";
-import type { Destination, Place } from "../lib/types";
+import type { Destination, Place, RecommendationRequest } from "../lib/types";
 
 type Trip = { destination: Destination | null; visited: Place[] };
 
@@ -21,6 +23,23 @@ export default function Home() {
   const [editedTrip, setEditedTrip] = useState<Trip | null>(null);
   const trip = editedTrip ?? demo.data ?? { destination: null, visited: [] };
   const { destination, visited } = trip;
+  const [restoreSubmitFocus, setRestoreSubmitFocus] = useState(false);
+  const [request, setRequest] = useState<RecommendationRequest | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const recommendations = useRecommendations(request);
+  const results = recommendations.data?.results ?? [];
+  const selected =
+    results.find((place) => place.id === selectedId) ?? results[0];
+
+  function startTrip() {
+    if (!destination || !visited.length) return;
+    setSelectedId(null);
+    setRequest({
+      tripworld_region_id: destination.id,
+      visited_place_ids: visited.map((place) => place.id),
+    });
+  }
+
   return (
     <main className="relative isolate h-svh min-h-[420px] overflow-hidden bg-(--maphalo) font-sans text-[15px] leading-[1.4] text-(--ink) max-[700px]:flow-root max-[700px]:h-auto max-[700px]:min-h-svh max-[700px]:overflow-visible max-[700px]:bg-(--glass)">
       <TripHeader theme={theme} toggle={toggle} />
@@ -31,7 +50,19 @@ export default function Home() {
         aria-label="Trip planner"
       >
         <SidebarContent className="gap-0 flex-none">
-          {!editedTrip && demo.isPending && !demo.isPaused ? (
+          {request && destination ? (
+            <TripResults
+              destination={destination.name}
+              recommendations={recommendations}
+              selected={selected}
+              onSelect={setSelectedId}
+              onEdit={() => {
+                setRestoreSubmitFocus(true);
+                setRequest(null);
+                setSelectedId(null);
+              }}
+            />
+          ) : !editedTrip && demo.isPending && !demo.isPaused ? (
             <PlannerLoading />
           ) : !editedTrip && (demo.isError || (demo.isPending && demo.isPaused)) ? (
             <section>
@@ -64,6 +95,8 @@ export default function Home() {
               setDestination={(next) =>
                 setEditedTrip({ destination: next, visited })
               }
+              submit={startTrip}
+              autoFocusSubmit={restoreSubmitFocus}
             />
           )}
         </SidebarContent>
