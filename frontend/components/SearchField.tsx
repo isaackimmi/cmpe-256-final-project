@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
+import type { UseInfiniteQueryResult } from "@tanstack/react-query";
+import { SEARCH_TERM_MAX_LENGTH } from "../hooks/useSearch";
 import { Skeleton } from "./ui/Skeleton";
 import { Command, CommandInput, CommandList, CommandItem } from "./ui/Command";
 import { Label } from "./ui/Label";
@@ -21,12 +23,7 @@ type Props<T extends Option> = {
   items: T[];
   detail?: (item: T) => string;
   onSelect: (item: T) => void;
-  loading: boolean;
-  failed: boolean;
-  retry: () => void;
-  hasMore: boolean;
-  loadingMore: boolean;
-  loadMore: () => void;
+  query: UseInfiniteQueryResult;
 };
 
 export function SearchField<T extends Option>(props: Props<T>) {
@@ -36,8 +33,9 @@ export function SearchField<T extends Option>(props: Props<T>) {
   const { expanded, onOpenChange: setOpen } = props;
 
   const sentinel = useRef<HTMLDivElement>(null);
-  const { loadMore } = props;
-  const canLoadMore = expanded && props.hasMore && !props.loading && !props.loadingMore && !props.failed;
+  const { query } = props;
+  const { fetchNextPage } = query;
+  const canLoadMore = expanded && query.hasNextPage && query.fetchStatus === "idle" && !query.isError;
 
   useEffect(() => {
     const target = sentinel.current;
@@ -46,12 +44,12 @@ export function SearchField<T extends Option>(props: Props<T>) {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
         observer.disconnect();
-        loadMore();
+        fetchNextPage();
       }
     }, { root: viewport });
     observer.observe(target);
     return () => observer.disconnect();
-  }, [canLoadMore, loadMore]);
+  }, [canLoadMore, fetchNextPage]);
 
   function choose(item: T) {
     onSelect(item);
@@ -76,6 +74,7 @@ export function SearchField<T extends Option>(props: Props<T>) {
         {props.label}
       </Label>
       <CommandInput
+        maxLength={SEARCH_TERM_MAX_LENGTH}
         autoFocus={props.autoFocus}
         ref={input}
         id={id}
@@ -101,7 +100,7 @@ export function SearchField<T extends Option>(props: Props<T>) {
       {expanded && (
         <div className="dropdown">
           <ScrollArea>
-            <CommandList label={props.label} className="overflow-visible">
+            <CommandList label={props.label} className="max-h-none overflow-visible">
               {items.map((item) => (
                 <CommandItem
                   key={item.id}
@@ -119,23 +118,28 @@ export function SearchField<T extends Option>(props: Props<T>) {
                 if (event.key === "Enter") event.stopPropagation();
               }}
             >
-              {props.failed ? (
+              {query.isPaused ? (
+                <div className="dropdown-note" role="status">
+                  Search will resume when you’re online.
+                </div>
+              ) : query.isError && !query.isFetching ? (
                 <div className="dropdown-note" role="status">
                   Search failed.{" "}
                   <Button
                     variant="ghost"
                     onClick={() => {
                       input.current?.focus({ preventScroll: true });
-                      props.retry();
+                      if (query.isFetchNextPageError) fetchNextPage();
+                      else query.refetch();
                     }}
                   >
                     Try again
                   </Button>
                 </div>
-              ) : props.loading || props.loadingMore ? (
+              ) : query.isPending || query.isFetching ? (
                 <div role="status">
                   <span className="sr-only">
-                    {props.loadingMore ? "Loading more results…" : "Searching…"}
+                    {query.isFetchingNextPage ? "Loading more results…" : "Searching…"}
                   </span>
                   {[0, 1, 2].map((row) => (
                     <div key={row} aria-hidden="true" className="grid h-14 content-center gap-2 px-2.5">
@@ -145,7 +149,7 @@ export function SearchField<T extends Option>(props: Props<T>) {
                   ))}
                 </div>
               ) : (
-                !items.length && (
+                !items.length && !query.hasNextPage && (
                   <div className="dropdown-note" role="status">
                     No matches.
                   </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ChevronDown, MapPin, X } from "lucide-react";
 import { useDestinationSearch, usePlaceSearch } from "../hooks/useSearch";
 import type { Destination, Place } from "../lib/types";
@@ -32,8 +32,12 @@ export function TripSetup({
   const destinations = useDestinationSearch(destinationText, destinationsOpen);
   const matches = places.data?.pages.flatMap((page) => page.items) ?? [];
 
-  function chooseDestination(item: Destination) {
-    setDestination(item);
+  const restoreDestinationFocus = useRef(false);
+
+  function closeDestinationEditor() {
+    restoreDestinationFocus.current = true;
+    setDestinationText("");
+    setDestinationsOpen(false);
     setEditingDestination(false);
   }
 
@@ -45,6 +49,12 @@ export function TripSetup({
           <span className="section-title">Destination</span>
           <Button
             variant="ghost"
+            ref={(button) => {
+              if (button && restoreDestinationFocus.current) {
+                restoreDestinationFocus.current = false;
+                button.focus({ preventScroll: true });
+              }
+            }}
             className="field chosen"
             aria-label={`Change destination: ${destination.name}`}
             onClick={() => setEditingDestination(true)}
@@ -68,28 +78,19 @@ export function TripSetup({
             autoFocus={editingDestination}
             text={destinationText}
             setText={setDestinationText}
-            onSelect={chooseDestination}
+            onSelect={(item) => {
+              setDestination(item);
+              closeDestinationEditor();
+            }}
             items={destinations.data?.pages.flatMap((page) => page.items) ?? []}
             detail={(city) => city.country ?? ""}
-            loading={
-              destinations.isPending ||
-              (destinations.isFetching && !destinations.isFetchingNextPage)
-            }
-            failed={destinations.isError}
-            retry={() =>
-              destinations.isFetchNextPageError
-                ? destinations.fetchNextPage()
-                : destinations.refetch()
-            }
-            hasMore={destinations.hasNextPage}
-            loadingMore={destinations.isFetchingNextPage}
-            loadMore={destinations.fetchNextPage}
+            query={destinations}
           />
           {editingDestination && (
             <Button
               variant="ghost"
               className="cancel"
-              onClick={() => setEditingDestination(false)}
+              onClick={closeDestinationEditor}
             >
               Cancel
             </Button>
@@ -112,19 +113,7 @@ export function TripSetup({
           )}
           detail={(place) => place.locality ?? ""}
           onSelect={(place) => setVisited([...visited, place])}
-          loading={
-            places.isPending ||
-            (places.isFetching && !places.isFetchingNextPage)
-          }
-          failed={places.isError}
-          retry={() =>
-            places.isFetchNextPageError
-              ? places.fetchNextPage()
-              : places.refetch()
-          }
-          hasMore={places.hasNextPage}
-          loadingMore={places.isFetchingNextPage}
-          loadMore={places.fetchNextPage}
+          query={places}
         />
         <ScrollArea className="visits">
           <ul aria-label="Selected past places">

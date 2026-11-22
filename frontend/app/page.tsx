@@ -49,13 +49,19 @@ export default function Home() {
         aria-label="Trip planner"
       >
         <SidebarContent className="gap-0 flex-none">
-          {!editedTrip && demo.isPending ? (
+          {!editedTrip && demo.isPending && !demo.isPaused ? (
             <PlannerLoading />
-          ) : !editedTrip && demo.isError ? (
+          ) : !editedTrip && (demo.isError || (demo.isPending && demo.isPaused)) ? (
             <section>
               <h1>Plan your visit</h1>
-              <p role="alert">We couldn’t load the sample trip.</p>
-              <Button onClick={() => demo.refetch()}>Try again</Button>
+              {demo.isPaused ? (
+                <p role="status">The sample trip will load when you’re online.</p>
+              ) : (
+                <>
+                  <p role="alert">We couldn’t load the sample trip.</p>
+                  <Button onClick={() => demo.refetch()}>Try again</Button>
+                </>
+              )}
               <Button
                 variant="ghost"
                 onClick={() =>
