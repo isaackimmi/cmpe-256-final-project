@@ -407,14 +407,14 @@ body {
   font-size: 12px;
   font-weight: 400;
 }
-.more,
 .cancel {
   height: auto;
   color: var(--blue) !important;
   font-size: 13px !important;
 }
-.more {
-  width: 100%;
+.dropdown [data-slot="scroll-area-thumb"] {
+  flex: 0 0 3px;
+  margin-inline: auto;
 }
 .reset {
   color: var(--blue) !important;
