@@ -2,6 +2,12 @@
 
 import { lazy, Suspense, useState } from "react";
 import { Compass, Moon, Sun } from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+} from "../components/ui/Sidebar";
+import { ExploreMenu } from "../components/ExploreMenu";
 import { PlannerLoading } from "../components/PlannerLoading";
 import { TripResults } from "../components/TripResults";
 import { TripSetup } from "../components/TripSetup";
@@ -57,10 +63,7 @@ export default function Home() {
           </span>
           TripWorld
         </div>
-        <div className="bar-context">
-          <span className="context-dot" />
-          Explore
-        </div>
+        <ExploreMenu hasMap />
         <Button
           variant="ghost"
           className="theme"
@@ -71,7 +74,12 @@ export default function Home() {
           <span>{theme === "light" ? "Dark mode" : "Light mode"}</span>
         </Button>
       </header>
-      <section className="map-region" aria-label="Recommendation map">
+      <section
+        id="trip-map"
+        tabIndex={-1}
+        className="map-region"
+        aria-label="Recommendation map"
+      >
         <Suspense
           fallback={
             <div className="notice" role="status">
@@ -93,50 +101,63 @@ export default function Home() {
           />
         </Suspense>
       </section>
-      <aside className="glass panel sidebar" aria-label="Trip planner">
-        {request && destination ? (
-          <TripResults
-            destination={destination.name}
-            results={results}
-            selected={selected}
-            onSelect={setSelectedId}
-            onEdit={() => {
-              setRequest(null);
-              setSelectedId(null);
-            }}
-            resetBounds={request.bounds ? startTrip : undefined}
-            loading={recommendations.isFetching}
-            failed={recommendations.isError}
-            retry={() => recommendations.refetch()}
-          />
-        ) : !editedTrip && demo.isPending ? (
-          <PlannerLoading />
-        ) : !editedTrip && demo.isError ? (
-          <section>
-            <h1>Plan your visit</h1>
-            <p role="alert">We couldn’t load the sample trip.</p>
-            <Button onClick={() => demo.refetch()}>Try again</Button>
-            <Button
-              variant="ghost"
-              onClick={() => setEditedTrip({ destination: null, visited: [] })}
-            >
-              Start an empty trip
-            </Button>
-          </section>
-        ) : (
-          <TripSetup
-            visited={visited}
-            destination={destination}
-            onInteract={() => setEditedTrip((current) => current ?? trip)}
-            setVisited={(next) => setEditedTrip({ destination, visited: next })}
-            setDestination={(next) =>
-              setEditedTrip({ destination: next, visited })
-            }
-            submit={startTrip}
-          />
-        )}
-        <footer>Interactive prototype · Sample catalog</footer>
-      </aside>
+      <Sidebar
+        id="trip-planner"
+        tabIndex={-1}
+        className="glass panel sidebar"
+        aria-label="Trip planner"
+      >
+        <SidebarContent className="gap-0 flex-none">
+          {request && destination ? (
+            <TripResults
+              destination={destination.name}
+              results={results}
+              selected={selected}
+              onSelect={setSelectedId}
+              onEdit={() => {
+                setRequest(null);
+                setSelectedId(null);
+              }}
+              resetBounds={request.bounds ? startTrip : undefined}
+              loading={recommendations.isFetching}
+              failed={recommendations.isError}
+              retry={() => recommendations.refetch()}
+            />
+          ) : !editedTrip && demo.isPending ? (
+            <PlannerLoading />
+          ) : !editedTrip && demo.isError ? (
+            <section>
+              <h1>Plan your visit</h1>
+              <p role="alert">We couldn’t load the sample trip.</p>
+              <Button onClick={() => demo.refetch()}>Try again</Button>
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  setEditedTrip({ destination: null, visited: [] })
+                }
+              >
+                Start an empty trip
+              </Button>
+            </section>
+          ) : (
+            <TripSetup
+              visited={visited}
+              destination={destination}
+              onInteract={() => setEditedTrip((current) => current ?? trip)}
+              setVisited={(next) =>
+                setEditedTrip({ destination, visited: next })
+              }
+              setDestination={(next) =>
+                setEditedTrip({ destination: next, visited })
+              }
+              submit={startTrip}
+            />
+          )}
+        </SidebarContent>
+        <SidebarFooter className="p-0">
+          Interactive prototype · Sample catalog
+        </SidebarFooter>
+      </Sidebar>
     </main>
   );
 }

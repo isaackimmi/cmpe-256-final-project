@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Check, Crosshair, LoaderCircle } from "lucide-react";
 import type { Recommendation } from "../lib/types";
 import { Skeleton } from "./ui/Skeleton";
+import { ScrollArea } from "./ui/ScrollArea";
 import { Toggle } from "./ui/Toggle";
 import { Button } from "./ui/Button";
 
@@ -108,33 +109,37 @@ export function TripResults({
           No matching places in this area.
         </div>
       )}
-      <ol className="rank-list" aria-busy={loading}>
-        {loading &&
-          !results.length &&
-          [0, 1, 2, 3].map((row) => (
-            <li key={row} aria-hidden="true">
-              <Skeleton className="loading-placeholder result-placeholder" />
+      <ScrollArea className="rank-scroll">
+        <ol className="rank-list" aria-busy={loading}>
+          {loading &&
+            !results.length &&
+            [0, 1, 2, 3].map((row) => (
+              <li key={row} aria-hidden="true">
+                <Skeleton className="loading-placeholder result-placeholder" />
+              </li>
+            ))}
+          {results.map((place) => (
+            <li key={place.id}>
+              <Button
+                variant="ghost"
+                className="h-auto justify-start whitespace-normal"
+                aria-pressed={selected?.id === place.id}
+                onClick={() => onSelect(place.id)}
+              >
+                <span className="rank">{place.rank}</span>
+                <span>
+                  <strong>{place.name}</strong>
+                  <small>
+                    {[place.category, place.locality]
+                      .filter(Boolean)
+                      .join(" · ")}
+                  </small>
+                </span>
+              </Button>
             </li>
           ))}
-        {results.map((place) => (
-          <li key={place.id}>
-            <Button
-              variant="ghost"
-              className="h-auto justify-start whitespace-normal"
-              aria-pressed={selected?.id === place.id}
-              onClick={() => onSelect(place.id)}
-            >
-              <span className="rank">{place.rank}</span>
-              <span>
-                <strong>{place.name}</strong>
-                <small>
-                  {[place.category, place.locality].filter(Boolean).join(" · ")}
-                </small>
-              </span>
-            </Button>
-          </li>
-        ))}
-      </ol>
+        </ol>
+      </ScrollArea>
       {selected && (
         <div className="detail" aria-live="polite">
           <small>About this match</small>
