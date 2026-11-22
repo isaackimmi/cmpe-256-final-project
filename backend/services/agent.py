@@ -59,9 +59,10 @@ async def refine(request: FeedbackRequest) -> FeedbackResponse:
                for i, vote in votes.items()]
     weights = await interpret(context) if context else {}
     eligible = [p for p in pool if votes.get(p.id) != "dislike"]
-    # TODO(model-serving): This category-only ordering uses Gemini weights with
-    # fixture order as the tie-breaker. Once Stage 2 returns base scores, blend
-    # calibrated session adjustments into those scores before reserving liked slots.
+    # The sample places have no model scores. Sort by the user's category
+    # preferences from Gemini. Ties keep their original catalog order.
+    # TODO(model-serving): Start with each place's Stage 2 score, adjust it
+    # for liked or disliked categories, then sort by the adjusted score.
     eligible.sort(key=lambda p: -weights.get(p.category or "Other", 0))
     liked = [i for i in current if votes.get(i) == "like"]
     ordered = [p for p in eligible if p.id not in liked][:10-len(liked)]
