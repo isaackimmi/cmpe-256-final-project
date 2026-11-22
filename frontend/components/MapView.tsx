@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as Mapbox from "react-map-gl/mapbox";
 import * as MapLibre from "react-map-gl/maplibre";
+import { MapLoading } from "./MapLoading";
 import { Button } from "./ui/Button";
 import { Crosshair, Minus, Plus } from "lucide-react";
 import { atlasCoordinate, atlases } from "./map/atlas";
@@ -18,8 +19,9 @@ interface MapViewProps {
   destinationId: string | null;
   previewDestinationId?: string | null;
   onReset?: () => void;
-  cameraRevision?: number;
-  isLoading?: boolean;
+  cameraRevision: number;
+  bounded: boolean;
+  receivedResults: boolean;
   selectedId: string | null;
   onSelect: (id: string) => void;
   onBoundsChange: (bounds: Bounds) => void;
@@ -35,8 +37,9 @@ export default function MapView({
   destinationId,
   previewDestinationId,
   onReset,
-  cameraRevision = 0,
-  isLoading,
+  cameraRevision,
+  bounded,
+  receivedResults,
   selectedId,
   onSelect,
   onBoundsChange,
@@ -44,7 +47,8 @@ export default function MapView({
 }: MapViewProps) {
   const [camera, setCamera] = useState<Camera | null>(null);
   const [mapFailed, setMapFailed] = useState(false);
-  const fittedTrip = useRef<string | null>(null);
+  const resizeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const framedRevision = useRef<number | null>(null);
   const regionId = destinationId ?? previewDestinationId ?? "demo-kyoto";
   const atlas = atlases[regionId];
   const cityLabel = atlas ? atlasCoordinate(atlas, 690, 510) : null;
@@ -63,17 +67,19 @@ export default function MapView({
   useEffect(() => {
     if (!camera) return;
     if (!destinationId) {
-      fittedTrip.current = null;
       if (setupCity.current !== regionId) showTrip(camera, regionId, []);
       setupCity.current = regionId;
       return;
     }
     setupCity.current = null;
-    const trip = JSON.stringify([destinationId, cameraRevision]);
-    if (isLoading || fittedTrip.current === trip) return;
-    fittedTrip.current = trip;
+    if (bounded || !receivedResults || framedRevision.current === cameraRevision) return;
+    framedRevision.current = cameraRevision;
     showTrip(camera, regionId, places);
-  }, [regionId, camera, cameraRevision, destinationId, isLoading, places]);
+  }, [regionId, camera, cameraRevision, destinationId, bounded, receivedResults, places]);
+
+  useEffect(() => {
+    return () => clearTimeout(resizeTimer.current);
+  }, [bounded, cameraRevision]);
 
   function resetMap() {
     if (!camera) return;
@@ -91,9 +97,21 @@ export default function MapView({
       setCamera(event.target);
       setMapFailed(false);
     },
+    onMoveStart: (event: { originalEvent?: unknown }) => {
+      // A first response can arrive before a user's gesture finishes.
+      if (destinationId && event.originalEvent) framedRevision.current = cameraRevision;
+    },
     onMoveEnd: (event: { target: Camera; originalEvent?: unknown }) => {
       if (destinationId && event.originalEvent)
         onBoundsChange(viewportBounds(event.target));
+    },
+    onResize: (event: { target: Camera }) => {
+      if (!bounded) return;
+      clearTimeout(resizeTimer.current);
+      resizeTimer.current = setTimeout(
+        () => onBoundsChange(viewportBounds(event.target)),
+        150,
+      );
     },
     onZoomEnd: (event: { target: Camera }) =>
       setLabelZoom(event.target.getZoom()),
@@ -190,6 +208,7 @@ export default function MapView({
           {content}
         </MapLibre.Map>
       )}
+      {!camera && !mapFailed && <MapLoading />}
       <div className="map-tools" role="group" aria-label="Map controls">
         <Button
           variant="ghost"

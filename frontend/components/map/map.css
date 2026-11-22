@@ -5,18 +5,18 @@
   container-type: size;
 }
 .map-label {
-  color: #60645c;
+  color: var(--maptext);
   font:
     650 max(9px, 1.125cqw, 1.64cqh)/1.05 -apple-system,
     BlinkMacSystemFont,
     "Helvetica Neue",
     sans-serif;
   paint-order: stroke fill;
-  -webkit-text-stroke: 3px #f7f6ed;
+  -webkit-text-stroke: 3px var(--maphalo);
   user-select: none;
 }
 .map-label.city-label {
-  color: #182424;
+  color: var(--ink);
   font-size: max(19px, 2.375cqw, 3.45cqh);
   letter-spacing: -0.04em;
   -webkit-text-stroke-width: 5px;
@@ -26,18 +26,8 @@
   letter-spacing: 0.12em;
 }
 .map-label.river {
-  color: #357d94;
+  color: var(--river);
   font-style: italic;
-}
-:root[data-theme="dark"] .map-label {
-  color: #bac7c6;
-  -webkit-text-stroke-color: #252c34;
-}
-:root[data-theme="dark"] .map-label.city-label {
-  color: #eef4f2;
-}
-:root[data-theme="dark"] .map-label.river {
-  color: #85c8df;
 }
 .map-pin {
   display: block;

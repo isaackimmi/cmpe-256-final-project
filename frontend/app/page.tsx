@@ -10,7 +10,7 @@ import { ExploreMenu } from "../components/ExploreMenu";
 import { PlannerLoading } from "../components/PlannerLoading";
 import { TripResults } from "../components/TripResults";
 import { TripSetup } from "../components/TripSetup";
-import { Skeleton } from "../components/ui/Skeleton";
+import { MapLoading } from "../components/MapLoading";
 import { Button } from "../components/ui/Button";
 import { useDemoTrip } from "../hooks/useDemoTrip";
 import { useRecommendations } from "../hooks/useRecommendations";
@@ -80,17 +80,11 @@ export default function Home() {
         className="map-region"
         aria-label="Recommendation map"
       >
-        <Suspense
-          fallback={
-            <div className="absolute inset-0" role="status">
-              <span className="sr-only">Loading map…</span>
-              <Skeleton aria-hidden="true" className="loading-placeholder h-full w-full" />
-            </div>
-          }
-        >
+        <Suspense fallback={<MapLoading />}>
           <MapView
             cameraRevision={cameraRevision}
-            isLoading={recommendations.isFetching}
+            receivedResults={recommendations.isSuccess}
+            bounded={Boolean(request?.bounds)}
             results={request ? results : []}
             destinationId={request?.tripworld_region_id ?? null}
             previewDestinationId={destination?.id ?? null}
