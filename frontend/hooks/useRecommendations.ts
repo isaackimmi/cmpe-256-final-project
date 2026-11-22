@@ -38,5 +38,12 @@ export function useRecommendations(request: RecommendationRequest | null) {
   const data =
     query.data ??
     (tripKey && last?.tripKey === tripKey ? last.data : undefined);
-  return { ...query, data };
+  return {
+    data,
+    isFetching: query.isFetching,
+    isPaused: query.isPaused,
+    isSuccess: query.isSuccess,
+    isError: query.isError,
+    refetch: query.refetch,
+  };
 }

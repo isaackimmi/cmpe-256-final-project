@@ -5,10 +5,12 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchJson } from "../lib/api";
 import type { Destination, Place, SearchPage } from "../lib/types";
 
+export const SEARCH_TERM_MAX_LENGTH = 200;
+
 function useCatalogSearch<T>(
   catalog: "places" | "destinations",
   text: string,
-  active = false,
+  active = text.trim().length > 0,
 ) {
   const term = text.trim();
   const [settledTerm, setSettledTerm] = useState(term);
@@ -20,7 +22,7 @@ function useCatalogSearch<T>(
 
   return useInfiniteQuery({
     queryKey: ["search", catalog, term],
-    enabled: (active || term.length > 0) && term === settledTerm,
+    enabled: active && term === settledTerm,
     initialPageParam: 0,
     queryFn: ({ pageParam, signal }) => {
       const params = new URLSearchParams({
@@ -36,10 +38,10 @@ function useCatalogSearch<T>(
   });
 }
 
-export function usePlaceSearch(text: string, active = false) {
+export function usePlaceSearch(text: string, active?: boolean) {
   return useCatalogSearch<Place>("places", text, active);
 }
 
-export function useDestinationSearch(text: string, active = false) {
+export function useDestinationSearch(text: string, active?: boolean) {
   return useCatalogSearch<Destination>("destinations", text, active);
 }
