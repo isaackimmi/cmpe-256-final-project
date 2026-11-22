@@ -1,0 +1,74 @@
+.map-label {
+  color: var(--maptext);
+  font:
+    650 max(9px, 1.125cqw, 1.64cqh)/1.05 -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    sans-serif;
+  paint-order: stroke fill;
+  -webkit-text-stroke: 3px var(--maphalo);
+  user-select: none;
+}
+.map-label.city-label {
+  color: var(--ink);
+  font-size: max(19px, 2.375cqw, 3.45cqh);
+  letter-spacing: -0.04em;
+  -webkit-text-stroke-width: 5px;
+}
+.map-label.district {
+  font-size: max(9px, 1.06cqw, 1.55cqh);
+  letter-spacing: 0.12em;
+}
+.map-label.river {
+  color: var(--river);
+  font-style: italic;
+}
+.map-pin {
+  display: block;
+  width: 40px;
+  height: 46px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.map-pin svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.map-pin path {
+  fill: #2675dc;
+  stroke: white;
+  stroke-width: 2.4;
+}
+.map-pin .pin-halo {
+  fill: #247bef;
+  opacity: 0;
+  transition: opacity 140ms ease-out;
+}
+.map-pin text {
+  fill: white;
+  font:
+    700 17px -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+.map-pin:hover path,
+.map-pin[aria-pressed="true"] path {
+  fill: #004fbf;
+  stroke-width: 3.5;
+}
+.map-pin[aria-pressed="true"] .pin-halo {
+  opacity: 0.2;
+}
+.map-pin:focus-visible {
+  outline: 3px solid #0865db;
+  border-radius: 12px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .map-pin .pin-halo {
+    transition: none;
+  }
+}
