@@ -306,8 +306,7 @@ body {
   border-radius: 10px;
   padding: 8px;
 }
-.rank-list button[aria-pressed="true"],
-.feedback button[aria-pressed="true"] {
+.rank-list button[aria-pressed="true"] {
   background: var(--tint);
   color: var(--blue);
 }
@@ -325,31 +324,6 @@ body {
   border-color: transparent;
   background: #0865db;
   color: white;
-}
-.detail {
-  border-top: 1px solid var(--edge);
-  margin-top: 15px;
-  padding-top: 16px;
-}
-.detail > small {
-  font-size: 12px;
-  color: var(--muted);
-}
-.detail h2 {
-  margin: 4px 0;
-}
-.feedback {
-  display: flex;
-  gap: 7px;
-}
-.feedback button {
-  display: flex;
-  align-items: center;
-  background: var(--surface);
-  border: 1px solid var(--edge);
-  border-radius: 8px;
-  padding: 4px 12px;
-  font-size: 13px;
 }
 .map-region {
   position: absolute;
@@ -467,10 +441,6 @@ body {
 .primary {
   height: auto;
 }
-.feedback button {
-  height: auto;
-  gap: 4px;
-}
 .theme {
   height: auto;
 }
@@ -564,9 +534,6 @@ body {
 }
 .field-placeholder {
   height: 43px;
-}
-.result-placeholder {
-  height: 46px;
 }
 
 /* Radix owns scrolling in the viewport, including thumb and keyboard input. */

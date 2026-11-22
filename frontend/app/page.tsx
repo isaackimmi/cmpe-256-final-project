@@ -5,12 +5,12 @@ import { Compass, Moon, Sun } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
 } from "../components/ui/Sidebar";
 import { ExploreMenu } from "../components/ExploreMenu";
 import { PlannerLoading } from "../components/PlannerLoading";
 import { TripResults } from "../components/TripResults";
 import { TripSetup } from "../components/TripSetup";
+import { Skeleton } from "../components/ui/Skeleton";
 import { Button } from "../components/ui/Button";
 import { useDemoTrip } from "../hooks/useDemoTrip";
 import { useRecommendations } from "../hooks/useRecommendations";
@@ -82,8 +82,9 @@ export default function Home() {
       >
         <Suspense
           fallback={
-            <div className="notice" role="status">
-              Loading map…
+            <div className="absolute inset-0" role="status">
+              <span className="sr-only">Loading map…</span>
+              <Skeleton aria-hidden="true" className="loading-placeholder h-full w-full" />
             </div>
           }
         >
@@ -154,9 +155,6 @@ export default function Home() {
             />
           )}
         </SidebarContent>
-        <SidebarFooter className="p-0">
-          Interactive prototype · Sample catalog
-        </SidebarFooter>
       </Sidebar>
     </main>
   );
