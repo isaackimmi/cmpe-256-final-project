@@ -1,8 +1,9 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
-import { LoaderCircle, Search } from "lucide-react";
-import { Input } from "./ui/Input";
+import { useId, useRef } from "react";
+import { LoaderCircle } from "lucide-react";
+import { Command, CommandInput, CommandList, CommandItem } from "./ui/Command";
+import { Label } from "./ui/Label";
 import { Button } from "./ui/Button";
 
 type Option = { id: string; name: string };
@@ -32,8 +33,6 @@ export function SearchField<T extends Option>(props: Props<T>) {
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
   const { expanded, onOpenChange: setOpen } = props;
-  const [active, setActive] = useState(-1);
-  const optionsId = id + "-options";
 
   // The action button can disappear when the query succeeds or reaches its final page.
   function runSearchAction(action: () => void) {
@@ -45,85 +44,61 @@ export function SearchField<T extends Option>(props: Props<T>) {
     onSelect(item);
     setText("");
     setOpen(false);
-    setActive(-1);
   }
 
   return (
-    <div
-      className="search-field"
+    <Command
+      label={props.label}
+      shouldFilter={false}
+      className="search-field h-auto overflow-visible"
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}
     >
-      <label
+      <Label
         className={props.hideLabel ? "sr-only" : "section-title"}
         htmlFor={id}
       >
         {props.label}
-      </label>
-      <div className="field">
-        <Search size={17} aria-hidden />
-        <Input
-          autoFocus={props.autoFocus}
-          ref={input}
-          id={id}
-          autoComplete="off"
-          role="combobox"
-          aria-autocomplete="list"
-          aria-controls={expanded ? optionsId : undefined}
-          aria-expanded={expanded}
-          aria-activedescendant={
-            expanded && items[active] ? id + "-" + active : undefined
+      </Label>
+      <CommandInput
+        autoFocus={props.autoFocus}
+        ref={input}
+        id={id}
+        aria-label={props.label}
+        aria-expanded={expanded}
+        value={text}
+        placeholder={props.placeholder}
+        onValueChange={(value) => {
+          setText(value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        onClick={() => setOpen(true)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            setOpen(false);
+            event.stopPropagation();
           }
-          value={text}
-          placeholder={props.placeholder}
-          onFocus={() => setOpen(true)}
-          onClick={() => setOpen(true)}
-          onChange={(event) => {
-            setText(event.target.value);
-            setActive(-1);
+          if (event.key === "ArrowDown" || event.key === "ArrowUp")
             setOpen(true);
-          }}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") {
-              setOpen(false);
-              return;
-            }
-            if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-              event.preventDefault();
-              setOpen(true);
-              const next =
-                event.key === "ArrowDown"
-                  ? Math.min(active + 1, items.length - 1)
-                  : Math.max(0, active - 1);
-              setActive(next);
-              document
-                .getElementById(id + "-" + next)
-                ?.scrollIntoView({ block: "nearest" });
-            } else if (expanded && event.key === "Enter" && items[active]) {
-              event.preventDefault();
-              choose(items[active]);
-            }
-          }}
-        />
-      </div>
+        }}
+      />
       {expanded && (
         <div className="dropdown">
-          <ul id={optionsId} role="listbox" aria-label={props.label}>
-            {items.map((item, index) => (
-              <li
+          <CommandList label={props.label} className="overflow-visible">
+            {items.map((item) => (
+              <CommandItem
                 key={item.id}
-                id={id + "-" + index}
-                role="option"
-                aria-selected={index === active}
+                value={item.id}
                 onMouseDown={(event) => event.preventDefault()}
-                onClick={() => choose(item)}
+                onSelect={() => choose(item)}
               >
                 <span>{item.name}</span>
                 {detail && <small>{detail(item)}</small>}
-              </li>
+              </CommandItem>
             ))}
-          </ul>
+          </CommandList>
           {props.failed ? (
             <div className="dropdown-note" role="status">
               Search failed.{" "}
@@ -157,6 +132,6 @@ export function SearchField<T extends Option>(props: Props<T>) {
           )}
         </div>
       )}
-    </div>
+    </Command>
   );
 }
