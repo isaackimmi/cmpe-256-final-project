@@ -1,0 +1,1305 @@
+{
+  "tables": {
+    "travel": {
+      "row_count": 518567,
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "BIGINT"
+        },
+        {
+          "name": "r_h",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "r_o",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "n_home_ci",
+          "type": "BIGINT"
+        },
+        {
+          "name": "n_travel_ci",
+          "type": "BIGINT"
+        },
+        {
+          "name": "c_h",
+          "type": "STRUCT(trail_id BIGINT, venue_id VARCHAR, venue_category VARCHAR, venue_schema VARCHAR, ts TIMESTAMP WITH TIME ZONE)[]"
+        },
+        {
+          "name": "c_o",
+          "type": "STRUCT(trail_id BIGINT, venue_id VARCHAR, venue_category VARCHAR, venue_schema VARCHAR, ts TIMESTAMP WITH TIME ZONE)[]"
+        }
+      ]
+    },
+    "pois": {
+      "row_count": 687173,
+      "columns": [
+        {
+          "name": "fsq_place_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "locality",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "venue_category",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "venue_schema",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "n_checkins",
+          "type": "BIGINT"
+        },
+        {
+          "name": "n_users_visited",
+          "type": "BIGINT"
+        },
+        {
+          "name": "google_cid",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "google_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "google_full_address",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "google_address",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "google_website",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "google_rating",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "google_num_reviews",
+          "type": "BIGINT"
+        },
+        {
+          "name": "google_categories",
+          "type": "VARCHAR[]"
+        },
+        {
+          "name": "google_place_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "google_gmaps_url",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "google_meta_source",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "has_google_metadata",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "n_reviews",
+          "type": "BIGINT"
+        },
+        {
+          "name": "n_reviews_with_text",
+          "type": "BIGINT"
+        },
+        {
+          "name": "review_source",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "has_reviews",
+          "type": "BOOLEAN"
+        }
+      ]
+    },
+    "meta": {
+      "row_count": 687173,
+      "columns": [
+        {
+          "name": "fsq_place_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "benchmark_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "benchmark_locality",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "benchmark_venue_category",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "benchmark_venue_schema",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "fsq_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "fsq_latitude",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "fsq_longitude",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "fsq_address",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "fsq_locality",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "fsq_region",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "fsq_country",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "fsq_postcode",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "fsq_formatted_address",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "fsq_category_ids",
+          "type": "VARCHAR[]"
+        },
+        {
+          "name": "fsq_category_labels",
+          "type": "VARCHAR[]"
+        },
+        {
+          "name": "fsq_website",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "fsq_date_created",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "fsq_date_refreshed",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "fsq_date_closed",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "fsq_meta_source",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "has_fsq_metadata",
+          "type": "BOOLEAN"
+        },
+        {
+          "name": "google_cid",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "google_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "google_full_address",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "google_address",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "google_website",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "google_rating",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "google_num_reviews",
+          "type": "BIGINT"
+        },
+        {
+          "name": "google_categories",
+          "type": "VARCHAR[]"
+        },
+        {
+          "name": "google_place_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "google_gmaps_url",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "google_meta_source",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "has_google_metadata",
+          "type": "BOOLEAN"
+        }
+      ]
+    },
+    "attrs": {
+      "row_count": 28776,
+      "columns": [
+        {
+          "name": "fsq_place_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "google_cid",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "search_query",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "match_dist_m",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "match_name_sim",
+          "type": "DOUBLE"
+        },
+        {
+          "name": "description_short",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "description_long",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "hours_today",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "hours_week",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "price_token",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "price_min",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "price_max",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "attributes",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "n_inline_reviews",
+          "type": "BIGINT"
+        },
+        {
+          "name": "fetched_at",
+          "type": "VARCHAR"
+        }
+      ]
+    },
+    "regions": {
+      "row_count": 1173,
+      "columns": [
+        {
+          "name": "region_id",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "city_name",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "country_qid",
+          "type": "VARCHAR"
+        },
+        {
+          "name": "country_name",
+          "type": "VARCHAR"
+        }
+      ]
+    }
+  },
+  "headline": {
+    "total_trip_records": 518567,
+    "unique_travelers": 148402,
+    "unique_home_cities": 723,
+    "unique_dest_cities": 1165,
+    "total_home_checkins_sum": 26316178,
+    "total_travel_checkins_sum": 2764448,
+    "avg_home_ci": 50.75,
+    "median_home_ci": 27.0,
+    "avg_travel_ci": 5.33,
+    "median_travel_ci": 3.0,
+    "p90_travel_ci": 10.0,
+    "max_travel_ci": 744
+  },
+  "user_stats": {
+    "unique_users": 148402,
+    "avg_dest_cities_per_user": 3.49,
+    "median_dest_cities_per_user": 2.0,
+    "max_dest_cities_per_user": 104,
+    "deduplicated_home_checkins": 4651771,
+    "total_travel_checkins": 2764448,
+    "users_ge_3_travel_ci": 126116,
+    "users_ge_5_travel_ci": 104116,
+    "users_ge_2_dest_cities": 96763
+  },
+  "poi_quality": {
+    "total_pois": 687173,
+    "unique_localities": 1260,
+    "with_google_meta": 566798,
+    "pct_google_meta": 82.48,
+    "with_reviews": 524530,
+    "pct_reviews": 76.33,
+    "with_google_name": 566798,
+    "with_google_rating": 525573,
+    "avg_google_rating": 3.98,
+    "total_reviews_sum": 186733889,
+    "total_reviews_with_text_sum": 135332949,
+    "median_poi_checkins": 4.0,
+    "avg_poi_checkins": 14.45
+  },
+  "meta_quality": {
+    "total_rows": 687173,
+    "with_fsq_name": 687165,
+    "with_gps": 687165,
+    "closed_pois": 33877,
+    "with_any_name": 687170
+  },
+  "top_countries_dest": [
+    {
+      "country_name": "Japan",
+      "trips": 311590,
+      "unique_visitors": 64848,
+      "cities_in_country": 486
+    },
+    {
+      "country_name": "Turkey",
+      "trips": 73488,
+      "unique_visitors": 32430,
+      "cities_in_country": 170
+    },
+    {
+      "country_name": "Malaysia",
+      "trips": 43224,
+      "unique_visitors": 13468,
+      "cities_in_country": 88
+    },
+    {
+      "country_name": "Kuwait",
+      "trips": 18487,
+      "unique_visitors": 9523,
+      "cities_in_country": 12
+    },
+    {
+      "country_name": "Thailand",
+      "trips": 13899,
+      "unique_visitors": 6749,
+      "cities_in_country": 50
+    },
+    {
+      "country_name": "Brazil",
+      "trips": 11896,
+      "unique_visitors": 6609,
+      "cities_in_country": 49
+    },
+    {
+      "country_name": "Saudi Arabia",
+      "trips": 7542,
+      "unique_visitors": 6356,
+      "cities_in_country": 14
+    },
+    {
+      "country_name": "Mexico",
+      "trips": 7068,
+      "unique_visitors": 3622,
+      "cities_in_country": 48
+    },
+    {
+      "country_name": "United States",
+      "trips": 5432,
+      "unique_visitors": 3379,
+      "cities_in_country": 68
+    },
+    {
+      "country_name": "Philippines",
+      "trips": 3220,
+      "unique_visitors": 2002,
+      "cities_in_country": 24
+    },
+    {
+      "country_name": "Taiwan",
+      "trips": 2329,
+      "unique_visitors": 1308,
+      "cities_in_country": 5
+    },
+    {
+      "country_name": "United Arab Emirates",
+      "trips": 2189,
+      "unique_visitors": 2158,
+      "cities_in_country": 2
+    },
+    {
+      "country_name": "United Kingdom",
+      "trips": 1900,
+      "unique_visitors": 1546,
+      "cities_in_country": 9
+    },
+    {
+      "country_name": "South Korea",
+      "trips": 1825,
+      "unique_visitors": 1210,
+      "cities_in_country": 6
+    },
+    {
+      "country_name": "Paraguay",
+      "trips": 1754,
+      "unique_visitors": 823,
+      "cities_in_country": 10
+    }
+  ],
+  "top_dest_cities": [
+    {
+      "region_id": "Q35765",
+      "city_name": "Osaka",
+      "country_name": "Japan",
+      "inbound_trips": 19726,
+      "travel_checkins": 164506,
+      "avg_ci_per_trip": 8.34
+    },
+    {
+      "region_id": "Q1490",
+      "city_name": "Tokyo",
+      "country_name": "Japan",
+      "inbound_trips": 14248,
+      "travel_checkins": 164969,
+      "avg_ci_per_trip": 11.58
+    },
+    {
+      "region_id": "Q11751",
+      "city_name": "Nagoya",
+      "country_name": "Japan",
+      "inbound_trips": 12039,
+      "travel_checkins": 92034,
+      "avg_ci_per_trip": 7.64
+    },
+    {
+      "region_id": "Q406",
+      "city_name": "Istanbul",
+      "country_name": "Turkey",
+      "inbound_trips": 7535,
+      "travel_checkins": 54089,
+      "avg_ci_per_trip": 7.18
+    },
+    {
+      "region_id": "Q26600",
+      "city_name": "Fukuoka",
+      "country_name": "Japan",
+      "inbound_trips": 6255,
+      "travel_checkins": 45209,
+      "avg_ci_per_trip": 7.23
+    },
+    {
+      "region_id": "Q35997",
+      "city_name": "\u0130zmir",
+      "country_name": "Turkey",
+      "inbound_trips": 5011,
+      "travel_checkins": 36267,
+      "avg_ci_per_trip": 7.24
+    },
+    {
+      "region_id": "Q46747",
+      "city_name": "Sendai",
+      "country_name": "Japan",
+      "inbound_trips": 4679,
+      "travel_checkins": 27889,
+      "avg_ci_per_trip": 5.96
+    },
+    {
+      "region_id": "Q37951",
+      "city_name": "Sapporo",
+      "country_name": "Japan",
+      "inbound_trips": 4529,
+      "travel_checkins": 36044,
+      "avg_ci_per_trip": 7.96
+    },
+    {
+      "region_id": "Q49355990",
+      "city_name": "Q49355990",
+      "country_name": "Japan",
+      "inbound_trips": 4140,
+      "travel_checkins": 21563,
+      "avg_ci_per_trip": 5.21
+    },
+    {
+      "region_id": "Q49353821",
+      "city_name": "Q49353821",
+      "country_name": "Japan",
+      "inbound_trips": 4139,
+      "travel_checkins": 21101,
+      "avg_ci_per_trip": 5.1
+    },
+    {
+      "region_id": "Q31873774",
+      "city_name": "Al Khafj\u012b",
+      "country_name": "Saudi Arabia",
+      "inbound_trips": 4013,
+      "travel_checkins": 21114,
+      "avg_ci_per_trip": 5.26
+    },
+    {
+      "region_id": "Q1865",
+      "city_name": "Kuala Lumpur",
+      "country_name": "Malaysia",
+      "inbound_trips": 3807,
+      "travel_checkins": 27544,
+      "avg_ci_per_trip": 7.24
+    },
+    {
+      "region_id": "Q2670720",
+      "city_name": "Kar\u015f\u0131yaka district",
+      "country_name": "Turkey",
+      "inbound_trips": 3527,
+      "travel_checkins": 23917,
+      "avg_ci_per_trip": 6.78
+    },
+    {
+      "region_id": "Q49755153",
+      "city_name": "Q49755153",
+      "country_name": "Malaysia",
+      "inbound_trips": 3486,
+      "travel_checkins": 17830,
+      "avg_ci_per_trip": 5.11
+    },
+    {
+      "region_id": "Q894012",
+      "city_name": "Bornova district",
+      "country_name": "Turkey",
+      "inbound_trips": 3462,
+      "travel_checkins": 22829,
+      "avg_ci_per_trip": 6.59
+    }
+  ],
+  "top_corridors": [
+    {
+      "home_city": "Tokyo",
+      "home_country": "Japan",
+      "dest_city": "Osaka",
+      "dest_country": "Japan",
+      "trips": 12488,
+      "travel_checkins": 108818
+    },
+    {
+      "home_city": "Tokyo",
+      "home_country": "Japan",
+      "dest_city": "Nagoya",
+      "dest_country": "Japan",
+      "trips": 8357,
+      "travel_checkins": 65001
+    },
+    {
+      "home_city": "Tokyo",
+      "home_country": "Japan",
+      "dest_city": "Fukuoka",
+      "dest_country": "Japan",
+      "trips": 4121,
+      "travel_checkins": 29088
+    },
+    {
+      "home_city": "Kuwait City",
+      "home_country": "Kuwait",
+      "dest_city": "Al Khafj\u012b",
+      "dest_country": "Saudi Arabia",
+      "trips": 3957,
+      "travel_checkins": 20926
+    },
+    {
+      "home_city": "Tokyo",
+      "home_country": "Japan",
+      "dest_city": "Q49355990",
+      "dest_country": "Japan",
+      "trips": 3894,
+      "travel_checkins": 20673
+    },
+    {
+      "home_city": "Osaka",
+      "home_country": "Japan",
+      "dest_city": "Tokyo",
+      "dest_country": "Japan",
+      "trips": 3892,
+      "travel_checkins": 50114
+    },
+    {
+      "home_city": "Tokyo",
+      "home_country": "Japan",
+      "dest_city": "Q49353821",
+      "dest_country": "Japan",
+      "trips": 3865,
+      "travel_checkins": 19989
+    },
+    {
+      "home_city": "Tokyo",
+      "home_country": "Japan",
+      "dest_city": "Sendai",
+      "dest_country": "Japan",
+      "trips": 3853,
+      "travel_checkins": 22979
+    },
+    {
+      "home_city": "Tokyo",
+      "home_country": "Japan",
+      "dest_city": "Sapporo",
+      "dest_country": "Japan",
+      "trips": 3598,
+      "travel_checkins": 28405
+    },
+    {
+      "home_city": "Kuwait City",
+      "home_country": "Kuwait",
+      "dest_city": "Salwa",
+      "dest_country": "Kuwait",
+      "trips": 2744,
+      "travel_checkins": 14514
+    },
+    {
+      "home_city": "Kuala Lumpur",
+      "home_country": "Malaysia",
+      "dest_city": "Q49755153",
+      "dest_country": "Malaysia",
+      "trips": 2619,
+      "travel_checkins": 13912
+    },
+    {
+      "home_city": "Tokyo",
+      "home_country": "Japan",
+      "dest_city": "Numazu",
+      "dest_country": "Japan",
+      "trips": 2517,
+      "travel_checkins": 16764
+    },
+    {
+      "home_city": "Kuwait City",
+      "home_country": "Kuwait",
+      "dest_city": "Bayan",
+      "dest_country": "Kuwait",
+      "trips": 2402,
+      "travel_checkins": 14506
+    },
+    {
+      "home_city": "Tokyo",
+      "home_country": "Japan",
+      "dest_city": "Chiba",
+      "dest_country": "Japan",
+      "trips": 2366,
+      "travel_checkins": 12405
+    },
+    {
+      "home_city": "Tokyo",
+      "home_country": "Japan",
+      "dest_city": "Matsudo",
+      "dest_country": "Japan",
+      "trips": 2359,
+      "travel_checkins": 11195
+    }
+  ],
+  "top_europe_cities": [
+    {
+      "region_id": "Q406",
+      "city_name": "Istanbul",
+      "country_name": "Turkey",
+      "inbound_trips": 7535,
+      "travel_checkins": 54089,
+      "total_pois": 20943
+    },
+    {
+      "region_id": "Q35997",
+      "city_name": "\u0130zmir",
+      "country_name": "Turkey",
+      "inbound_trips": 5011,
+      "travel_checkins": 36267,
+      "total_pois": 5320
+    },
+    {
+      "region_id": "Q2670720",
+      "city_name": "Kar\u015f\u0131yaka district",
+      "country_name": "Turkey",
+      "inbound_trips": 3527,
+      "travel_checkins": 23917,
+      "total_pois": 2244
+    },
+    {
+      "region_id": "Q894012",
+      "city_name": "Bornova district",
+      "country_name": "Turkey",
+      "inbound_trips": 3462,
+      "travel_checkins": 22829,
+      "total_pois": 1884
+    },
+    {
+      "region_id": "Q857056",
+      "city_name": "Pendik",
+      "country_name": "Turkey",
+      "inbound_trips": 3260,
+      "travel_checkins": 12307,
+      "total_pois": 691
+    },
+    {
+      "region_id": "Q3640",
+      "city_name": "Ankara",
+      "country_name": "Turkey",
+      "inbound_trips": 3025,
+      "travel_checkins": 16875,
+      "total_pois": 2710
+    },
+    {
+      "region_id": "Q40738",
+      "city_name": "Bursa",
+      "country_name": "Turkey",
+      "inbound_trips": 1781,
+      "travel_checkins": 9780,
+      "total_pois": 2548
+    },
+    {
+      "region_id": "Q49349820",
+      "city_name": "Esenler",
+      "country_name": "Turkey",
+      "inbound_trips": 1737,
+      "travel_checkins": 9177,
+      "total_pois": 785
+    },
+    {
+      "region_id": "Q739547",
+      "city_name": "Maltepe",
+      "country_name": "Turkey",
+      "inbound_trips": 1541,
+      "travel_checkins": 9546,
+      "total_pois": 1130
+    },
+    {
+      "region_id": "Q1503514",
+      "city_name": "Muratpa\u015fa district",
+      "country_name": "Turkey",
+      "inbound_trips": 1476,
+      "travel_checkins": 9637,
+      "total_pois": 1895
+    },
+    {
+      "region_id": "Q1020646",
+      "city_name": "\u00c7ankaya district",
+      "country_name": "Turkey",
+      "inbound_trips": 1395,
+      "travel_checkins": 8120,
+      "total_pois": 1399
+    },
+    {
+      "region_id": "Q941328",
+      "city_name": "Ala\u00e7at\u0131",
+      "country_name": "Turkey",
+      "inbound_trips": 1359,
+      "travel_checkins": 5781,
+      "total_pois": 528
+    },
+    {
+      "region_id": "Q49349822",
+      "city_name": "Esenyurt",
+      "country_name": "Turkey",
+      "inbound_trips": 1232,
+      "travel_checkins": 6812,
+      "total_pois": 813
+    },
+    {
+      "region_id": "Q84",
+      "city_name": "London",
+      "country_name": "United Kingdom",
+      "inbound_trips": 1176,
+      "travel_checkins": 8001,
+      "total_pois": 1845
+    },
+    {
+      "region_id": "Q168866",
+      "city_name": "Eski\u015fehir",
+      "country_name": "Turkey",
+      "inbound_trips": 1171,
+      "travel_checkins": 5612,
+      "total_pois": 1609
+    }
+  ],
+  "lisbon_madrid_cities": [
+    {
+      "region_id": "Q84",
+      "city_name": "London",
+      "country_name": "United Kingdom",
+      "total_pois": 1845,
+      "museum_art_pois": 109,
+      "outbound_trips": 826,
+      "inbound_trips": 1176,
+      "inbound_checkins": 8001
+    },
+    {
+      "region_id": "Q727",
+      "city_name": "Amsterdam",
+      "country_name": "Netherlands",
+      "total_pois": 737,
+      "museum_art_pois": 37,
+      "outbound_trips": 79,
+      "inbound_trips": 170,
+      "inbound_checkins": 755
+    },
+    {
+      "region_id": "Q64",
+      "city_name": "Berlin",
+      "country_name": "Germany",
+      "total_pois": 647,
+      "museum_art_pois": 41,
+      "outbound_trips": 40,
+      "inbound_trips": 81,
+      "inbound_checkins": 407
+    },
+    {
+      "region_id": "Q2807",
+      "city_name": "Madrid",
+      "country_name": "Spain",
+      "total_pois": 374,
+      "museum_art_pois": 26,
+      "outbound_trips": 0,
+      "inbound_trips": 67,
+      "inbound_checkins": 278
+    }
+  ],
+  "lisbon_madrid_pair": [],
+  "lisbon_museums": [],
+  "madrid_museums": [
+    {
+      "name": "Museo Thyssen-Bornemisza",
+      "venue_category": "4bf58dd8d48988d18f941735",
+      "venue_schema": "schema:Museum",
+      "n_checkins": 15,
+      "google_rating": null,
+      "google_num_reviews": null
+    },
+    {
+      "name": "Espacio Fundaci\u00f3n Telef\u00f3nica",
+      "venue_category": "4bf58dd8d48988d18f941735",
+      "venue_schema": "schema:Museum",
+      "n_checkins": 10,
+      "google_rating": 4.6,
+      "google_num_reviews": 7627
+    },
+    {
+      "name": "Museo de Historia (Museo Municipal de Madrid)",
+      "venue_category": "4bf58dd8d48988d190941735",
+      "venue_schema": "schema:Museum",
+      "n_checkins": 4,
+      "google_rating": null,
+      "google_num_reviews": null
+    },
+    {
+      "name": "Museo Naval de Madrid",
+      "venue_category": "4bf58dd8d48988d190941735",
+      "venue_schema": "schema:Museum",
+      "n_checkins": 2,
+      "google_rating": null,
+      "google_num_reviews": null
+    },
+    {
+      "name": "Real Academia de Bellas Artes de San Fernando",
+      "venue_category": "4bf58dd8d48988d18f941735",
+      "venue_schema": "schema:Museum",
+      "n_checkins": 2,
+      "google_rating": null,
+      "google_num_reviews": null
+    }
+  ],
+  "top_venue_categories": [
+    {
+      "venue_category": "4bf58dd8d48988d129951735",
+      "poi_count": 8071,
+      "total_checkins": 1181257,
+      "avg_rating": 3.74
+    },
+    {
+      "venue_category": "4bf58dd8d48988d1fd941735",
+      "poi_count": 7208,
+      "total_checkins": 510168,
+      "avg_rating": 4.02
+    },
+    {
+      "venue_category": "4bf58dd8d48988d16d941735",
+      "poi_count": 26264,
+      "total_checkins": 406474,
+      "avg_rating": 4.05
+    },
+    {
+      "venue_category": "4bf58dd8d48988d1e0931735",
+      "poi_count": 15838,
+      "total_checkins": 351735,
+      "avg_rating": 4.08
+    },
+    {
+      "venue_category": "4f2a25ac4b909258e854f55f",
+      "poi_count": 7282,
+      "total_checkins": 263818,
+      "avg_rating": 4.22
+    },
+    {
+      "venue_category": "4d954b16a243a5684b65b473",
+      "poi_count": 2596,
+      "total_checkins": 235940,
+      "avg_rating": 3.66
+    },
+    {
+      "venue_category": "4bf58dd8d48988d1ed931735",
+      "poi_count": 409,
+      "total_checkins": 233606,
+      "avg_rating": 4.09
+    },
+    {
+      "venue_category": "55a59bace4b013909087cb24",
+      "poi_count": 15000,
+      "total_checkins": 220243,
+      "avg_rating": 3.82
+    },
+    {
+      "venue_category": "4bf58dd8d48988d103941735",
+      "poi_count": 19197,
+      "total_checkins": 159381,
+      "avg_rating": 4.41
+    },
+    {
+      "venue_category": "4bf58dd8d48988d1fd931735",
+      "poi_count": 2493,
+      "total_checkins": 150413,
+      "avg_rating": 3.95
+    },
+    {
+      "venue_category": "4d954b0ea243a5684a65b473",
+      "poi_count": 23504,
+      "total_checkins": 136860,
+      "avg_rating": 3.15
+    },
+    {
+      "venue_category": "4bf58dd8d48988d1c4941735",
+      "poi_count": 12287,
+      "total_checkins": 119246,
+      "avg_rating": 3.97
+    },
+    {
+      "venue_category": "50aa9e094b90af0d42d5de0d",
+      "poi_count": 2259,
+      "total_checkins": 117197,
+      "avg_rating": 4.13
+    },
+    {
+      "venue_category": "4bf58dd8d48988d1ae941735",
+      "poi_count": 3637,
+      "total_checkins": 111709,
+      "avg_rating": 4.16
+    },
+    {
+      "venue_category": "4bf58dd8d48988d116941735",
+      "poi_count": 9887,
+      "total_checkins": 103049,
+      "avg_rating": 4.25
+    }
+  ],
+  "top_venue_schemas": [
+    {
+      "venue_schema": "schema:Restaurant",
+      "poi_count": 143974,
+      "total_checkins": 1203223
+    },
+    {
+      "venue_schema": "schema:CivicStructure",
+      "poi_count": 51935,
+      "total_checkins": 900073
+    },
+    {
+      "venue_schema": "schema:FoodEstablishment",
+      "poi_count": 51536,
+      "total_checkins": 440536
+    },
+    {
+      "venue_schema": "schema:CafeOrCoffeeShop",
+      "poi_count": 43911,
+      "total_checkins": 778564
+    },
+    {
+      "venue_schema": "schema:BarOrPub",
+      "poi_count": 35121,
+      "total_checkins": 360644
+    },
+    {
+      "venue_schema": "schema:LocalBusiness",
+      "poi_count": 25602,
+      "total_checkins": 175665
+    },
+    {
+      "venue_schema": "schema:ConvenienceStore",
+      "poi_count": 23504,
+      "total_checkins": 136860
+    },
+    {
+      "venue_schema": "schema:House",
+      "poi_count": 19197,
+      "total_checkins": 159381
+    },
+    {
+      "venue_schema": "schema:ApartmentComplex",
+      "poi_count": 16054,
+      "total_checkins": 119619
+    },
+    {
+      "venue_schema": "schema:Hotel",
+      "poi_count": 14038,
+      "total_checkins": 97331
+    },
+    {
+      "venue_schema": "schema:Store",
+      "poi_count": 10747,
+      "total_checkins": 96547
+    },
+    {
+      "venue_schema": "schema:TrainStation",
+      "poi_count": 10492,
+      "total_checkins": 1224059
+    }
+  ],
+  "trip_length_buckets": [
+    {
+      "bucket": "2 check-ins",
+      "trips": 203265,
+      "sort_key": 2
+    },
+    {
+      "bucket": "3-5 check-ins",
+      "trips": 191424,
+      "sort_key": 3
+    },
+    {
+      "bucket": "6-10 check-ins",
+      "trips": 74529,
+      "sort_key": 6
+    },
+    {
+      "bucket": "11-20 check-ins",
+      "trips": 32966,
+      "sort_key": 11
+    },
+    {
+      "bucket": "21+ check-ins",
+      "trips": 16383,
+      "sort_key": 21
+    }
+  ],
+  "sample_traveler": {
+    "user_id": "13436",
+    "home_city": "Tokyo, Japan",
+    "dest_city": "Madrid, Spain",
+    "n_home_ci": 30,
+    "n_travel_ci": 6,
+    "home_sample": [
+      {
+        "venue_id": "4ad6cea1f964a520480821e3",
+        "name": "(Unnamed POI)",
+        "category": "4bf58dd8d48988d1ed931735",
+        "rating": null,
+        "ts": "2017-10-04 16:12:00-07:00"
+      },
+      {
+        "venue_id": "4b6d99b8f964a5203e7f2ce3",
+        "name": "(Unnamed POI)",
+        "category": "4bf58dd8d48988d1eb931735",
+        "rating": null,
+        "ts": "2017-10-22 17:18:00-07:00"
+      },
+      {
+        "venue_id": "4b8f4e94f964a520ff5033e3",
+        "name": "(Unnamed POI)",
+        "category": "52f2ab2ebcbc57f1066b8b46",
+        "rating": null,
+        "ts": "2017-10-25 16:32:00-07:00"
+      },
+      {
+        "venue_id": "4ca54967a6e08cfa31237094",
+        "name": "(Unnamed POI)",
+        "category": "4bf58dd8d48988d130941735",
+        "rating": null,
+        "ts": "2017-10-31 15:58:00-07:00"
+      },
+      {
+        "venue_id": "4b2af373f964a520beb224e3",
+        "name": "(Unnamed POI)",
+        "category": "4bf58dd8d48988d122951735",
+        "rating": null,
+        "ts": "2017-11-02 18:12:00-07:00"
+      },
+      {
+        "venue_id": "57203dae498e3243d8993f2f",
+        "name": "(Unnamed POI)",
+        "category": "4bf58dd8d48988d130941735",
+        "rating": null,
+        "ts": "2017-11-08 06:50:00-08:00"
+      },
+      {
+        "venue_id": "4b556f55f964a52038e427e3",
+        "name": "(Unnamed POI)",
+        "category": "4bf58dd8d48988d191941735",
+        "rating": null,
+        "ts": "2017-11-08 09:20:00-08:00"
+      },
+      {
+        "venue_id": "4b82118bf964a5209ec930e3",
+        "name": "(Unnamed POI)",
+        "category": "4bf58dd8d48988d126941735",
+        "rating": null,
+        "ts": "2017-11-27 13:18:00-08:00"
+      }
+    ],
+    "dest_sample": [
+      {
+        "venue_id": "4ea28fd699117fc56c845361",
+        "name": "(Unnamed POI)",
+        "category": "4bf58dd8d48988d164941735",
+        "rating": null,
+        "ts": "2018-04-19 07:22:00-07:00"
+      },
+      {
+        "venue_id": "4adcda37f964a5200e3c21e3",
+        "name": "(Unnamed POI)",
+        "category": "52e81612bcbc57f1066b7a14",
+        "rating": null,
+        "ts": "2018-04-19 07:34:00-07:00"
+      },
+      {
+        "venue_id": "4adcda40f964a5206e3e21e3",
+        "name": "(Unnamed POI)",
+        "category": "50be8ee891d4fa8dcc7199a7",
+        "rating": null,
+        "ts": "2018-04-19 08:19:00-07:00"
+      },
+      {
+        "venue_id": "4adcda37f964a5201f3c21e3",
+        "name": "(Unnamed POI)",
+        "category": "4bf58dd8d48988d164941735",
+        "rating": null,
+        "ts": "2018-04-19 08:42:00-07:00"
+      },
+      {
+        "venue_id": "4adcda39f964a5209e3c21e3",
+        "name": "(Unnamed POI)",
+        "category": "4bf58dd8d48988d190941735",
+        "rating": null,
+        "ts": "2018-04-26 06:08:00-07:00"
+      }
+    ]
+  },
+  "home_vs_travel_category_shift": [
+    {
+      "category": "50aaa49e4b90af0d42d5de11",
+      "home_pct": 0.03,
+      "travel_pct": 0.21,
+      "travel_lift": 6.92
+    },
+    {
+      "category": "4bf58dd8d48988d12f951735",
+      "home_pct": 0.036,
+      "travel_pct": 0.229,
+      "travel_lift": 6.36
+    },
+    {
+      "category": "4bf58dd8d48988d161941735",
+      "home_pct": 0.07,
+      "travel_pct": 0.253,
+      "travel_lift": 3.62
+    },
+    {
+      "category": "4bf58dd8d48988d1f4931735",
+      "home_pct": 0.057,
+      "travel_pct": 0.199,
+      "travel_lift": 3.48
+    },
+    {
+      "category": "4d954b16a243a5684b65b473",
+      "home_pct": 0.868,
+      "travel_pct": 3.016,
+      "travel_lift": 3.47
+    },
+    {
+      "category": "4bf58dd8d48988d160941735",
+      "home_pct": 0.21,
+      "travel_pct": 0.664,
+      "travel_lift": 3.17
+    },
+    {
+      "category": "4bf58dd8d48988d1e2941735",
+      "home_pct": 0.241,
+      "travel_pct": 0.755,
+      "travel_lift": 3.13
+    },
+    {
+      "category": "4bf58dd8d48988d1fa931735",
+      "home_pct": 0.481,
+      "travel_pct": 1.39,
+      "travel_lift": 2.89
+    },
+    {
+      "category": "4bf58dd8d48988d181941735",
+      "home_pct": 0.071,
+      "travel_pct": 0.201,
+      "travel_lift": 2.85
+    },
+    {
+      "category": "4bf58dd8d48988d165941735",
+      "home_pct": 0.148,
+      "travel_pct": 0.412,
+      "travel_lift": 2.78
+    },
+    {
+      "category": "4bf58dd8d48988d117941735",
+      "home_pct": 0.075,
+      "travel_pct": 0.207,
+      "travel_lift": 2.75
+    },
+    {
+      "category": "4eb1bea83b7b6f98df247e06",
+      "home_pct": 0.073,
+      "travel_pct": 0.191,
+      "travel_lift": 2.62
+    }
+  ]
+}

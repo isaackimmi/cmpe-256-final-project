@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TripWorld Data Understanding Explorer</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+    color: var(--foreground);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* Header + Tabs */
+  .top-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .subtitle {
+    font-size: 12.5px;
+    color: var(--muted-foreground);
+    margin: 0;
+  }
+  .pill-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--accent-surface, var(--secondary));
+    color: var(--accent, var(--foreground));
+    border: 1px solid var(--border);
+  }
+
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+  }
+  .tab-btn {
+    appearance: none;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted-foreground);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 7px 12px;
+    border-radius: var(--radius, 8px);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .tab-btn:hover {
+    color: var(--foreground);
+    border-color: var(--ring, var(--primary));
+  }
+  .tab-btn.active {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border-color: var(--primary);
+  }
+
+  .panel { display: none; flex-direction: column; gap: 14px; }
+  .panel.active { display: flex; }
+
+  /* Cards & Grids */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
+    gap: 10px;
+  }
+  .kpi {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 8px);
+    padding: 12px 14px;
+  }
+  .kpi-val {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
+    line-height: 1.2;
+  }
+  .kpi-lbl {
+    font-size: 11px;
+    color: var(--muted-foreground);
+    margin-top: 3px;
+  }
+  .kpi-sub {
+    font-size: 10.5px;
+    color: var(--chart-1);
+    margin-top: 2px;
+    font-weight: 500;
+  }
+
+  .box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 8px);
+    padding: 16px;
+  }
+  .box-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    color: var(--foreground);
+  }
+  .box-desc {
+    font-size: 12px;
+    color: var(--muted-foreground);
+    margin: 0 0 12px 0;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 12px;
+  }
+
+  /* Schema ER Diagram */
+  .er-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 10px;
+  }
+  .er-card {
+    background: var(--secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 8px);
+    padding: 11px 12px;
+  }
+  .er-card.highlight {
+    border-color: var(--chart-1);
+  }
+  .er-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .er-name {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--foreground);
+  }
+  .er-meta {
+    font-size: 10.5px;
+    color: var(--muted-foreground);
+    white-space: nowrap;
+  }
+  .er-cols {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 10.5px;
+    color: var(--muted-foreground);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .er-cols b {
+    color: var(--chart-1);
+    font-weight: 600;
+  }
+  .join-banner {
+    margin-top: 10px;
+    padding: 9px 12px;
+    border-radius: var(--radius, 8px);
+    background: var(--code-background, var(--secondary));
+    border: 1px dashed var(--border);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11px;
+    color: var(--foreground);
+    overflow-x: auto;
+  }
+
+  /* Bars */
+  .bar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .bar-row {
+    display: grid;
+    grid-template-columns: 145px 1fr 74px;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .bar-label {
+    color: var(--foreground);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+  }
+  .bar-track {
+    height: 11px;
+    background: var(--secondary);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--chart-1);
+  }
+  .bar-fill.c2 { background: var(--chart-2); }
+  .bar-fill.c3 { background: var(--chart-3); }
+  .bar-fill.c4 { background: var(--chart-4); }
+  .bar-fill.warn { background: var(--warning); }
+  .bar-fill.bad { background: var(--destructive); }
+  .bar-fill.good { background: var(--success); }
+  .bar-num {
+    text-align: right;
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11px;
+    color: var(--muted-foreground);
+  }
+
+  /* Traveler Comparison */
+  .switcher {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .switch-btn {
+    appearance: none;
+    border: 1px solid var(--border);
+    background: var(--secondary);
+    color: var(--muted-foreground);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 11px;
+    border-radius: var(--radius, 8px);
+    cursor: pointer;
+  }
+  .switch-btn.active {
+    background: var(--chart-1);
+    color: var(--primary-foreground);
+    border-color: var(--chart-1);
+  }
+  .visit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .visit-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: var(--radius, 8px);
+    background: var(--secondary);
+    border: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .visit-item.museum {
+    border-left: 3px solid var(--chart-1);
+  }
+  .visit-item.noise {
+    border-left: 3px solid var(--destructive);
+    opacity: 0.82;
+  }
+  .visit-name {
+    font-weight: 600;
+    color: var(--foreground);
+  }
+  .visit-cat {
+    font-size: 10.5px;
+    color: var(--muted-foreground);
+    font-family: var(--font-mono, ui-monospace, monospace);
+  }
+  .tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .tag.culture {
+    background: var(--accent-surface, var(--secondary));
+    color: var(--chart-1);
+    border: 1px solid var(--chart-1);
+  }
+  .tag.noise {
+    background: var(--destructive-surface, var(--secondary));
+    color: var(--destructive);
+    border: 1px solid var(--destructive);
+  }
+  .tag.food {
+    background: var(--secondary);
+    color: var(--chart-2);
+    border: 1px solid var(--border);
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  th, td {
+    text-align: left;
+    padding: 7px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--muted-foreground);
+    font-weight: 600;
+  }
+  td.num, th.num {
+    text-align: right;
+    font-family: var(--font-mono, ui-monospace, monospace);
+  }
+
+  /* Alerts / Callouts */
+  .callout {
+    border-radius: var(--radius, 8px);
+    padding: 11px 13px;
+    font-size: 12px;
+    border: 1px solid var(--border);
+    background: var(--secondary);
+  }
+  .callout.warn {
+    background: var(--warning-surface, var(--secondary));
+    border-color: var(--warning);
+  }
+  .callout.good {
+    border-left: 3px solid var(--success);
+  }
+  .callout strong {
+    color: var(--foreground);
+  }
+
+  .gotcha-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 10px;
+  }
+  .gotcha {
+    background: var(--secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 8px);
+    padding: 11px 12px;
+    font-size: 12px;
+  }
+  .gotcha-num {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--warning);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .gotcha-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--foreground);
+  }
+  .gotcha p {
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: 11.5px;
+  }
+
+  /* Playbook Steps */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  .step {
+    background: var(--secondary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius, 8px);
+    padding: 12px;
+  }
+  .step-tag {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--chart-1);
+    margin-bottom: 4px;
+  }
+  .step h4 {
+    margin: 0 0 6px 0;
+    font-size: 13px;
+  }
+  .step p {
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--muted-foreground);
+  }
+
+  pre.code {
+    margin: 0;
+    padding: 11px 12px;
+    border-radius: var(--radius, 8px);
+    background: var(--code-background, var(--secondary));
+    border: 1px solid var(--border);
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11px;
+    line-height: 1.45;
+    overflow-x: auto;
+    color: var(--foreground);
+  }
+
+  /* Fixed height SVG chart container */
+  .svg-chart {
+    width: 100%;
+    height: 170px;
+    display: block;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top-bar">
+    <p class="subtitle">Live profile of <strong>CRUISEResearchGroup/TripWorld</strong> queried locally from <code>data/tripworld/</code> via DuckDB</p>
+    <span class="pill-badge">6 Core Files Downloaded (421 MB) · 23.4 GB Reviews Remote</span>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="overview">1. Overview &amp; Schema</button>
+    <button class="tab-btn" data-tab="travelers">2. Real Travelers</button>
+    <button class="tab-btn" data-tab="geo">3. Cities &amp; Skew</button>
+    <button class="tab-btn" data-tab="cleaning">4. Categories &amp; Gotchas</button>
+    <button class="tab-btn" data-tab="playbook">5. How to Start</button>
+  </div>
+
+  <!-- TAB 1: OVERVIEW & SCHEMA -->
+  <section id="tab-overview" class="panel active">
+    <div class="kpi-grid">
+      <div class="kpi">
+        <div class="kpi-val">518,567</div>
+        <div class="kpi-lbl">Cross-City Trips</div>
+        <div class="kpi-sub">148,402 unique travelers</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">687,173</div>
+        <div class="kpi-lbl">Unique POIs</div>
+        <div class="kpi-sub">99.99% have real names &amp; GPS</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">1,173</div>
+        <div class="kpi-lbl">Metro Regions</div>
+        <div class="kpi-sub">723 home · 1,165 dest cities</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">7.42M</div>
+        <div class="kpi-lbl">Check-Ins</div>
+        <div class="kpi-sub">4.65M home · 2.76M travel</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-val">186.7M</div>
+        <div class="kpi-lbl">Google Reviews</div>
+        <div class="kpi-sub">135.3M with text (remote)</div>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3 class="box-title">How the 5 Parquet Tables Connect</h3>
+      <p class="box-desc">Every row in <code>travel_behaviors.parquet</code> is one user's <strong>Home City History (c_h)</strong> paired with what they actually visited in a <strong>Destination City (c_o)</strong>.</p>
+      <div class="er-grid">
+        <div class="er-card highlight">
+          <div class="er-head">
+            <span class="er-name">travel_behaviors</span>
+            <span class="er-meta">518.6K rows · 144 MB</span>
+          </div>
+          <ul class="er-cols">
+            <li><b>user_id</b> (BIGINT)</li>
+            <li><b>r_h</b> → home region QID</li>
+            <li><b>r_o</b> → dest region QID</li>
+            <li>n_home_ci / n_travel_ci</li>
+            <li><b>c_h[]</b> home visits list</li>
+            <li><b>c_o[]</b> dest visits (LABEL)</li>
+          </ul>
+        </div>
+        <div class="er-card">
+          <div class="er-head">
+            <span class="er-name">pois.parquet</span>
+            <span class="er-meta">687.2K rows · 103 MB</span>
+          </div>
+          <ul class="er-cols">
+            <li><b>fsq_place_id</b> (PK)</li>
+            <li><b>locality</b> → region QID</li>
+            <li>google_name, venue_schema</li>
+            <li>google_categories[]</li>
+            <li>google_rating, n_reviews</li>
+            <li>n_checkins, n_users_visited</li>
+          </ul>
+        </div>
+        <div class="er-card">
+          <div class="er-head">
+            <span class="er-name">metadata_all</span>
+            <span class="er-meta">687.2K rows · 148 MB</span>
+          </div>
+          <ul class="er-cols">
+            <li><b>fsq_place_id</b> (PK)</li>
+            <li>fsq_name, fsq_country</li>
+            <li><b>fsq_latitude / longitude</b></li>
+            <li>fsq_category_labels[]</li>
+            <li><b>fsq_date_closed</b> (filter!)</li>
+            <li>google_* mirrored fields</li>
+          </ul>
+        </div>
+        <div class="er-card">
+          <div class="er-head">
+            <span class="er-name">region_labels</span>
+            <span class="er-meta">1,173 rows · 19 KB</span>
+          </div>
+          <ul class="er-cols">
+            <li><b>region_id</b> (Wikidata QID)</li>
+            <li>city_name (e.g. Madrid)</li>
+            <li>country_name (e.g. Spain)</li>
+            <li>+ place_attributes (28.8K):</li>
+            <li>hours_week, price, desc</li>
+          </ul>
+        </div>
+      </div>
+      <div class="join-banner">
+        <strong>Verified Join Key:</strong> <code>UNNEST(travel.c_h).venue_id = pois.fsq_place_id</code> — both keep the exact <code>foursquare:&lt;24-hex&gt;</code> prefix (do NOT strip it!).
+      </div>
+    </div>
+
+    <div class="box">
+      <h3 class="box-title">POI Data Completeness (687,173 Venues)</h3>
+      <p class="box-desc">Almost every venue has a name and coordinates; over 82% have Google Maps metadata and 76% have visitor reviews.</p>
+      <div class="bar-list">
+        <div class="bar-row">
+          <span class="bar-label">Has Name (Google/FSQ)</span>
+          <div class="bar-track"><div class="bar-fill good" style="width: 99.99%"></div></div>
+          <span class="bar-num">99.99%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Has GPS Coordinates</span>
+          <div class="bar-track"><div class="bar-fill good" style="width: 99.99%"></div></div>
+          <span class="bar-num">99.99%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Google Maps Metadata</span>
+          <div class="bar-track"><div class="bar-fill" style="width: 82.48%"></div></div>
+          <span class="bar-num">82.48%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Has Google Rating</span>
+          <div class="bar-track"><div class="bar-fill c2" style="width: 76.48%"></div></div>
+          <span class="bar-num">76.48%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Has Google Reviews</span>
+          <div class="bar-track"><div class="bar-fill c3" style="width: 76.33%"></div></div>
+          <span class="bar-num">76.33%</span>
+        </div>
+        <div class="bar-row">
+          <span class="bar-label">Rich Place Attributes</span>
+          <div class="bar-track"><div class="bar-fill c4" style="width: 4.19%"></div></div>
+          <span class="bar-num">4.19%</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 2: REAL TRAVELERS -->
+  <section id="tab-travelers" class="panel">
+    <div class="box">
+      <h3 class="box-title">Real Cross-City Museum Lovers in TripWorld</h3>
+      <p class="box-desc">Click between two real anonymized travelers pulled straight from <code>travel_behaviors.parquet</code>. Notice how their home taste transfers directly to the new city—and notice the red "noise" check-ins our cleaner must filter out!</p>
+      <div class="switcher">
+        <button class="switch-btn active" data-user="u131536">User #131536: Tokyo → Osaka/Kyoto</button>
+        <button class="switch-btn" data-user="u34508">User #34508: Bangkok → London</button>
+      </div>
+
+      <div id="user-u131536" class="user-view">
+        <div class="two-col">
+          <div>
+            <h4 class="box-title" style="margin-bottom:8px;">Home History (c_h): Tokyo, Japan (15 check-ins)</h4>
+            <div class="visit-list">
+              <div class="visit-item museum"><div><div class="visit-name">The National Art Center, Tokyo</div><div class="visit-cat">schema:Museum · ★ 4.4 (21.5K rev)</div></div><span class="tag culture">Museum</span></div>
+              <div class="visit-item museum"><div><div class="visit-name">Mitsubishi Ichigokan Museum</div><div class="visit-cat">schema:Museum · ★ 4.4 (3.7K rev)</div></div><span class="tag culture">Museum</span></div>
+              <div class="visit-item museum"><div><div class="visit-name">The Sumida Hokusai Museum</div><div class="visit-cat">schema:Museum · ★ 4.1 (6.7K rev)</div></div><span class="tag culture">Museum</span></div>
+              <div class="visit-item museum"><div><div class="visit-name">Sen-oku Hakukokan Museum</div><div class="visit-cat">schema:Museum · ★ 4.3 (569 rev)</div></div><span class="tag culture">Museum</span></div>
+              <div class="visit-item"><div><div class="visit-name">Tokyo Kosho-Kaikan</div><div class="visit-cat">schema:BookStore · ★ 4.0</div></div><span class="tag food">Books</span></div>
+              <div class="visit-item"><div><div class="visit-name">Cafétéria CARRÉ &amp; Curry Bondy</div><div class="visit-cat">Cafe / Restaurant · ★ 4.3</div></div><span class="tag food">Dining</span></div>
+            </div>
+          </div>
+          <div>
+            <h4 class="box-title" style="margin-bottom:8px;">Actual Destination Visits (c_o): Osaka/Kyoto Metro (7 check-ins)</h4>
+            <div class="visit-list">
+              <div class="visit-item museum"><div><div class="visit-name">National Museum of Modern Art, Kyoto</div><div class="visit-cat">schema:Museum · ★ 4.1 (3.8K rev)</div></div><span class="tag culture">Match!</span></div>
+              <div class="visit-item museum"><div><div class="visit-name">Hosomi Museum</div><div class="visit-cat">schema:Museum · ★ 4.0 (1.0K rev)</div></div><span class="tag culture">Match!</span></div>
+              <div class="visit-item museum"><div><div class="visit-name">Kawai Kanjiro's House</div><div class="visit-cat">schema:Museum · ★ 4.7 (852 rev)</div></div><span class="tag culture">Match!</span></div>
+              <div class="visit-item"><div><div class="visit-name">Bar Liquor Museum</div><div class="visit-cat">schema:BarOrPub</div></div><span class="tag food">Bar</span></div>
+              <div class="visit-item"><div><div class="visit-name">Gouriki</div><div class="visit-cat">schema:Restaurant · ★ 4.4 (890 rev)</div></div><span class="tag food">Dining</span></div>
+              <div class="visit-item"><div><div class="visit-name">Umeda Loft</div><div class="visit-cat">schema:Store</div></div><span class="tag food">Shop</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="user-u34508" class="user-view" style="display:none;">
+        <div class="two-col">
+          <div>
+            <h4 class="box-title" style="margin-bottom:8px;">Home History (c_h): Bangkok, Thailand (38 check-ins)</h4>
+            <div class="visit-list">
+              <div class="visit-item museum"><div><div class="visit-name">Bangkok Art &amp; Culture Centre</div><div class="visit-cat">schema:Museum · ★ 4.6 (20.2K rev)</div></div><span class="tag culture">Art</span></div>
+              <div class="visit-item museum"><div><div class="visit-name">Bangkok City Library</div><div class="visit-cat">schema:Library · ★ 4.5 (593 rev)</div></div><span class="tag culture">Library</span></div>
+              <div class="visit-item museum"><div><div class="visit-name">Silpakorn Univ. (Art Campus)</div><div class="visit-cat">schema:CivicStructure · ★ 4.7</div></div><span class="tag culture">Culture</span></div>
+              <div class="visit-item"><div><div class="visit-name">SFX Cinema Central Ladprao</div><div class="visit-cat">schema:MovieTheater · ★ 4.3</div></div><span class="tag food">Cinema</span></div>
+              <div class="visit-item"><div><div class="visit-name">After You Dessert Cafe &amp; Audrey</div><div class="visit-cat">FoodEstablishment · ★ 4.4</div></div><span class="tag food">Dining</span></div>
+            </div>
+          </div>
+          <div>
+            <h4 class="box-title" style="margin-bottom:8px;">Actual Destination Visits (c_o): London, UK (9 check-ins)</h4>
+            <div class="visit-list">
+              <div class="visit-item museum"><div><div class="visit-name">The British Museum</div><div class="visit-cat">schema:Museum · ★ 4.7 (171.9K rev)</div></div><span class="tag culture">Match!</span></div>
+              <div class="visit-item museum"><div><div class="visit-name">Victoria and Albert Museum</div><div class="visit-cat">schema:Museum · ★ 4.8 (66.4K rev)</div></div><span class="tag culture">Match!</span></div>
+              <div class="visit-item museum"><div><div class="visit-name">The British Library</div><div class="visit-cat">schema:Library · ★ 4.5 (3.5K rev)</div></div><span class="tag culture">Match!</span></div>
+              <div class="visit-item"><div><div class="visit-name">Flat Iron Covent Garden</div><div class="visit-cat">schema:FoodEstablishment · ★ 4.6</div></div><span class="tag food">Dining</span></div>
+              <div class="visit-item noise"><div><div class="visit-name">London Euston Railway Station</div><div class="visit-cat">schema:TrainStation · transit noise</div></div><span class="tag noise">Filter Out</span></div>
+              <div class="visit-item noise"><div><div class="visit-name">"London" (Generic City Check-In)</div><div class="visit-cat">schema:City · non-POI noise</div></div><span class="tag noise">Filter Out</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout good" style="margin-top:12px;">
+        <strong>Why this makes evaluation crystal clear:</strong> At test time, your model ONLY sees the left column (<strong>c_h</strong>) and the target city name. It tries to predict the real places in the right column (<strong>c_o</strong>)—after removing transit/generic city noise!
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 3: GEOGRAPHY & SKEW -->
+  <section id="tab-geo" class="panel">
+    <div class="two-col">
+      <div class="box">
+        <h3 class="box-title">Where the Trips Are (Top 8 Countries)</h3>
+        <p class="box-desc">Important KDD finding: Japan, Turkey, and Malaysia make up <strong>82.6%</strong> of all 518K trips.</p>
+        <div class="bar-list">
+          <div class="bar-row"><span class="bar-label">Japan (60.1%)</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-num">311,590</span></div>
+          <div class="bar-row"><span class="bar-label">Turkey (14.2%)</span><div class="bar-track"><div class="bar-fill c2" style="width:23.6%"></div></div><span class="bar-num">73,488</span></div>
+          <div class="bar-row"><span class="bar-label">Malaysia (8.3%)</span><div class="bar-track"><div class="bar-fill c3" style="width:13.9%"></div></div><span class="bar-num">43,224</span></div>
+          <div class="bar-row"><span class="bar-label">Kuwait (3.6%)</span><div class="bar-track"><div class="bar-fill c4" style="width:5.9%"></div></div><span class="bar-num">18,487</span></div>
+          <div class="bar-row"><span class="bar-label">Thailand (2.7%)</span><div class="bar-track"><div class="bar-fill c4" style="width:4.5%"></div></div><span class="bar-num">13,899</span></div>
+          <div class="bar-row"><span class="bar-label">Brazil (2.3%)</span><div class="bar-track"><div class="bar-fill c4" style="width:3.8%"></div></div><span class="bar-num">11,896</span></div>
+          <div class="bar-row"><span class="bar-label">United States (1.0%)</span><div class="bar-track"><div class="bar-fill c2" style="width:2.5%"></div></div><span class="bar-num">5,432</span></div>
+          <div class="bar-row"><span class="bar-label">United Kingdom (0.4%)</span><div class="bar-track"><div class="bar-fill c2" style="width:1.6%"></div></div><span class="bar-num">1,900</span></div>
+        </div>
+      </div>
+
+      <div class="box">
+        <h3 class="box-title">Check-Ins per Destination Trip</h3>
+        <p class="box-desc">Median trip has <strong>3 check-ins</strong> (mean 5.33; 90th percentile = 10). All trips have ≥2 visits.</p>
+        <svg class="svg-chart" viewBox="0 0 360 170" preserveAspectRatio="xMidYMid meet">
+          <!-- Bars: 2:203265, 3-5:191424, 6-10:74529, 11-20:32966, 21+:16383 -->
+          <g font-family="var(--font-mono, monospace)" font-size="10" fill="var(--muted-foreground)">
+            <rect x="20" y="22" width="52" height="114" rx="5" fill="var(--chart-1)"/>
+            <text x="46" y="16" text-anchor="middle" fill="var(--foreground)" font-weight="600">203K</text>
+            <text x="46" y="152" text-anchor="middle">2</text>
+
+            <rect x="88" y="29" width="52" height="107" rx="5" fill="var(--chart-1)"/>
+            <text x="114" y="23" text-anchor="middle" fill="var(--foreground)" font-weight="600">191K</text>
+            <text x="114" y="152" text-anchor="middle">3–5</text>
+
+            <rect x="156" y="94" width="52" height="42" rx="5" fill="var(--chart-2)"/>
+            <text x="182" y="88" text-anchor="middle" fill="var(--foreground)" font-weight="600">75K</text>
+            <text x="182" y="152" text-anchor="middle">6–10</text>
+
+            <rect x="224" y="117" width="52" height="19" rx="5" fill="var(--chart-3)"/>
+            <text x="250" y="111" text-anchor="middle" fill="var(--foreground)" font-weight="600">33K</text>
+            <text x="250" y="152" text-anchor="middle">11–20</text>
+
+            <rect x="292" y="126" width="52" height="10" rx="5" fill="var(--chart-4)"/>
+            <text x="318" y="120" text-anchor="middle" fill="var(--foreground)" font-weight="600">16K</text>
+            <text x="318" y="152" text-anchor="middle">21+</text>
+
+            <line x1="12" y1="136" x2="352" y2="136" stroke="var(--border)" stroke-width="1"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3 class="box-title">Key Global, European &amp; US Cities for Training vs. Demo</h3>
+      <p class="box-desc"><strong>Takeaway:</strong> Lisbon is not a metro hub in TripWorld, and Madrid has 374 POIs (26 museums, incl. <em>Museo Thyssen-Bornemisza</em>) with 67 inbound trips. <strong>Train globally</strong> on the 518K trips (densest in Tokyo/Osaka/Istanbul/London/NYC) and use <strong>semantic embeddings</strong> so your recommender works zero-shot in any city like Madrid or Amsterdam!</p>
+      <table>
+        <thead>
+          <tr><th>City</th><th>Country</th><th class="num">POIs</th><th class="num">Inbound Trips</th><th class="num">Travel Check-Ins</th><th>Best Role</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Osaka (incl. Kyoto)</strong></td><td>Japan</td><td class="num">46,000+</td><td class="num">19,726</td><td class="num">164,506</td><td>Dense CV Training &amp; Eval</td></tr>
+          <tr><td><strong>Tokyo</strong></td><td>Japan</td><td class="num">65,000+</td><td class="num">14,248</td><td class="num">164,969</td><td>Dense CV Training &amp; Eval</td></tr>
+          <tr><td><strong>Istanbul</strong></td><td>Turkey</td><td class="num">20,943</td><td class="num">7,535</td><td class="num">54,089</td><td>Dense CV Training &amp; Eval</td></tr>
+          <tr><td><strong>London</strong></td><td>United Kingdom</td><td class="num">1,845</td><td class="num">1,176</td><td class="num">8,001</td><td>Top Western Demo Hub (109 museums/art)</td></tr>
+          <tr><td><strong>New York City</strong></td><td>United States</td><td class="num">7,291</td><td class="num">600</td><td class="num">3,100+</td><td>Top US Demo Hub (1,929 outbound!)</td></tr>
+          <tr><td><strong>San Francisco</strong></td><td>United States</td><td class="num">1,424</td><td class="num">185</td><td class="num">900+</td><td>Great US Demo Pair (NYC ↔ SF)</td></tr>
+          <tr><td><strong>Amsterdam</strong></td><td>Netherlands</td><td class="num">737</td><td class="num">170</td><td class="num">755</td><td>Europe Demo (37 museums/art)</td></tr>
+          <tr><td><strong>Madrid</strong></td><td>Spain</td><td class="num">374</td><td class="num">67</td><td class="num">278</td><td>Zero-Shot Europe Demo (26 museums/art)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- TAB 4: CATEGORIES & DATA CLEANING GOTCHAS -->
+  <section id="tab-cleaning" class="panel">
+    <div class="two-col">
+      <div class="box">
+        <h3 class="box-title">Home → Travel Lift (What Surges on Trips)</h3>
+        <p class="box-desc">How many times more likely a user checks into a category when traveling vs. at home (50K-trip sample):</p>
+        <div class="bar-list">
+          <div class="bar-row"><span class="bar-label">Landform / Views</span><div class="bar-track"><div class="bar-fill good" style="width:100%"></div></div><span class="bar-num">3.20×</span></div>
+          <div class="bar-row"><span class="bar-label">Beach</span><div class="bar-track"><div class="bar-fill good" style="width:99%"></div></div><span class="bar-num">3.17×</span></div>
+          <div class="bar-row"><span class="bar-label">Hotel</span><div class="bar-track"><div class="bar-fill c2" style="width:94%"></div></div><span class="bar-num">3.01×</span></div>
+          <div class="bar-row"><span class="bar-label">Buddhist Temple</span><div class="bar-track"><div class="bar-fill" style="width:68%"></div></div><span class="bar-num">2.17×</span></div>
+          <div class="bar-row"><span class="bar-label">Historic Landmarks</span><div class="bar-track"><div class="bar-fill" style="width:65%"></div></div><span class="bar-num">2.07×</span></div>
+          <div class="bar-row"><span class="bar-label">Tourist Attraction</span><div class="bar-track"><div class="bar-fill" style="width:58%"></div></div><span class="bar-num">1.86×</span></div>
+          <div class="bar-row"><span class="bar-label">Museum</span><div class="bar-track"><div class="bar-fill" style="width:57%"></div></div><span class="bar-num">1.83×</span></div>
+          <div class="bar-row"><span class="bar-label">Airport (noise!)</span><div class="bar-track"><div class="bar-fill bad" style="width:54%"></div></div><span class="bar-num">1.73×</span></div>
+        </div>
+      </div>
+
+      <div class="box">
+        <h3 class="box-title">Signal vs. Noise in All 687K POIs</h3>
+        <p class="box-desc">Transit &amp; private residences generate over <strong>2.1M check-ins</strong>—filtering them is essential!</p>
+        <div class="bar-list">
+          <div class="bar-row"><span class="bar-label">Other / Civic</span><div class="bar-track"><div class="bar-fill c4" style="width:100%"></div></div><span class="bar-num">3.06M ci</span></div>
+          <div class="bar-row"><span class="bar-label">Food &amp; Drink</span><div class="bar-track"><div class="bar-fill good" style="width:92%"></div></div><span class="bar-num">2.82M ci</span></div>
+          <div class="bar-row"><span class="bar-label">Transit / Airports</span><div class="bar-track"><div class="bar-fill bad" style="width:59%"></div></div><span class="bar-num">1.82M ci</span></div>
+          <div class="bar-row"><span class="bar-label">Shopping / Conv.</span><div class="bar-track"><div class="bar-fill warn" style="width:32%"></div></div><span class="bar-num">976K ci</span></div>
+          <div class="bar-row"><span class="bar-label">Culture &amp; Museums</span><div class="bar-track"><div class="bar-fill" style="width:28%"></div></div><span class="bar-num">844K ci</span></div>
+          <div class="bar-row"><span class="bar-label">Private / Homes</span><div class="bar-track"><div class="bar-fill bad" style="width:9.3%"></div></div><span class="bar-num">284K ci</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3 class="box-title">5 Data Gotchas We Already Caught (Gold for Your KDD &amp; Pandera Report!)</h3>
+      <div class="gotcha-grid">
+        <div class="gotcha">
+          <div class="gotcha-num">Gotcha #1</div>
+          <div class="gotcha-title">Transit &amp; Private Home Noise</div>
+          <p><code>TrainStation</code> (1.22M ci), <code>Airport</code> (305K), <code>House</code> (19.2K POIs), <code>ApartmentComplex</code> (16.1K), and <code>City</code> must be excluded from recommended targets—otherwise you recommend train stations!</p>
+        </div>
+        <div class="gotcha">
+          <div class="gotcha-num">Gotcha #2</div>
+          <div class="gotcha-title">venue_category Is a Hex ID</div>
+          <p><code>venue_category</code> stores Foursquare hex IDs (<code>4bf58dd8...</code>). Use <code>venue_schema</code>, <code>google_categories[]</code>, and <code>fsq_category_labels[]</code> for readable text.</p>
+        </div>
+        <div class="gotcha">
+          <div class="gotcha-num">Gotcha #3</div>
+          <div class="gotcha-title">33,877 Closed POIs (4.9%)</div>
+          <p><code>metadata_all.fsq_date_closed</code> flags permanently closed venues. Keep them in historical training features if desired, but filter them out at recommendation time.</p>
+        </div>
+        <div class="gotcha">
+          <div class="gotcha-num">Gotcha #4</div>
+          <div class="gotcha-title">23.5% Missing Google Ratings</div>
+          <p>161.6K POIs have <code>NULL</code> ratings. Use Bayesian smoothing toward the category/city mean (global mean = 3.98★) + a binary <code>has_google_rating</code> indicator.</p>
+        </div>
+        <div class="gotcha">
+          <div class="gotcha-num">Gotcha #5</div>
+          <div class="gotcha-title">Metro Rollups &amp; Raw QIDs</div>
+          <p>Some regions are metro rollups (Osaka includes Kyoto/Kobe) and a few labels are raw QIDs (<code>Q49355990</code>). Map/filter clean metro names for user-facing city pickers.</p>
+        </div>
+        <div class="gotcha">
+          <div class="gotcha-num">Gotcha #6</div>
+          <div class="gotcha-title">User Leakage Risk in CV</div>
+          <p>1 user visits 3.49 destination cities on average (up to 104!). Always split 5-fold CV by <strong>user_id</strong>, never randomly by trip row.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB 5: HOW TO START -->
+  <section id="tab-playbook" class="panel">
+    <div class="box">
+      <h3 class="box-title">Your Clear 3-Step Starting Path (Model-First)</h3>
+      <p class="box-desc">Everything is already downloaded in <code>data/tripworld/</code> with DuckDB installed in <code>.venv</code>. Follow these 3 steps in order:</p>
+      <div class="steps">
+        <div class="step">
+          <span class="step-tag">STEP 1 · PERSON 1</span>
+          <h4>Clean &amp; Split (Silver → Gold)</h4>
+          <p>Filter out transit/residential/<code>schema:City</code> noise from destination targets, create <code>cv_folds.parquet</code> grouped by <code>user_id</code>, and compute POI stats (Bayesian rating, tourist-vs-local ratio, user home-category TF-IDF).</p>
+        </div>
+        <div class="step">
+          <span class="step-tag">STEP 2 · PERSON 2</span>
+          <h4>Embed &amp; Retrieve Top-100</h4>
+          <p>Encode every POI's <code>name + venue_schema + google_categories</code> into dense vectors with Sentence-Transformers, index per city in FAISS, and train a PyTorch Two-Tower retriever on cross-city pairs.</p>
+        </div>
+        <div class="step">
+          <span class="step-tag">STEP 3 · PERSON 3</span>
+          <h4>Rank Top-10, SHAP &amp; AI Agent</h4>
+          <p>Score popularity baseline first, then train LightGBM LambdaRank + Optuna AutoML on Step 1+2 features, generate SHAP explanations, and hook up the AI Travel Agent + DuckDB review lookup.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="box">
+      <h3 class="box-title">Copy-Paste Starter Query (Try It in 2 Seconds!)</h3>
+      <p class="box-desc">Run this with <code>.venv/bin/python</code> to inspect clean museums &amp; attractions in any city:</p>
+      <pre class="code">import duckdb
+con = duckdb.connect()
+con.sql("""
+  SELECT COALESCE(p.google_name, m.fsq_name) AS name,
+         r.city_name, p.venue_schema, p.google_rating, p.n_checkins
+  FROM 'data/tripworld/pois.parquet' p
+  JOIN 'data/tripworld/metadata/metadata_all.parquet' m USING (fsq_place_id)
+  JOIN 'data/tripworld/region_labels.parquet' r ON p.locality = r.region_id
+  WHERE r.city_name IN ('London', 'Madrid', 'Amsterdam')
+    AND p.venue_schema IN ('schema:Museum', 'schema:ArtGallery')
+    AND m.fsq_date_closed IS NULL
+  ORDER BY p.n_checkins DESC
+  LIMIT 10
+""").show()</pre>
+    </div>
+  </section>
+</div>
+
+<script>
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.switch-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.switch-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.user-view').forEach(v => v.style.display = 'none');
+      btn.classList.add('active');
+      document.getElementById('user-' + btn.dataset.user).style.display = 'block';
+    });
+  });
+</script>
+</body>
+</html>
