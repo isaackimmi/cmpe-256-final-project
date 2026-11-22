@@ -51,11 +51,11 @@ See the [Render Blueprint reference](https://render.com/docs/blueprint-spec) and
 
 ### Current API contract
 
-The two catalog searches currently use sample fixtures. An empty query lists the catalog. Both accept
+Destination search uses the bundled SQLite catalog of 1,165 TripWorld regions. Past-place search still uses sample fixtures. An empty query lists the catalog. Both accept
 `q`, `limit` (default 20, maximum 100), and `offset` (default 0).
 
 - `GET /places/search` searches past places across regions.
-- `GET /destinations/search` searches destination names.
+- `GET /destinations/search` searches real destination names, metro aliases, and country context.
 
 Both return `items` and `next_offset` (null on the last page). In the frontend,
 the search hooks use TanStack Query's `useInfiniteQuery` to request the first
@@ -65,11 +65,19 @@ page after typing settles and pass the returned offset for each subsequent page.
 bounds. Example body:
 
 ```json
-{"tripworld_region_id":"demo-kyoto","visited_place_ids":["a1-mamas","a1-golf"]}
+{"tripworld_region_id":"Q35765","visited_place_ids":["a1-mamas","a1-golf"]}
 ```
 
-The stub returns up to ten deterministic fixture results and model version
-`stub-v1`. For viewport searches, add a `bounds` object with numeric `west`,
+Kyoto searches return `Q35765`, the canonical Osaka (Keihanshin) region, with
+`name: "Kyoto"`, `canonical_name: "Osaka"`, and the matched alias/metro label.
+The picker shows that broader recommendation area. Canonical and alias searches
+return the same real region ID.
+
+Recommendations remain a sample service: Kyoto/Osaka (`Q35765`) and London
+(`Q84`) return up to ten deterministic fixtures with model version `stub-v1`.
+Other valid destinations return 503 with an availability message until model
+integration is ready; unknown destination IDs return 422. No real model inference
+is introduced by the destination-catalog integration. For viewport searches, add a `bounds` object with numeric `west`,
 `south`, `east`, and `north` fields. Bounds narrow the selected destination.
 
 `POST /feedback` is optional for this milestone and deferred.
@@ -79,3 +87,18 @@ The stub returns up to ten deterministic fixture results and model version
 Use PascalCase for React component files (`MapView.tsx`) and camelCase for
 hook files (`useSearch.ts`). Next.js route entry files follow its prescribed
 names, including `page.tsx`, `layout.tsx`, and `route.ts`.
+
+### Destination catalog export
+
+The validated destination-only database is tracked at
+`backend/artifacts/tripworld_destinations.sqlite` (416 KiB), with upstream
+redistribution provenance in `backend/artifacts/tripworld_provenance/`. Render's
+normal Git deployment includes these files; no persistent disk, raw-data download,
+or catalog build is required at service startup. Startup fails clearly when the
+artifact is missing, incompatible, or SQLite FTS5 is unavailable.
+
+[Notebook 4](notebooks/04_destination_catalog.ipynb) builds the catalog from three
+pinned TripWorld sources, checks all destination IDs and published aliases, and
+repeats the build to verify logical reproducibility. It is separate from the ML
+preprocessing notebooks. See [backend catalog instructions](backend/README.md#destination-catalog)
+for reproduction, response fields, tests, and source-data limitations.

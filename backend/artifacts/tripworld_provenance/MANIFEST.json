@@ -1,0 +1,152 @@
+{
+  "dataset": "Trip World",
+  "generated_at": "2026-06-01T17:26:25.852192+00:00",
+  "files": [
+    {
+      "path": "README.md",
+      "size_bytes": 23624,
+      "sha256": "bbfd7a944ba9064e18a9f103cfec729fe32fb8f624316b7f267562a0ac4d462c"
+    },
+    {
+      "path": "_scripts/00_build_metro_map.py",
+      "size_bytes": 25849,
+      "sha256": "cd7f25a0516edb421e81636e37a9fa8a55584fa2ed06fed3c12ac1773ed03567"
+    },
+    {
+      "path": "_scripts/01_consolidate_filter.py",
+      "size_bytes": 5289,
+      "sha256": "0e5c3a29c2df1f08aceccc686b2892a4ab120e161ed2e373d446241f095ae765"
+    },
+    {
+      "path": "_scripts/02_hometown_discovery.py",
+      "size_bytes": 3580,
+      "sha256": "748ae827e6136e4d8fe19e335112ba035bd9424a5464b4c2e40bfa00da39716d"
+    },
+    {
+      "path": "_scripts/03_build_travelers.py",
+      "size_bytes": 3582,
+      "sha256": "a8ef6b5a7da35480a7b5f4ec4cb3faea06117133a37b8e3496dffbc5a934979f"
+    },
+    {
+      "path": "_scripts/04_build_travel_behaviors.py",
+      "size_bytes": 3277,
+      "sha256": "7c2e64df23a33a9053b1b51c429c3505c2b3fb76f7d80532a268528ee770a1b0"
+    },
+    {
+      "path": "_scripts/05_build_pois.py",
+      "size_bytes": 3711,
+      "sha256": "92ef5f7521cfe2ca39d7ac17ec4d42599f77cd0de00e50b856c6dedcbae69a6c"
+    },
+    {
+      "path": "_scripts/06_build_region_labels.py",
+      "size_bytes": 2681,
+      "sha256": "b83f1644e2e8ac811f1f4cf4ffdedd77fbb5590a8fb043d4f7ab9f2d63397f8b"
+    },
+    {
+      "path": "_scripts/07_subset_metadata.py",
+      "size_bytes": 1459,
+      "sha256": "a5d879b4c71babeb58b2f0a0440cb178393389c495a49d0812832ffb0009caa6"
+    },
+    {
+      "path": "_scripts/08_subset_reviews.py",
+      "size_bytes": 1998,
+      "sha256": "abb67be5115a05bd6eb7808517dd72df1107404866ddeb77c87c361d8a6cb794"
+    },
+    {
+      "path": "_scripts/09_validate.py",
+      "size_bytes": 3835,
+      "sha256": "789c0b79340539b003e55c0473bc62a7060a0eb15fb52870cad9f73781eea735"
+    },
+    {
+      "path": "_scripts/10_enrich_new_pois.py",
+      "size_bytes": 6970,
+      "sha256": "72f591ae9991ca02e847355308466f5a1a92825d23795adec9acbec5b364c13b"
+    },
+    {
+      "path": "_scripts/11_fsq_api_recover.py",
+      "size_bytes": 16289,
+      "sha256": "130cb8a98764e1bf84dcc3b00a4e94a5e63026276d16f78d816567b60772c4e4"
+    },
+    {
+      "path": "_scripts/12_ucsd_bridge.py",
+      "size_bytes": 14575,
+      "sha256": "6a0744ca1623294f0e0534edd0233e98b6b3e6522f0cd00a6e5fcf12b0037b9c"
+    },
+    {
+      "path": "_scripts/13_merge_ucsd_into_metadata.py",
+      "size_bytes": 6356,
+      "sha256": "939ab7cf2ab06762923d8cd76a9066ddcc14d4b02b3b1124fecc70ecbec2922b"
+    },
+    {
+      "path": "_scripts/14_merge_gcp_search_results.py",
+      "size_bytes": 12310,
+      "sha256": "25befa67bbd7d9108f93b1436b11c2fe1b38ebf81f98cc63f0c60b1ace111a82"
+    },
+    {
+      "path": "_scripts/15_merge_stage2_reviews.py",
+      "size_bytes": 7847,
+      "sha256": "fb3930ea05174d6508f42076055a4637e9553dd39a63edae213d6df19daa84cc"
+    },
+    {
+      "path": "_scripts/16_unify_reviews.py",
+      "size_bytes": 7196,
+      "sha256": "480bb93e479580cecdb18d3eaa2d6cd32ab755028228d9b3ebae3bbef2229d55"
+    },
+    {
+      "path": "_scripts/lib_wikidata.py",
+      "size_bytes": 5360,
+      "sha256": "9fb66e3aca1516e14693fa5f1f66e879f389c8ce22514e9edad6ebcc8deb4531"
+    },
+    {
+      "path": "_scripts/viz_clean_raw.py",
+      "size_bytes": 22248,
+      "sha256": "24a730d7bd73a536bc14f3c3cfc03dac45823dc505bfd8bd2107c75a2d186f54"
+    },
+    {
+      "path": "_scripts/viz_traj_length.py",
+      "size_bytes": 3993,
+      "sha256": "3e57d0a39ff9055f14c07a04b73359a9065dd8d3f0bbf3c0d51c597e8a9e3445"
+    },
+    {
+      "path": "metadata/metadata_all.parquet",
+      "size_bytes": 155531767,
+      "sha256": "bd94d73c8443a18b5c7d31c0bd0b855cd141763b63841ee90646be1d73f9345e",
+      "rows": 687173
+    },
+    {
+      "path": "metadata/place_attributes.parquet",
+      "size_bytes": 5580621,
+      "sha256": "4c31fda0a865c6773ff4067bb20ebd16c2ffde8925ded0da3b26d322d942c3b8",
+      "rows": 28776
+    },
+    {
+      "path": "metro_mapping_clean.json",
+      "size_bytes": 410138,
+      "sha256": "53086b8988147692f8e649f4df5c96b914cfe1b5c3c52f9d90807190b404066b"
+    },
+    {
+      "path": "pois.parquet",
+      "size_bytes": 108305072,
+      "sha256": "895ab91f807e6474bad026fbd2e1521d66b2b297263e425c23116268356d0b21",
+      "rows": 687173
+    },
+    {
+      "path": "region_labels.parquet",
+      "size_bytes": 19217,
+      "sha256": "98134206f3ae04366de219e181380a5c9c302873391ccc9109fa491fe9f11c59",
+      "rows": 1173
+    },
+    {
+      "path": "reviews/reviews_all.parquet",
+      "size_bytes": 23400867153,
+      "sha256": "60aa08489743419a26475a842398040dfdc9a508572cb51aa19e864966f10a7c",
+      "rows": 186760186
+    },
+    {
+      "path": "travel_behaviors.parquet",
+      "size_bytes": 151509028,
+      "sha256": "59d473611daca78404fda149832012562e11469cd0339094c92d2f86d4655034",
+      "rows": 518567
+    }
+  ]
+}

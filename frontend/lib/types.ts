@@ -1,4 +1,7 @@
 export interface Destination {
+  canonical_name?: string | null;
+  canonical_metro_label?: string | null;
+  matched_alias?: string | null;
   country?: string | null;
   id: string;
   name: string;

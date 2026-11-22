@@ -70,6 +70,11 @@ export function TripSetup({
               {[destination.name, destination.country]
                 .filter(Boolean)
                 .join(", ")}
+              {destination.canonical_metro_label && destination.canonical_metro_label !== destination.name && (
+                <small className="block text-xs text-(--muted)">
+                  {destination.canonical_metro_label} area
+                </small>
+              )}
             </span>
             <ChevronDown size={16} />
           </Button>
@@ -89,7 +94,11 @@ export function TripSetup({
               closeDestinationEditor();
             }}
             items={destinations.data?.pages.flatMap((page) => page.items) ?? []}
-            detail={(city) => city.country ?? ""}
+            detail={(city) => [
+              city.country,
+              city.canonical_metro_label && city.canonical_metro_label !== city.name
+                ? `${city.canonical_metro_label} area` : null,
+            ].filter(Boolean).join(" · ")}
             query={destinations}
           />
           {editingDestination && (

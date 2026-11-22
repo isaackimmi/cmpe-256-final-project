@@ -13,3 +13,9 @@ __pycache__/
 data/
 *.parquet
 
+
+# Keep the small validated destination artifact deployable; ignore temporary exports.
+backend/artifacts/*.sqlite
+!backend/artifacts/tripworld_destinations.sqlite
+backend/artifacts/*.sqlite.*
+.venv-catalog/

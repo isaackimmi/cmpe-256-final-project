@@ -10,7 +10,7 @@ export interface CityAtlas {
 }
 
 export const atlases: Record<string, CityAtlas> = {
-  "demo-kyoto": {
+  "Q35765": {
     name: "Kyoto",
     slug: "kyoto",
     center: [135.759, 35.008],
@@ -26,7 +26,7 @@ export const atlases: Record<string, CityAtlas> = {
       ["SHIMOGYŌ", 135.751, 34.995, "district"],
     ],
   },
-  "demo-london": {
+  "Q84": {
     name: "London",
     slug: "london",
     center: [-0.137, 51.509],

@@ -1,0 +1,218 @@
+{
+  "scope": "destinations_only",
+  "schema_version": 2,
+  "dataset": "CRUISEResearchGroup/TripWorld",
+  "source_revision": "254f142dfef42104783754019f7b7f4cfbf8d9a8",
+  "database": "backend/artifacts/tripworld_destinations.sqlite",
+  "database_size_bytes": 425984,
+  "database_sha256": "1a0d8b6a857dcb774b6dd1fd4c37f9b82bb98d7976dedb687babf732e472324c",
+  "logical_sha256": "c8f4b5eb2e41a7c9aebad5d8606b1d7cfb647cb2047ff5d3b306303ce08a2656",
+  "counts": {
+    "destinations": 1165,
+    "canonical_names": 1165,
+    "mapping_names_deduplicated": 901,
+    "mapping_entries_outside_destinations": 5201,
+    "mapping_entries_without_searchable_label": 256,
+    "mapping_aliases_added": 344
+  },
+  "model_coverage": "not_evaluated",
+  "source_files": {
+    "travel_behaviors.parquet": {
+      "path": "travel_behaviors.parquet",
+      "size_bytes": 151509028,
+      "sha256": "59d473611daca78404fda149832012562e11469cd0339094c92d2f86d4655034"
+    },
+    "region_labels.parquet": {
+      "path": "region_labels.parquet",
+      "size_bytes": 19217,
+      "sha256": "98134206f3ae04366de219e181380a5c9c302873391ccc9109fa491fe9f11c59"
+    },
+    "metro_mapping_clean.json": {
+      "path": "metro_mapping_clean.json",
+      "size_bytes": 410138,
+      "sha256": "53086b8988147692f8e649f4df5c96b914cfe1b5c3c52f9d90807190b404066b"
+    },
+    "README.md": {
+      "path": "README.md",
+      "size_bytes": 23839,
+      "sha256": "c2acdfb4051ce540561a739342e19f598482f4f702648e3cc4d6447ed309c96c",
+      "verified_git_blob": "51960ccbeeabff8c9d5126048149ae83d8737291",
+      "upstream_manifest_sha256": "bbfd7a944ba9064e18a9f103cfec729fe32fb8f624316b7f267562a0ac4d462c",
+      "upstream_manifest_matches": false
+    },
+    "_scripts/00_build_metro_map.py": {
+      "path": "_scripts/00_build_metro_map.py",
+      "size_bytes": 25849,
+      "sha256": "cd7f25a0516edb421e81636e37a9fa8a55584fa2ed06fed3c12ac1773ed03567",
+      "verified_git_blob": "7f8b95441eb357e25ad63ac0bf9a8a8d7e333a77",
+      "upstream_manifest_sha256": "cd7f25a0516edb421e81636e37a9fa8a55584fa2ed06fed3c12ac1773ed03567",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/01_consolidate_filter.py": {
+      "path": "_scripts/01_consolidate_filter.py",
+      "size_bytes": 5289,
+      "sha256": "0e5c3a29c2df1f08aceccc686b2892a4ab120e161ed2e373d446241f095ae765",
+      "verified_git_blob": "01ef2e26ea53b1a37ae05a5d7e5e3956e8791692",
+      "upstream_manifest_sha256": "0e5c3a29c2df1f08aceccc686b2892a4ab120e161ed2e373d446241f095ae765",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/02_hometown_discovery.py": {
+      "path": "_scripts/02_hometown_discovery.py",
+      "size_bytes": 3580,
+      "sha256": "748ae827e6136e4d8fe19e335112ba035bd9424a5464b4c2e40bfa00da39716d",
+      "verified_git_blob": "6a641c0bc793e20f3ed8b9b60dea090db103d361",
+      "upstream_manifest_sha256": "748ae827e6136e4d8fe19e335112ba035bd9424a5464b4c2e40bfa00da39716d",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/03_build_travelers.py": {
+      "path": "_scripts/03_build_travelers.py",
+      "size_bytes": 3582,
+      "sha256": "a8ef6b5a7da35480a7b5f4ec4cb3faea06117133a37b8e3496dffbc5a934979f",
+      "verified_git_blob": "29fa083974b29e2be4026c43258f35aca80deae0",
+      "upstream_manifest_sha256": "a8ef6b5a7da35480a7b5f4ec4cb3faea06117133a37b8e3496dffbc5a934979f",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/04_build_travel_behaviors.py": {
+      "path": "_scripts/04_build_travel_behaviors.py",
+      "size_bytes": 3277,
+      "sha256": "7c2e64df23a33a9053b1b51c429c3505c2b3fb76f7d80532a268528ee770a1b0",
+      "verified_git_blob": "c747ebe67c3266034f74ad50c731e246a820a55c",
+      "upstream_manifest_sha256": "7c2e64df23a33a9053b1b51c429c3505c2b3fb76f7d80532a268528ee770a1b0",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/05_build_pois.py": {
+      "path": "_scripts/05_build_pois.py",
+      "size_bytes": 3711,
+      "sha256": "92ef5f7521cfe2ca39d7ac17ec4d42599f77cd0de00e50b856c6dedcbae69a6c",
+      "verified_git_blob": "736aaab84b6750bd4537c20d629ae8e70214af0e",
+      "upstream_manifest_sha256": "92ef5f7521cfe2ca39d7ac17ec4d42599f77cd0de00e50b856c6dedcbae69a6c",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/06_build_region_labels.py": {
+      "path": "_scripts/06_build_region_labels.py",
+      "size_bytes": 2681,
+      "sha256": "b83f1644e2e8ac811f1f4cf4ffdedd77fbb5590a8fb043d4f7ab9f2d63397f8b",
+      "verified_git_blob": "3075dce4a0e69cc01ae14d21ae9171cb183bb01c",
+      "upstream_manifest_sha256": "b83f1644e2e8ac811f1f4cf4ffdedd77fbb5590a8fb043d4f7ab9f2d63397f8b",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/07_subset_metadata.py": {
+      "path": "_scripts/07_subset_metadata.py",
+      "size_bytes": 1459,
+      "sha256": "a5d879b4c71babeb58b2f0a0440cb178393389c495a49d0812832ffb0009caa6",
+      "verified_git_blob": "b307b0174c1a9e3ec7957c80a167d55d1718a2e6",
+      "upstream_manifest_sha256": "a5d879b4c71babeb58b2f0a0440cb178393389c495a49d0812832ffb0009caa6",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/08_subset_reviews.py": {
+      "path": "_scripts/08_subset_reviews.py",
+      "size_bytes": 1998,
+      "sha256": "abb67be5115a05bd6eb7808517dd72df1107404866ddeb77c87c361d8a6cb794",
+      "verified_git_blob": "df3e0832cc978f7cb309f8e82f65449f3ae26dbc",
+      "upstream_manifest_sha256": "abb67be5115a05bd6eb7808517dd72df1107404866ddeb77c87c361d8a6cb794",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/09_validate.py": {
+      "path": "_scripts/09_validate.py",
+      "size_bytes": 3835,
+      "sha256": "789c0b79340539b003e55c0473bc62a7060a0eb15fb52870cad9f73781eea735",
+      "verified_git_blob": "52442301cb701c796d7bd411dc4f5b6470c5b6b8",
+      "upstream_manifest_sha256": "789c0b79340539b003e55c0473bc62a7060a0eb15fb52870cad9f73781eea735",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/10_enrich_new_pois.py": {
+      "path": "_scripts/10_enrich_new_pois.py",
+      "size_bytes": 6970,
+      "sha256": "72f591ae9991ca02e847355308466f5a1a92825d23795adec9acbec5b364c13b",
+      "verified_git_blob": "c27ff908e6be89fc8864dba62cacda9259569475",
+      "upstream_manifest_sha256": "72f591ae9991ca02e847355308466f5a1a92825d23795adec9acbec5b364c13b",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/11_fsq_api_recover.py": {
+      "path": "_scripts/11_fsq_api_recover.py",
+      "size_bytes": 16289,
+      "sha256": "130cb8a98764e1bf84dcc3b00a4e94a5e63026276d16f78d816567b60772c4e4",
+      "verified_git_blob": "3f6dc44f39b760d1aeab2934dd82f0c7e4da730a",
+      "upstream_manifest_sha256": "130cb8a98764e1bf84dcc3b00a4e94a5e63026276d16f78d816567b60772c4e4",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/12_ucsd_bridge.py": {
+      "path": "_scripts/12_ucsd_bridge.py",
+      "size_bytes": 14575,
+      "sha256": "6a0744ca1623294f0e0534edd0233e98b6b3e6522f0cd00a6e5fcf12b0037b9c",
+      "verified_git_blob": "88741589ba6481d0afd2598bc74dfa8bb10afa2e",
+      "upstream_manifest_sha256": "6a0744ca1623294f0e0534edd0233e98b6b3e6522f0cd00a6e5fcf12b0037b9c",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/13_merge_ucsd_into_metadata.py": {
+      "path": "_scripts/13_merge_ucsd_into_metadata.py",
+      "size_bytes": 6356,
+      "sha256": "939ab7cf2ab06762923d8cd76a9066ddcc14d4b02b3b1124fecc70ecbec2922b",
+      "verified_git_blob": "f1202a61b62f3cef592a6d99bfabf7b0c6180146",
+      "upstream_manifest_sha256": "939ab7cf2ab06762923d8cd76a9066ddcc14d4b02b3b1124fecc70ecbec2922b",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/14_merge_gcp_search_results.py": {
+      "path": "_scripts/14_merge_gcp_search_results.py",
+      "size_bytes": 12310,
+      "sha256": "25befa67bbd7d9108f93b1436b11c2fe1b38ebf81f98cc63f0c60b1ace111a82",
+      "verified_git_blob": "8115d06a87b66a76c7668c4f807dc89d8b0ee1c3",
+      "upstream_manifest_sha256": "25befa67bbd7d9108f93b1436b11c2fe1b38ebf81f98cc63f0c60b1ace111a82",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/15_merge_stage2_reviews.py": {
+      "path": "_scripts/15_merge_stage2_reviews.py",
+      "size_bytes": 7847,
+      "sha256": "fb3930ea05174d6508f42076055a4637e9553dd39a63edae213d6df19daa84cc",
+      "verified_git_blob": "906f88d89344caa4aefa1cf221a3da1be0f898ac",
+      "upstream_manifest_sha256": "fb3930ea05174d6508f42076055a4637e9553dd39a63edae213d6df19daa84cc",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/16_unify_reviews.py": {
+      "path": "_scripts/16_unify_reviews.py",
+      "size_bytes": 7196,
+      "sha256": "480bb93e479580cecdb18d3eaa2d6cd32ab755028228d9b3ebae3bbef2229d55",
+      "verified_git_blob": "8d28b98848af251b7ad9e0fab6203841a6fb0a8d",
+      "upstream_manifest_sha256": "480bb93e479580cecdb18d3eaa2d6cd32ab755028228d9b3ebae3bbef2229d55",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/lib_wikidata.py": {
+      "path": "_scripts/lib_wikidata.py",
+      "size_bytes": 5360,
+      "sha256": "9fb66e3aca1516e14693fa5f1f66e879f389c8ce22514e9edad6ebcc8deb4531",
+      "verified_git_blob": "ac28bda26f4172160b5b038d9a1d88ebe04ac20f",
+      "upstream_manifest_sha256": "9fb66e3aca1516e14693fa5f1f66e879f389c8ce22514e9edad6ebcc8deb4531",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/viz_clean_raw.py": {
+      "path": "_scripts/viz_clean_raw.py",
+      "size_bytes": 22248,
+      "sha256": "24a730d7bd73a536bc14f3c3cfc03dac45823dc505bfd8bd2107c75a2d186f54",
+      "verified_git_blob": "f408c9047911338551b68eca2ae4426fb0ed22ab",
+      "upstream_manifest_sha256": "24a730d7bd73a536bc14f3c3cfc03dac45823dc505bfd8bd2107c75a2d186f54",
+      "upstream_manifest_matches": true
+    },
+    "_scripts/viz_traj_length.py": {
+      "path": "_scripts/viz_traj_length.py",
+      "size_bytes": 3993,
+      "sha256": "3e57d0a39ff9055f14c07a04b73359a9065dd8d3f0bbf3c0d51c597e8a9e3445",
+      "verified_git_blob": "1c99a4dda8c5defec7c5b45e84c75bf261d0fce3",
+      "upstream_manifest_sha256": "3e57d0a39ff9055f14c07a04b73359a9065dd8d3f0bbf3c0d51c597e8a9e3445",
+      "upstream_manifest_matches": true
+    }
+  },
+  "built_at_utc": "2026-11-22T05:12:00.239489+00:00",
+  "dependencies": {
+    "duckdb": "1.4.2"
+  },
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "sqlite": "3.53.1",
+  "implementation_sha256": {
+    "scripts/build_tripworld_catalog.py": "489e82ffe695127a98fa12a8ae36956b1c072bf3d0467d4b441dcc25947104cd",
+    "scripts/verify_tripworld_catalog.py": "b58cfee88956631e899125d6d217a29a0167d4cdfd503e058c1745327b3b116d",
+    "backend/destination_catalog.py": "6703a39ae21119235927f1f547267222ba3c8f43c86f8044b5cd1493beeb5599",
+    "scripts/requirements-catalog.txt": "b7861ac00c8dc1bc552d2859c0a7d23d12d640cb480ee81e28f060590b6efb6a"
+  },
+  "validation_passed": true,
+  "build_seconds": 1.86
+}
