@@ -39,8 +39,14 @@ def build_poi_text(df: pd.DataFrame) -> list[str]:
     return texts
 
 
-def encode_pois(model_name: str = "BAAI/bge-small-en-v1.5", batch_size: int = 256) -> tuple[pd.DataFrame, np.ndarray]:
-    """Encode all POIs (or load cached `poi_embeddings.npy`) and benchmark GPU/MPS vs CPU."""
+def encode_pois(
+    model_name: str = "BAAI/bge-small-en-v1.5",
+    batch_size: int = 256,
+    chunk_size: int = 100_000,
+    use_fp16: bool = True,
+    max_new_chunks: int | None = None,
+) -> tuple[pd.DataFrame, np.ndarray]:
+    """Encode all POIs (or load cached `poi_embeddings.npy`) with resumable chunk checkpointing."""
     emb_path = DATA_GOLD_DIR / "poi_embeddings.npy"
     idx_path = DATA_GOLD_DIR / "poi_embedding_ids.parquet"
     pois_df = pd.read_parquet(
@@ -52,26 +58,72 @@ def encode_pois(model_name: str = "BAAI/bge-small-en-v1.5", batch_size: int = 25
         print(f"Loaded cached embeddings from {emb_path}")
         return pois_df, np.load(emb_path)
 
+    import shutil
     import torch
     from sentence_transformers import SentenceTransformer
 
-    device = "mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"[Person 2] Encoding {len(pois_df):,} POIs with `{model_name}` on `{device}`...")
-    t0 = time.perf_counter()
-    model = SentenceTransformer(model_name, device=device)
-    texts = build_poi_text(pois_df)
-    embs = model.encode(
-        texts,
-        batch_size=batch_size,
-        show_progress_bar=True,
-        normalize_embeddings=True,
-        convert_to_numpy=True,
-    ).astype(np.float32)
-    elapsed = time.perf_counter() - t0
-    print(f"[HPC Metric] Encoded {len(pois_df):,} POIs on {device} in {elapsed:.1f}s ({len(pois_df)/elapsed:.0f} POIs/sec)")
+    device = "cuda" if torch.cuda.is_available() else ("mps" if torch.backends.mps.is_available() else "cpu")
+    model_kwargs = {"dtype": torch.float16} if (use_fp16 and device in ("cuda", "mps")) else {}
+    dtype_label = "fp16" if model_kwargs else "fp32"
 
+    chunk_dir = DATA_GOLD_DIR / "_poi_emb_chunks"
+    chunk_dir.mkdir(parents=True, exist_ok=True)
+    n_total = len(pois_df)
+    n_chunks = (n_total + chunk_size - 1) // chunk_size
+
+    pending = [i for i in range(n_chunks) if not (chunk_dir / f"chunk_{i:03d}.npy").exists()]
+    if pending:
+        print(
+            f"[Person 2] Encoding {n_total:,} POIs in {n_chunks} chunks ({len(pending)} remaining) "
+            f"with `{model_name}` on `{device}` ({dtype_label}, bs={batch_size})..."
+        )
+        model = SentenceTransformer(model_name, device=device, model_kwargs=model_kwargs)
+        model.max_seq_length = 64
+
+        encoded_now = 0
+        for cid in pending:
+            if max_new_chunks is not None and encoded_now >= max_new_chunks:
+                print(f"[Person 2] Reached max_new_chunks={max_new_chunks}; checkpoint saved for resume.")
+                return pois_df, np.empty((0, 0), dtype=np.float32)
+
+            start = cid * chunk_size
+            end = min(start + chunk_size, n_total)
+            texts = build_poi_text(pois_df.iloc[start:end])
+            t0 = time.perf_counter()
+            chunk_embs = model.encode(
+                texts,
+                batch_size=batch_size,
+                show_progress_bar=True,
+                normalize_embeddings=True,
+                convert_to_numpy=True,
+            ).astype(np.float32)
+            if device == "mps":
+                torch.mps.synchronize()
+            elif device == "cuda":
+                torch.cuda.synchronize()
+            dt = time.perf_counter() - t0
+            out_chunk = chunk_dir / f"chunk_{cid:03d}.npy"
+            tmp_chunk = chunk_dir / f"chunk_{cid:03d}.tmp.npy"
+            np.save(tmp_chunk, chunk_embs)
+            tmp_chunk.rename(out_chunk)
+            encoded_now += 1
+            print(
+                f"  [Chunk {cid + 1}/{n_chunks}] {end - start:,} POIs in {dt:.1f}s "
+                f"({(end - start) / dt:.0f} POIs/sec) -> saved {out_chunk.name}"
+            )
+
+    # Assemble all chunks once every chunk exists
+    missing = [i for i in range(n_chunks) if not (chunk_dir / f"chunk_{i:03d}.npy").exists()]
+    if missing:
+        print(f"[Person 2] {len(missing)} chunk(s) still remaining; re-run to finish assembly.")
+        return pois_df, np.empty((0, 0), dtype=np.float32)
+
+    print(f"[Person 2] Assembling {n_chunks} chunks into {emb_path}...")
+    embs = np.concatenate([np.load(chunk_dir / f"chunk_{i:03d}.npy") for i in range(n_chunks)], axis=0).astype(np.float32)
     np.save(emb_path, embs)
     pois_df[["poi_id"]].to_parquet(idx_path, index=False)
+    shutil.rmtree(chunk_dir, ignore_errors=True)
+    print(f"[Person 2] Saved {emb_path} {embs.shape} and cleaned up temporary chunks.")
     return pois_df, embs
 
 

@@ -1,0 +1,4 @@
+device,n_pois,seconds,pois_per_sec,speedup_vs_cpu
+CPU (FP32),4000,7.162,558.5,1.0
+MPS (FP32),4000,4.564,876.3,1.57
+MPS (FP16),4000,4.305,929.2,1.66
