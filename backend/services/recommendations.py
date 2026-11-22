@@ -1,9 +1,4 @@
-"""Shared recommendation boundary; currently backed by the sample catalog.
-
-Keep candidate selection separate from the top-ten display cutoff so feedback can
-use the full pool. Future model serving can replace this source without changing
-HTTP contracts or the agent's dependence on trusted catalog records.
-"""
+"""With the real model, this module should expose only recommend()."""
 
 from fastapi import HTTPException
 
@@ -13,7 +8,7 @@ from ..schemas.recommendations import Recommendation, RecommendationRequest, Rec
 
 
 def get_candidates(request: RecommendationRequest) -> list[Place]:
-    # TODO(model-serving): Use the Stage 1 retrieval model here.
+    # Temporary stub: select places from the sample catalog.
     if request.tripworld_region_id not in {item.id for item in destinations}:
         raise HTTPException(status_code=422, detail="Unknown destination")
     visited = set(request.visited_place_ids)
@@ -26,11 +21,10 @@ def get_candidates(request: RecommendationRequest) -> list[Place]:
 
 
 def build_recommendations(candidates: list[Place], visited_place_ids: list[str]) -> RecommendationResponse:
+    # Temporary stub: format sample places and their canned explanations.
     visited = set(visited_place_ids)
     past_by_category = {place.category: place for place in places if place.id in visited}
 
-    # TODO(model-serving): Replace the category-match template with explanations
-    # derived from each scored POI's actual feature contributions (SHAP).
     def explanation(place: Place) -> str:
         past = past_by_category.get(place.category)
         if past and place.category:
@@ -44,8 +38,6 @@ def build_recommendations(candidates: list[Place], visited_place_ids: list[str])
 
 
 def recommend(request: RecommendationRequest) -> RecommendationResponse:
-    # TODO(model-serving): Catalog order is the stub ranking. Add a shared scoring
-    # step before slicing: assemble training-compatible features for this history
-    # and use ml/ranking/inference.py to return candidates in score order.
-    # Expose that scored pool to feedback as well as to this browsing endpoint.
+    # TODO(model-serving): Call the real model here. Move the feedback caller to
+    # recommend() and delete both stub helpers.
     return build_recommendations(get_candidates(request)[:10], request.visited_place_ids)
