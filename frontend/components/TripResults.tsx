@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Crosshair } from "lucide-react";
 import type { Recommendation } from "../lib/types";
 import type { useRecommendations } from "../hooks/useRecommendations";
 import { SkeletonRow } from "./SkeletonRow";
@@ -15,6 +15,7 @@ type Props = {
   selected?: Recommendation;
   onSelect: (id: string) => void;
   onEdit: () => void;
+  resetBounds?: () => void;
 };
 
 export function TripResults({
@@ -23,6 +24,7 @@ export function TripResults({
   selected,
   onSelect,
   onEdit,
+  resetBounds,
 }: Props) {
   const { data, isFetching, isPaused, isError, isSuccess, refetch } = recommendations;
   const results = data?.results ?? [];
@@ -51,6 +53,11 @@ export function TripResults({
             : `For your visit to ${destination}`}
         {isFetching && !results.length && <span className="sr-only"> Finding places…</span>}
       </div>
+      {resetBounds && (
+        <Button variant="outline" className="mb-3 border-(--edge) text-(--blue)!" onClick={resetBounds}>
+          <Crosshair size={14} /> Search whole destination
+        </Button>
+      )}
       {isError && (
         <div role="alert" className={plannerStyles.notice}>
           {results.length

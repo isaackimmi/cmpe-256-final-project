@@ -8,7 +8,7 @@
 
 | Directory | Purpose |
 | --- | --- |
-| `frontend/` | Next.js trip planner and server-side API routes |
+| `frontend/` | Next.js map planner and server-side API routes |
 | `backend/` | FastAPI service deployed on Render |
 | `backend/artifacts/` | Place for future model exports and matching serving files |
 | `notebooks/` | [Starter KDD notebook](notebooks/tripworld_kdd.ipynb) for Google Colab |
@@ -31,13 +31,20 @@ For a single service, see the [frontend instructions](frontend/README.md) or [ba
 ### Try the local planner
 
 The A1 planner opens with Kyoto and two sample Maui visits. Select **Find places**
-to see four Kyoto recommendations. Select a row to highlight it.
+to see four Kyoto recommendations. Choose a row or pin to highlight the corresponding place.
+Pan or zoom to narrow the list to places in view. Panning outside Kyoto can
+produce an empty list.
+
+Set `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` in `frontend/.env.local` to use the
+Mapbox street and dark basemaps. Without a token the local map uses MapLibre
+with the supplied day/night street maps for Kyoto and London and a world outline
+elsewhere. This preview supports pins, panning and zoom without a tile service. Both modes send viewport bounds to FastAPI.
 
 ## Deploy
 
 1. In Render, create a **Blueprint** from this repository. The root `render.yaml` configures the Python web service, build command, start command, and health check. After deployment, open `/health` on its Render URL.
 2. In Vercel, import the same repository as a Next.js project. Set **Root Directory** to `frontend`, use Node.js 24, and keep the framework build defaults.
-3. Set the Vercel environment variable `MODEL_API_URL` to the Render service's HTTPS origin. Set it in each environment that needs the backend, then deploy or redeploy.
+3. Set the Vercel environment variable `MODEL_API_URL` to the Render service's HTTPS origin. Set `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` to a public Mapbox token restricted to your site origins. Set these variables before building the frontend.
 4. Open `/api/health` on the Vercel URL and verify the same JSON response. This checks the full path from the website to the backend.
 
 See the [Render Blueprint reference](https://render.com/docs/blueprint-spec) and [Vercel monorepo guide](https://vercel.com/docs/monorepos).
