@@ -19,7 +19,7 @@
 From the repository root on macOS or Linux, with Python 3.12, Node.js 24 and npm installed, run:
 
 ```sh
-./dev
+npm run dev
 ```
 
 This installs the dependencies on first use, starts FastAPI and Next.js with reload, and connects them. Press Ctrl+C to stop both. The launcher checks the dependency files on subsequent runs. Use `PORT` to change the web port or `BACKEND_PORT` to change the API port.
