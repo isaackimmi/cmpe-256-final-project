@@ -51,10 +51,10 @@ INTEGER_TYPES = {
 }
 
 
-def feature_paths(gold_dir: Path) -> dict[str, Path]:
+def feature_paths(gold_dir: Path, val_fold: int) -> dict[str, Path]:
     return {
         "poi_catalog": gold_dir / "pois_clean.parquet",
-        "poi_stats": gold_dir / "feat_poi_stats.parquet",
+        "poi_stats": gold_dir / f"feat_poi_stats_fold{val_fold}.parquet",
         "user_taste": gold_dir / "feat_user_locality_taste.parquet",
     }
 

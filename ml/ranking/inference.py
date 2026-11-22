@@ -11,7 +11,7 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
-from ml.config import DATA_GOLD_DIR
+from ml.config import DATA_GOLD_DIR, N_FOLDS
 from ml.ranking.features import (
     CANDIDATE_SCHEMA_VERSION,
     FEATURE_COLS,
@@ -83,9 +83,12 @@ def rank_candidates(
     """Score one trip or a batch of Stage 1 candidates using the saved feature order."""
     artifact = load_ranker(model_path)
     features = artifact["features"]
+    val_fold = artifact.get("evaluation", {}).get("fold")
+    if not isinstance(val_fold, int) or not 0 <= val_fold < N_FOLDS:
+        raise ValueError("Model lacks a valid feature fold; rebuild the model before inference.")
     with duckdb.connect() as con:
         schemas = open_parquets(
-            con, {"candidate_source": candidates_path, **feature_paths(gold_dir or DATA_GOLD_DIR)}
+            con, {"candidate_source": candidates_path, **feature_paths(gold_dir or DATA_GOLD_DIR, val_fold)}
         )
         schema = schemas["candidate_source"]
         require_columns(schema, "candidates", "trip_id")
