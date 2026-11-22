@@ -217,3 +217,81 @@ def test_input_gate_allows_missing_labels_but_rejects_broken_keys():
     audit['visits']['c_h']['unmatched_poi_ids'] = 1
     with pytest.raises(ValueError, match='unmatched_poi_ids'):
         validate_raw_audit(audit)
+
+
+def _write_popularity_inputs(tmp_path, validation_copies=1):
+    """Two training users, one held-out user, and repeated/copied visit events."""
+    raw, gold = tmp_path / "raw's data", tmp_path / "gold"
+    raw.mkdir(exist_ok=True)
+    gold.mkdir(exist_ok=True)
+    with duckdb.connect() as con:
+        con.execute("""
+            CREATE TABLE raw AS
+            WITH visits AS (
+                SELECT struct_pack(venue_id := 'p1', trail_id := 1::BIGINT,
+                    ts := TIMESTAMPTZ '2020-01-01 00:00:00+00') AS a,
+                    struct_pack(venue_id := 'p1', trail_id := 2::BIGINT,
+                    ts := TIMESTAMPTZ '2020-01-02 00:00:00+00') AS b,
+                    struct_pack(venue_id := 'p2', trail_id := 3::BIGINT,
+                    ts := TIMESTAMPTZ '2020-01-03 00:00:00+00') AS c,
+                    struct_pack(venue_id := 'validation_only', trail_id := 4::BIGINT,
+                    ts := TIMESTAMPTZ '2020-01-04 00:00:00+00') AS d
+            )
+            SELECT 1::BIGINT AS user_id, [a, a, b] AS c_h, [c] AS c_o FROM visits
+            UNION ALL SELECT 1, [a, a, b], [a, c] FROM visits
+            UNION ALL SELECT 2, [a], [c] FROM visits
+            UNION ALL SELECT 3, [a], [d] FROM visits
+        """)
+        if validation_copies > 1:
+            con.execute(f"""
+                INSERT INTO raw
+                SELECT r.user_id,
+                    list_transform(r.c_h, lambda v: struct_pack(venue_id := v.venue_id,
+                        trail_id := v.trail_id + 100 + i, ts := v.ts + i * INTERVAL '1 second')),
+                    r.c_o
+                FROM raw r, range({validation_copies - 1}) AS extra(i) WHERE r.user_id=3
+            """)
+        travel = str(raw / 'travel_behaviors.parquet').replace("'", "''")
+        folds = str(gold / 'cv_folds.parquet').replace("'", "''")
+        con.execute(f"COPY raw TO '{travel}' (FORMAT PARQUET)")
+        con.execute(f"COPY (SELECT * FROM (VALUES (1::BIGINT,1::BIGINT),(2,1),(3,0)) AS f(user_id,fold)) TO '{folds}' (FORMAT PARQUET)")
+    return raw, gold
+
+
+def test_training_popularity_excludes_validation_and_deduplicates_events(tmp_path):
+    from ml.features.popularity import create_training_poi_counts
+
+    raw, gold = _write_popularity_inputs(tmp_path)
+    with duckdb.connect() as con:
+        create_training_poi_counts(con, 0, raw_dir=raw, gold_dir=gold)
+        assert con.sql('SELECT * FROM training_poi_counts ORDER BY poi_id').fetchall() == [
+            ('p1', 3, 2), ('p2', 2, 2),
+        ]
+        # Rebuilding for another fold must replace counts, not reuse fold-0 results.
+        create_training_poi_counts(con, 1, raw_dir=raw, gold_dir=gold)
+        assert con.sql('SELECT * FROM training_poi_counts ORDER BY poi_id').fetchall() == [
+            ('p1', 1, 1), ('validation_only', 1, 1),
+        ]
+        create_training_poi_counts(con, 0, raw_dir=raw, gold_dir=gold)
+        assert con.sql("SELECT COUNT(*) FROM training_poi_counts WHERE poi_id='validation_only'").fetchall()[0][0] == 0
+
+
+def test_validation_history_changes_do_not_change_training_popularity(tmp_path):
+    from ml.features.popularity import create_training_poi_counts
+
+    raw, gold = _write_popularity_inputs(tmp_path)
+    with duckdb.connect() as con:
+        create_training_poi_counts(con, 0, raw_dir=raw, gold_dir=gold)
+        before = con.sql('SELECT * FROM training_poi_counts ORDER BY poi_id').fetchall()
+        _write_popularity_inputs(tmp_path, validation_copies=100)
+        create_training_poi_counts(con, 0, raw_dir=raw, gold_dir=gold)
+        assert con.sql('SELECT * FROM training_poi_counts ORDER BY poi_id').fetchall() == before
+
+
+@pytest.mark.parametrize('fold', [-1, N_FOLDS, '0'])
+def test_training_popularity_rejects_invalid_folds(fold):
+    from ml.features.popularity import create_training_poi_counts
+
+    with duckdb.connect() as con:
+        with pytest.raises(ValueError, match='val_fold'):
+            create_training_poi_counts(con, fold)

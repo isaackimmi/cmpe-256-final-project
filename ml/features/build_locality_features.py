@@ -24,11 +24,13 @@ import time
 import duckdb
 
 from ml.config import DATA_GOLD_DIR
+from ml.features.popularity import create_training_poi_counts
 
 
 def build_locality_features(val_fold: int = 0) -> None:
     t0 = time.perf_counter()
     con = duckdb.connect()
+    create_training_poi_counts(con, val_fold, gold_dir=DATA_GOLD_DIR)
 
     pois_path = DATA_GOLD_DIR / "pois_clean.parquet"
     trips_path = DATA_GOLD_DIR / "trips_multicity.parquet"
@@ -112,8 +114,8 @@ def build_locality_features(val_fold: int = 0) -> None:
                     (COALESCE(p.google_rating, gr.mean_r) * p.google_num_reviews + gr.mean_r * 25.0)
                         / (p.google_num_reviews + 25.0) AS bayesian_rating,
                     LN(1.0 + p.google_num_reviews) AS log_google_reviews,
-                    LN(1.0 + p.n_checkins) AS log_n_checkins,
-                    LN(1.0 + p.n_users_visited) AS log_n_users,
+                    LN(1.0 + COALESCE(pc.checkins, 0)) AS log_n_checkins,
+                    LN(1.0 + COALESCE(pc.users, 0)) AS log_n_users,
                     COALESCE(tc.train_tourist_visits, 0) AS train_tourist_visits,
                     LN(1.0 + COALESCE(tc.train_tourist_visits, 0)) AS log_train_tourist_visits,
                     -- Tourist-vs-local ratio (high = iconic destination spot; low = local errand spot)
@@ -129,9 +131,10 @@ def build_locality_features(val_fold: int = 0) -> None:
                     -- Popularity rank within destination city (using only training tourist visits + prior)
                     PERCENT_RANK() OVER (
                         PARTITION BY p.region_id
-                        ORDER BY COALESCE(tc.train_tourist_visits, 0) DESC, p.n_checkins DESC
+                        ORDER BY COALESCE(tc.train_tourist_visits, 0) DESC, COALESCE(pc.checkins, 0) DESC
                     ) AS city_pop_pct_rank
                 FROM '{pois_path}' p
+                LEFT JOIN training_poi_counts pc ON p.poi_id = pc.poi_id
                 CROSS JOIN global_rating gr
                 LEFT JOIN city_center cc ON p.region_id = cc.region_id
                 LEFT JOIN train_tourist_counts tc ON p.poi_id = tc.poi_id
