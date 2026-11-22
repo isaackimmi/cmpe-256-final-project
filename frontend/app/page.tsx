@@ -1,12 +1,10 @@
 "use client";
 
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useRef, useState } from "react";
 import { TripHeader } from "../components/TripHeader";
 import { PlannerLoading } from "../components/PlannerLoading";
-import {
-  Sidebar,
-  SidebarContent,
-} from "../components/ui/Sidebar";
+import { Sidebar, SidebarContent } from "../components/ui/Sidebar";
+import { ItineraryDialog } from "../components/ItineraryDialog";
 import { TripResults } from "../components/TripResults";
 import { TripSetup } from "../components/TripSetup";
 import { MapLoading } from "../components/MapLoading";
@@ -15,6 +13,8 @@ import { useDemoTrip } from "../hooks/useDemoTrip";
 import { useRecommendations } from "../hooks/useRecommendations";
 import { useTheme } from "../hooks/useTheme";
 import type {
+  FeedbackResponse,
+  RecommendationResponse,
   Bounds,
   Destination,
   Place,
@@ -36,12 +36,35 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [cameraRevision, setCameraRevision] = useState(0);
   const recommendations = useRecommendations(request);
-  const results = recommendations.data?.results ?? [];
+  const [refined, setRefined] = useState<FeedbackResponse | null>(null);
+  const [snapshot, setSnapshot] = useState<RecommendationResponse | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const scope = useRef(0);
+  const activeScope = scope.current;
+  const displayed = refined
+    ? {
+        ...recommendations,
+        data: refined,
+        isSuccess: true,
+        isError: false,
+        isFetching: false,
+        isPaused: false,
+      }
+    : recommendations;
+  const results =
+    refined?.results ?? snapshot?.results ?? displayed.data?.results ?? [];
+  function resetFeedback() {
+    scope.current += 1;
+    setRefined(null);
+    setSnapshot(null);
+    setDialogOpen(false);
+  }
   const selected =
     results.find((place) => place.id === selectedId) ?? results[0];
 
   function startTrip() {
     if (!destination || !visited.length) return;
+    resetFeedback();
     setSelectedId(null);
     setCameraRevision((revision) => revision + 1);
     setRequest({
@@ -51,7 +74,14 @@ export default function Home() {
   }
 
   function changeBounds(bounds: Bounds) {
-    setRequest((current) => current && { ...current, bounds });
+    if (
+      dialogOpen ||
+      !request ||
+      JSON.stringify(bounds) === JSON.stringify(request.bounds)
+    )
+      return;
+    resetFeedback();
+    setRequest({ ...request, bounds });
   }
 
   return (
@@ -66,7 +96,7 @@ export default function Home() {
         <Suspense fallback={<MapLoading />}>
           <MapView
             cameraRevision={cameraRevision}
-            receivedResults={recommendations.isSuccess}
+            receivedResults={displayed.isSuccess}
             bounded={Boolean(request?.bounds)}
             results={request ? results : []}
             destinationId={request?.tripworld_region_id ?? null}
@@ -89,10 +119,34 @@ export default function Home() {
           {request && destination ? (
             <TripResults
               destination={destination.name}
-              recommendations={recommendations}
+              recommendations={displayed}
+              itinerary={
+                <ItineraryDialog
+                  key={activeScope}
+                  request={request}
+                  destination={destination.name}
+                  enabled={
+                    !!refined ||
+                    (recommendations.isSuccess &&
+                      !recommendations.isFetching &&
+                      results.length > 0)
+                  }
+                  results={results}
+                  refined={refined}
+                  open={dialogOpen}
+                  setOpen={(open) => {
+                    setSnapshot(open ? (displayed.data ?? null) : null);
+                    setDialogOpen(open);
+                  }}
+                  accept={(data) => {
+                    if (scope.current === activeScope) setRefined(data);
+                  }}
+                />
+              }
               selected={selected}
               onSelect={setSelectedId}
               onEdit={() => {
+                resetFeedback();
                 setRestoreSubmitFocus(true);
                 setRequest(null);
                 setSelectedId(null);
@@ -101,11 +155,14 @@ export default function Home() {
             />
           ) : !editedTrip && demo.isPending && !demo.isPaused ? (
             <PlannerLoading />
-          ) : !editedTrip && (demo.isError || (demo.isPending && demo.isPaused)) ? (
+          ) : !editedTrip &&
+            (demo.isError || (demo.isPending && demo.isPaused)) ? (
             <section>
               <h1>Plan your visit</h1>
               {demo.isPaused ? (
-                <p role="status">The sample trip will load when you’re online.</p>
+                <p role="status">
+                  The sample trip will load when you’re online.
+                </p>
               ) : (
                 <>
                   <p role="alert">We couldn’t load the sample trip.</p>

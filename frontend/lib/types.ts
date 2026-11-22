@@ -41,3 +41,14 @@ export interface RecommendationResponse {
   results: Recommendation[];
   model_version: string;
 }
+
+export type Vote = "like" | "dislike";
+export interface FeedbackRequest extends RecommendationRequest {
+  current_place_ids: string[];
+  feedback: { place_id: string; vote: Vote }[];
+}
+export interface FeedbackResponse extends RecommendationResponse {
+  added_place_ids: string[];
+  removed_place_ids: string[];
+  update_summary: string;
+}
