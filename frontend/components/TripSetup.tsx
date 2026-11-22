@@ -9,7 +9,6 @@ import { plannerStyles } from "./plannerStyles";
 import { SearchField } from "./SearchField";
 import { ScrollArea } from "./ui/ScrollArea";
 import { Button } from "./ui/Button";
-import { plannerStyles } from "./plannerStyles";
 
 type Props = {
   visited: Place[];
