@@ -13,9 +13,7 @@ from ..schemas.recommendations import Recommendation, RecommendationRequest, Rec
 
 
 def get_candidates(request: RecommendationRequest) -> list[Place]:
-    # TODO(model-serving): Replace the fixture scan with Stage 1 retrieval using
-    # the destination and visited POI history. Keep the exclusions and viewport
-    # filter, and return the eligible pool before the ten-place display cutoff.
+    # TODO(model-serving): Use the Stage 1 retrieval model here.
     if request.tripworld_region_id not in {item.id for item in destinations}:
         raise HTTPException(status_code=422, detail="Unknown destination")
     visited = set(request.visited_place_ids)
