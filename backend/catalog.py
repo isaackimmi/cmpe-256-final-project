@@ -1,4 +1,9 @@
+from typing import TypeVar
+
 from .models import Destination, Place
+from .schemas.search import SearchPage, SearchParams
+
+CatalogItem = TypeVar("CatalogItem", Destination, Place)
 
 
 # Synthetic catalog for frontend integration until the Colab export is available.
@@ -16,10 +21,12 @@ places = [
 ]
 
 
-def search(items, params):
+def search(items: list[CatalogItem], params: SearchParams) -> SearchPage[CatalogItem]:
     term = params.q.strip().casefold()
     matches = sorted((item for item in items if term and term in item.name.casefold()),
                      key=lambda item: (item.name.casefold(), item.id))
     end = params.offset + params.limit
-    return {"items": matches[params.offset:end],
-            "next_offset": end if end < len(matches) else None}
+    return SearchPage(
+        items=matches[params.offset:end],
+        next_offset=end if end < len(matches) else None,
+    )
