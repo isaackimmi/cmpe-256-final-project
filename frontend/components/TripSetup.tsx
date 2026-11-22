@@ -83,7 +83,7 @@ export function TripSetup({
             }
             hasMore={destinations.hasNextPage}
             loadingMore={destinations.isFetchingNextPage}
-            loadMore={() => destinations.fetchNextPage()}
+            loadMore={destinations.fetchNextPage}
           />
           {editingDestination && (
             <Button
@@ -124,7 +124,7 @@ export function TripSetup({
           }
           hasMore={places.hasNextPage}
           loadingMore={places.isFetchingNextPage}
-          loadMore={() => places.fetchNextPage()}
+          loadMore={places.fetchNextPage}
         />
         <ScrollArea className="visits">
           <ul aria-label="Selected past places">
