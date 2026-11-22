@@ -55,7 +55,7 @@ export function TripResults({
             : `For your visit to ${destination}`}
         {isFetching && !results.length && <span className="sr-only"> Finding places…</span>}
       </div>
-      {itinerary}
+      <div className="mt-2 mb-4">{itinerary}</div>
       {resetBounds && (
         <Button variant="outline" className="mb-3 border-(--edge) text-(--blue)!" onClick={resetBounds}>
           <Crosshair size={14} /> Search whole destination

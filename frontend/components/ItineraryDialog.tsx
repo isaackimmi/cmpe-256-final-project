@@ -1,5 +1,6 @@
 "use client";
 
+import { Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useAgentFeedback } from "../hooks/useAgentFeedback";
 import type {
@@ -133,7 +134,12 @@ export function ItineraryDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={!enabled} className={plannerStyles.primaryButton}>
+        <Button
+          size="sm"
+          disabled={!enabled}
+          className="rounded-lg bg-[#0865db] text-white hover:bg-[#075cc5]"
+        >
+          <Sparkles aria-hidden="true" className="size-4" />
           Build itinerary
         </Button>
       </DialogTrigger>
