@@ -1,3 +1,6 @@
 timestamp_utc,experiment,author,fold,n_trips,ndcg_10,recall_10,recall_20,recall_100,hitrate_10,mrr_10,coverage_10,diversity_10,notes
 2026-11-22 01:14:57,baseline_popularity_v1,spine,fold_0,89201,0.2698,0.35062,0.44721,0.69014,0.58875,0.33193,0.02228,6.485,Destination tourist popularity among recommendable POIs
 2026-11-22 01:16:17,lgbm_locality_v1,person3_starter,fold_0,89201,0.2846,0.36681,0.46332,0.69014,0.6125,0.35042,0.05028,6.082,LightGBM LambdaRank + Person 1 opportunity-normalized locality features
+2026-11-22 02:57:06,semantic_faiss_v1,person2,fold_0,89201,0.03205,0.04744,0.08016,0.28466,0.10829,0.04308,0.20344,2.441,Zero-shot BGE-small + per-city FAISS + multi-interest max/top3
+2026-11-22 03:17:02,two_tower_locality_v1,person2,fold_0,89201,0.276,0.3577,0.46053,0.70756,0.5996,0.33965,0.0409,6.214,Locality-conditioned PyTorch Two-Tower (in-city Log-Q sampled softmax + MIPS)
+2026-11-22 03:29:32,hybrid_stage1_v1,person2,fold_0,89201,0.28147,0.36335,0.46398,0.70755,0.60718,0.34681,0.03797,6.271,3-way RRF Hybrid (LocalityTwoTower + Popularity + BGE Semantic + Multi-Interest features)
