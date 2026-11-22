@@ -8,7 +8,7 @@
 
 | Directory | Purpose |
 | --- | --- |
-| `frontend/` | Next.js App Router website and server-side health check |
+| `frontend/` | Next.js trip planner and server-side API routes |
 | `backend/` | FastAPI service deployed on Render |
 | `backend/artifacts/` | Place for future model exports and matching serving files |
 | `notebooks/` | [Starter KDD notebook](notebooks/tripworld_kdd.ipynb) for Google Colab |
@@ -62,3 +62,9 @@ The stub returns up to ten deterministic fixture results and model version
 
 `POST /feedback` is optional for this milestone and deferred. The recommendation
 flow works without it.
+
+### Frontend file naming
+
+Use PascalCase for React component files (`MapView.tsx`) and camelCase for
+hook files (`useSearch.ts`). Next.js route entry files follow its prescribed
+names, including `page.tsx`, `layout.tsx`, and `route.ts`.
