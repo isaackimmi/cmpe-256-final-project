@@ -22,7 +22,7 @@ export default function Home() {
   const trip = editedTrip ?? demo.data ?? { destination: null, visited: [] };
   const { destination, visited } = trip;
   return (
-    <main className="relative isolate h-svh min-h-[420px] overflow-hidden bg-(--maphalo) font-sans text-[15px] leading-[1.4] text-(--ink) max-[700px]:h-auto max-[700px]:min-h-svh max-[700px]:overflow-visible max-[700px]:bg-(--glass)">
+    <main className="relative isolate h-svh min-h-[420px] overflow-hidden bg-(--maphalo) font-sans text-[15px] leading-[1.4] text-(--ink) max-[700px]:flow-root max-[700px]:h-auto max-[700px]:min-h-svh max-[700px]:overflow-visible max-[700px]:bg-(--glass)">
       <TripHeader theme={theme} toggle={toggle} />
       <Sidebar
         id="trip-planner"
