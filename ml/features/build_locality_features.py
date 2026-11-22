@@ -5,7 +5,7 @@ Usage:
 
 Outputs in `data/gold/`:
     1. feat_city_supply.parquet         (region_id, venue_schema -> city supply share & affordance)
-    2. feat_poi_stats.parquet           (poi_id -> Bayesian rating, log popularity, tourist ratio,
+    2. feat_poi_stats_fold{val_fold}.parquet           (poi_id -> Bayesian rating, log popularity, tourist ratio,
                                          distance to city center, city rank percentile)
     3. feat_user_locality_taste.parquet (trip_id, venue_schema -> multi-city user share,
                                          opportunity-normalized lift, was_available_in_history)
@@ -38,7 +38,7 @@ def build_locality_features(val_fold: int = 0) -> None:
     targ_path = DATA_GOLD_DIR / "trip_targets_exploded.parquet"
 
     supply_out = DATA_GOLD_DIR / "feat_city_supply.parquet"
-    poi_stats_out = DATA_GOLD_DIR / "feat_poi_stats.parquet"
+    poi_stats_out = DATA_GOLD_DIR / f"feat_poi_stats_fold{val_fold}.parquet"
     taste_out = DATA_GOLD_DIR / "feat_user_locality_taste.parquet"
 
     print("[Person 1 - 1/3] Computing city activity supply & affordances (`feat_city_supply.parquet`)...")
