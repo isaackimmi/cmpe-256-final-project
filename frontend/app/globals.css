@@ -460,6 +460,11 @@ body {
   }
 }
 
+.planner-loading,
+.search-field {
+  --skeleton-fill: #d1d5db;
+}
+
 .loading-placeholder {
   background: var(--skeleton-fill);
   border-radius: 10px;

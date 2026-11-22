@@ -1,7 +1,7 @@
 import { Skeleton } from "./ui/Skeleton";
 export function PlannerLoading() {
   return (
-    <section>
+    <section className="planner-loading">
       <h1>Plan your visit</h1>
       <span className="section-title">Destination</span>
       <Skeleton
