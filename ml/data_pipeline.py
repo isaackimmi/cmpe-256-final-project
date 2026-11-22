@@ -13,7 +13,10 @@ Outputs in `data/gold/`:
 
 from __future__ import annotations
 
+import json
 import time
+from datetime import datetime, timezone
+from pathlib import Path
 import duckdb
 import pandas as pd
 import pandera.pandas as pa
@@ -22,11 +25,11 @@ from pandera.pandas import Column, Check, DataFrameSchema
 from ml.config import (
     DATA_GOLD_DIR,
     DATA_RAW_DIR,
-    DATA_SILVER_DIR,
     MIN_HISTORY_POIS,
     MIN_TARGET_POIS,
     N_FOLDS,
     NOISE_SCHEMAS,
+    REPORTS_DIR,
 )
 
 
@@ -64,24 +67,193 @@ TRIPS_SCHEMA = DataFrameSchema(
 )
 
 
+def audit_raw_inputs(
+    con: duckdb.DuckDBPyConnection, raw_dir: Path = DATA_RAW_DIR,
+) -> dict:
+    """Inspect raw inputs without changing records or writing reports.
+
+    Counts refer to source rows (including repeated visits across trip records).
+    Missing string IDs include NULL, empty, and whitespace-only values. Duplicate
+    counts exclude missing keys and count extra rows beyond the first occurrence.
+    Missing references are counted separately from nonempty, unmatched references.
+    """
+    files = {
+        "pois": raw_dir / "pois.parquet",
+        "metadata": raw_dir / "metadata" / "metadata_all.parquet",
+        "regions": raw_dir / "region_labels.parquet",
+        "travel": raw_dir / "travel_behaviors.parquet",
+    }
+    keys = {"pois": "fsq_place_id", "metadata": "fsq_place_id", "regions": "region_id"}
+    ids = {
+        "pois": ["fsq_place_id", "locality"],
+        "metadata": ["fsq_place_id"],
+        "regions": ["region_id"],
+        "travel": ["user_id", "r_h", "r_o"],
+    }
+    def missing(column: str) -> str:
+        return f"({column} IS NULL OR TRIM(CAST({column} AS VARCHAR)) = '')"
+
+    tables = {}
+    # Relations read Parquet directly; no persistent or temporary database tables.
+    sources = {}
+    for name, path in files.items():
+        sources[name] = "read_parquet('" + str(path).replace("'", "''") + "')"
+        source = sources[name]
+        columns = con.sql(f"DESCRIBE SELECT * FROM {source}").fetchall()
+        expressions = ["COUNT(*)"] + [
+            'COUNT(*) FILTER (WHERE "' + col[0].replace('"', '""') + '" IS NULL)'
+            for col in columns
+        ]
+        counts = con.sql(f"SELECT {', '.join(expressions)} FROM {source}").fetchall()[0]
+        table = {
+            "rows": counts[0],
+            "null_counts": {col[0]: counts[i + 1] for i, col in enumerate(columns)},
+            "missing_ids": {
+                col: con.sql(f"SELECT COUNT(*) FROM {source} WHERE {missing(col)}").fetchall()[0][0]
+                for col in ids[name]
+            },
+        }
+        if name in keys:
+            key = keys[name]
+            table["duplicate_key_rows"] = con.sql(
+                f"SELECT COUNT(*) - COUNT(DISTINCT {key}) FROM {source} WHERE NOT {missing(key)}"
+            ).fetchall()[0][0]
+        tables[name] = table
+
+    def unmatched(source: str, key: str, target: str, target_key: str) -> int:
+        return con.sql(f"""
+            SELECT COUNT(*) FROM {source} s
+            WHERE NOT {missing('s.' + key)}
+              AND NOT EXISTS (
+                  SELECT 1 FROM {target} t WHERE s.{key} = t.{target_key}
+              )
+        """).fetchall()[0][0]
+
+    joins = {
+        "pois_without_metadata": unmatched(sources["pois"], "fsq_place_id", sources["metadata"], "fsq_place_id"),
+        "metadata_without_pois": unmatched(sources["metadata"], "fsq_place_id", sources["pois"], "fsq_place_id"),
+        "pois_without_region_label": unmatched(sources["pois"], "locality", sources["regions"], "region_id"),
+        "travel_home_without_region_label": unmatched(sources["travel"], "r_h", sources["regions"], "region_id"),
+        "travel_destination_without_region_label": unmatched(sources["travel"], "r_o", sources["regions"], "region_id"),
+    }
+    visits = {}
+    for column in ("c_h", "c_o"):
+        source = f"(SELECT v.venue_id AS poi_id, v.ts AS ts FROM {sources['travel']}, UNNEST({column}) AS visits(v))"
+        counts = con.sql(f"""
+            SELECT COUNT(*), COUNT(*) FILTER (WHERE {missing('poi_id')}),
+                   COUNT(*) FILTER (WHERE ts IS NULL) FROM {source}
+        """).fetchall()[0]
+        visits[column] = {
+            "rows": counts[0], "missing_poi_ids": counts[1], "missing_timestamps": counts[2],
+            "unmatched_poi_ids": unmatched(source, "poi_id", sources["pois"], "fsq_place_id"),
+            "empty_lists": con.sql(
+                f"SELECT COUNT(*) FROM {sources['travel']} WHERE len({column}) = 0"
+            ).fetchall()[0][0],
+        }
+    return {"tables": tables, "unmatched_references": joins, "visits": visits}
+
+
+def write_cleaning_summary(
+    raw_audit: dict, cleaning: dict | None = None,
+    output_path: Path = REPORTS_DIR / "data_cleaning_summary.json",
+) -> Path:
+    """Write audit evidence; include cleaning results only after validation passes."""
+    summary = {
+        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "status": "validated" if cleaning is not None else "audit_only",
+        "raw_audit": raw_audit,
+        "cleaning": cleaning,
+        "settings": {
+            "noise_schemas": sorted(NOISE_SCHEMAS),
+            "min_history_pois": MIN_HISTORY_POIS,
+            "min_target_pois": MIN_TARGET_POIS,
+            "n_folds": N_FOLDS,
+        },
+        "notes": [
+            "Audit counts describe source rows, not unique visits across trip records.",
+            "POI exclusion flags overlap; do not add their counts together.",
+            "Audit-only status does not establish that cleaning or validation succeeded.",
+        ],
+    }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(summary, indent=2) + "\n")
+    return output_path
+
+
+def validate_raw_audit(audit: dict) -> None:
+    """Stop on broken keys/references; missing display labels remain allowed."""
+    issues = {}
+    for name, table in audit["tables"].items():
+        for field, count in table["missing_ids"].items():
+            if count:
+                issues[f"{name}.{field}.missing"] = count
+        if table.get("duplicate_key_rows", 0):
+            issues[f"{name}.duplicate_keys"] = table["duplicate_key_rows"]
+    for side, visits in audit["visits"].items():
+        for field in ("missing_poi_ids", "unmatched_poi_ids"):
+            if visits[field]:
+                issues[f"{side}.{field}"] = visits[field]
+    if issues:
+        raise ValueError(f"Invalid input keys/references: {issues}")
+
+
+def normalized_name_sql(google: str, foursquare: str, poi_id: str) -> str:
+    """Trim display names, treating blank text as missing; retain original scripts."""
+    def clean(field: str) -> str:
+        return f"NULLIF(regexp_replace({field}, '^[[:space:]]+|[[:space:]]+$', '', 'g'), '')"
+    return f"COALESCE({clean(google)}, {clean(foursquare)}, {poi_id})"
+
+
+def validate_poi_values(con: duckdb.DuckDBPyConnection, source: str) -> dict:
+    """Reject invalid values; missing ratings/coordinates and external counts are allowed.
+
+    `source` is an internal SQL relation containing the clean catalog columns plus
+    n_reviews_with_text. No review-count comparison across external snapshots is
+    treated as an error.
+    """
+    checks = {
+        "blank_names": "name IS NULL OR regexp_full_match(name, '[[:space:]]*')",
+        "blank_categories": "venue_category IS NULL OR regexp_full_match(venue_category, '[[:space:]]*') OR venue_schema IS NULL OR regexp_full_match(venue_schema, '[[:space:]]*')",
+        "invalid_latitudes": "lat IS NOT NULL AND (NOT isfinite(lat) OR lat NOT BETWEEN -90 AND 90)",
+        "invalid_longitudes": "lon IS NOT NULL AND (NOT isfinite(lon) OR lon NOT BETWEEN -180 AND 180)",
+        "invalid_ratings": "google_rating IS NOT NULL AND (NOT isfinite(google_rating) OR google_rating NOT BETWEEN 1 AND 5)",
+        "negative_counts": "google_num_reviews < 0 OR n_checkins < 0 OR n_users_visited < 0 OR n_reviews < 0 OR n_reviews_with_text < 0",
+        "visitors_exceed_checkins": "n_users_visited > n_checkins",
+        "text_reviews_exceed_reviews": "n_reviews_with_text > n_reviews",
+    }
+    counts = con.sql("SELECT " + ", ".join(
+        f"COUNT(*) FILTER (WHERE {condition})" for condition in checks.values()
+    ) + f" FROM {source}").fetchall()[0]
+    result = dict(zip(checks, counts))
+    if any(result.values()):
+        raise ValueError(f"Invalid POI values: {result}")
+    return result
+
+
 def build_pipeline() -> None:
     t0 = time.perf_counter()
-    DATA_SILVER_DIR.mkdir(parents=True, exist_ok=True)
     DATA_GOLD_DIR.mkdir(parents=True, exist_ok=True)
 
     con = duckdb.connect()
+    print("[Audit] Raw input counts (no records changed):")
+    raw_audit = audit_raw_inputs(con)
+    print(json.dumps(raw_audit, indent=2))
+    write_cleaning_summary(raw_audit)
+    validate_raw_audit(raw_audit)
+
     noise_sql = ", ".join(f"'{s}'" for s in sorted(NOISE_SCHEMAS))
 
     print("[1/5] Building Silver/Gold clean POI catalog (`pois_clean.parquet`)...")
     pois_out = DATA_GOLD_DIR / "pois_clean.parquet"
+    name_sql = normalized_name_sql("p.google_name", "m.fsq_name", "p.fsq_place_id")
     con.execute(f"""
-        COPY (
+        CREATE TEMP TABLE clean_pois AS
             SELECT
                 p.fsq_place_id AS poi_id,
                 p.locality AS region_id,
                 COALESCE(r.city_name, p.locality) AS city_name,
                 COALESCE(r.country_name, m.fsq_country, 'Unknown') AS country_name,
-                COALESCE(NULLIF(p.google_name, ''), NULLIF(m.fsq_name, ''), p.fsq_place_id) AS name,
+                {name_sql} AS name,
                 COALESCE(p.venue_schema, 'schema:Place') AS venue_schema,
                 p.venue_category,
                 p.google_categories,
@@ -107,8 +279,14 @@ def build_pipeline() -> None:
                 ON p.fsq_place_id = m.fsq_place_id
             LEFT JOIN '{DATA_RAW_DIR}/region_labels.parquet' r
                 ON p.locality = r.region_id
-        ) TO '{pois_out}' (FORMAT PARQUET, COMPRESSION ZSTD);
     """)
+    # Validate before publishing the catalog, without adding output columns.
+    poi_value_checks = validate_poi_values(con, f"""(
+        SELECT c.*, p.n_reviews_with_text
+        FROM clean_pois c JOIN '{DATA_RAW_DIR}/pois.parquet' p ON c.poi_id = p.fsq_place_id
+    )""")
+    POIS_SCHEMA.validate(con.sql("SELECT " + ", ".join(POIS_SCHEMA.columns) + " FROM clean_pois").df())
+    con.execute(f"COPY clean_pois TO '{pois_out}' (FORMAT PARQUET, COMPRESSION ZSTD)")
 
     print("[2/5] Creating deterministic User-Grouped 5-Fold CV (`cv_folds.parquet`)...")
     folds_out = DATA_GOLD_DIR / "cv_folds.parquet"
@@ -359,6 +537,81 @@ def build_pipeline() -> None:
         )
     """).fetchall()[0][0]
     assert multi_fold_users == 0, f"CV LEAKAGE DETECTED: {multi_fold_users} users in multiple folds!"
+
+    invalid_output_references = con.sql(f"""
+        SELECT COUNT(*) FROM (
+            SELECT h.trip_id FROM '{hist_out}' h
+            LEFT JOIN '{trips_out}' t ON h.trip_id = t.trip_id
+            LEFT JOIN '{pois_out}' p ON h.poi_id = p.poi_id
+            WHERE t.trip_id IS NULL OR p.poi_id IS NULL
+                OR h.user_id != t.user_id OR h.fold != t.fold
+                OR h.source_region_id = t.dest_region_id
+                OR h.source_region_id IS DISTINCT FROM p.region_id
+            UNION ALL
+            SELECT v.trip_id FROM '{targ_out}' v
+            LEFT JOIN '{trips_out}' t ON v.trip_id = t.trip_id
+            LEFT JOIN '{pois_out}' p ON v.poi_id = p.poi_id
+            WHERE t.trip_id IS NULL OR p.poi_id IS NULL OR NOT p.is_recommendable
+                OR v.user_id != t.user_id OR v.fold != t.fold
+                OR v.dest_region_id IS DISTINCT FROM t.dest_region_id
+                OR v.dest_region_id IS DISTINCT FROM p.region_id
+        )
+    """).fetchall()[0][0]
+    if invalid_output_references:
+        raise ValueError(f"Invalid history/target references: {invalid_output_references}")
+
+    name_counts = con.sql(f"""
+        SELECT
+            COUNT(*) FILTER (WHERE c.name IS DISTINCT FROM COALESCE(NULLIF(p.google_name, ''), NULLIF(m.fsq_name, ''), p.fsq_place_id)),
+            COUNT(*) FILTER (WHERE c.name = c.poi_id),
+            COUNT(*) FILTER (WHERE p.google_rating IS NULL),
+            COUNT(*) FILTER (WHERE p.google_num_reviews IS NULL),
+            COUNT(*) FILTER (WHERE p.n_reviews > p.google_num_reviews)
+        FROM clean_pois c JOIN '{DATA_RAW_DIR}/pois.parquet' p ON c.poi_id = p.fsq_place_id
+        LEFT JOIN '{DATA_RAW_DIR}/metadata/metadata_all.parquet' m ON c.poi_id = m.fsq_place_id
+    """).fetchall()[0]
+
+    # Counts reflect existing rules; this reporting does not change cleaning.
+    trip_counts = con.sql("""
+        SELECT
+            (SELECT COUNT(*) FROM raw_trips),
+            (SELECT COUNT(*) FROM valid_target_trips),
+            (SELECT COUNT(*) FROM final_trips)
+    """).fetchall()[0]
+    cleaning = {
+        "pois": {
+            "input_rows": raw_audit["tables"]["pois"]["rows"],
+            "catalog_rows": len(pois_df),
+            "recommendable_rows": int(pois_df["is_recommendable"].sum()),
+            "noise_flagged": int(pois_df["is_noise"].sum()),
+            "closed_flagged": int(pois_df["is_closed"].sum()),
+            "missing_coordinates": int(pois_df[["lat", "lon"]].isna().any(axis=1).sum()),
+        },
+        "trip_stages": {
+            "raw_records": raw_audit["tables"]["travel"]["rows"],
+            "cross_city_records": trip_counts[0],
+            "enough_eligible_targets": trip_counts[1],
+            "enough_history_final": trip_counts[2],
+        },
+        "missing_value_handling": {
+            "names_normalized": name_counts[0],
+            "poi_id_name_fallbacks": name_counts[1],
+            "missing_ratings_preserved": name_counts[2],
+            "missing_google_counts_zero_filled_existing_policy": name_counts[3],
+            "external_review_count_discrepancies_reported_only": name_counts[4],
+        },
+        "output_users": int(trips_df["user_id"].nunique()),
+        "fold_trip_counts": {str(k): int(v) for k, v in trips_df["fold"].value_counts().sort_index().items()},
+        "validation": {
+            "poi_fold_trip_schemas_passed": True,
+            "poi_value_checks": poi_value_checks,
+            "invalid_output_references": invalid_output_references,
+            "history_target_overlap": leak_cnt,
+            "users_in_multiple_folds": multi_fold_users,
+        },
+    }
+    summary_path = write_cleaning_summary(raw_audit, cleaning)
+    print(f"      Cleaning summary: {summary_path}")
 
     elapsed = time.perf_counter() - t0
     print(f"[5/5] Done in {elapsed:.1f}s! All Pandera & Anti-Leakage checks PASSED.")
