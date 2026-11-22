@@ -1,3 +1,4 @@
+import { Button } from "./ui/Button";
 import { Skeleton } from "./ui/Skeleton";
 export function PlannerLoading() {
   return (
@@ -17,9 +18,9 @@ export function PlannerLoading() {
         />
         <div className="visits" aria-hidden="true" />
       </section>
-      <button className="primary" disabled>
+      <Button className="primary" disabled>
         Find places
-      </button>
+      </Button>
     </section>
   );
 }
