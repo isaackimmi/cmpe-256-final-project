@@ -1,0 +1,315 @@
+[
+  {
+    "label": "desktop compact sparkle button",
+    "box": {
+      "x": 46,
+      "y": 226.6875,
+      "width": 126.828125,
+      "height": 32
+    },
+    "gapToList": 16,
+    "sparkleCount": 1
+  },
+  {
+    "label": "desktop like",
+    "ids": [
+      "a1-kyocera",
+      "demo-market",
+      "demo-garden",
+      "a1-weekenders"
+    ],
+    "sidebar": [
+      "Kyoto City KYOCERA Museum of Art",
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee"
+    ],
+    "markerNames": [
+      "Kyoto City KYOCERA Museum of Art",
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee"
+    ]
+  },
+  {
+    "label": "desktop dislike",
+    "ids": [
+      "demo-garden",
+      "demo-market",
+      "a1-weekenders"
+    ],
+    "sidebar": [
+      "Maruyama Park",
+      "Nishiki Market",
+      "Weekenders Coffee"
+    ],
+    "markerNames": [
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee"
+    ]
+  },
+  {
+    "label": "desktop closed dialog",
+    "ids": [
+      "demo-garden",
+      "demo-market",
+      "a1-weekenders"
+    ],
+    "sidebar": [
+      "Maruyama Park",
+      "Nishiki Market",
+      "Weekenders Coffee"
+    ],
+    "markerNames": [
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee"
+    ]
+  },
+  {
+    "label": "desktop reopened",
+    "ids": [
+      "demo-garden",
+      "demo-market",
+      "a1-weekenders"
+    ],
+    "sidebar": [
+      "Maruyama Park",
+      "Nishiki Market",
+      "Weekenders Coffee"
+    ],
+    "markerNames": [
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee"
+    ]
+  },
+  {
+    "label": "desktop Escape restores trigger focus",
+    "pass": true,
+    "feedbackCalls": [
+      {
+        "tripworld_region_id": "demo-kyoto",
+        "visited_place_ids": [
+          "a1-mamas",
+          "a1-golf"
+        ],
+        "current_place_ids": [
+          "a1-kyocera",
+          "demo-market",
+          "demo-garden",
+          "a1-weekenders"
+        ],
+        "feedback": [
+          {
+            "place_id": "demo-market",
+            "vote": "like"
+          }
+        ]
+      },
+      {
+        "tripworld_region_id": "demo-kyoto",
+        "visited_place_ids": [
+          "a1-mamas",
+          "a1-golf"
+        ],
+        "current_place_ids": [
+          "a1-kyocera",
+          "demo-market",
+          "demo-garden",
+          "a1-weekenders"
+        ],
+        "feedback": [
+          {
+            "place_id": "demo-market",
+            "vote": "like"
+          },
+          {
+            "place_id": "a1-kyocera",
+            "vote": "dislike"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "mobile compact sparkle button",
+    "box": {
+      "x": 22,
+      "y": 475.640625,
+      "width": 126.828125,
+      "height": 32
+    },
+    "gapToList": 16,
+    "sparkleCount": 1
+  },
+  {
+    "label": "mobile like",
+    "ids": [
+      "a1-kyocera",
+      "demo-market",
+      "demo-garden",
+      "a1-weekenders"
+    ],
+    "sidebar": [
+      "Kyoto City KYOCERA Museum of Art",
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee"
+    ],
+    "markerNames": [
+      "Kyoto City KYOCERA Museum of Art",
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee"
+    ]
+  },
+  {
+    "label": "mobile dislike",
+    "ids": [
+      "demo-garden",
+      "demo-market",
+      "a1-weekenders"
+    ],
+    "sidebar": [
+      "Maruyama Park",
+      "Nishiki Market",
+      "Weekenders Coffee"
+    ],
+    "markerNames": [
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee"
+    ]
+  },
+  {
+    "label": "mobile undo",
+    "ids": [
+      "a1-kyocera",
+      "demo-market",
+      "demo-garden",
+      "a1-weekenders"
+    ],
+    "sidebar": [
+      "Kyoto City KYOCERA Museum of Art",
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee"
+    ],
+    "markerNames": [
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee",
+      "Kyoto City KYOCERA Museum of Art"
+    ]
+  },
+  {
+    "label": "mobile closed dialog",
+    "ids": [
+      "a1-kyocera",
+      "demo-market",
+      "demo-garden",
+      "a1-weekenders"
+    ],
+    "sidebar": [
+      "Kyoto City KYOCERA Museum of Art",
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee"
+    ],
+    "markerNames": [
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee",
+      "Kyoto City KYOCERA Museum of Art"
+    ]
+  },
+  {
+    "label": "mobile reopened",
+    "ids": [
+      "a1-kyocera",
+      "demo-market",
+      "demo-garden",
+      "a1-weekenders"
+    ],
+    "sidebar": [
+      "Kyoto City KYOCERA Museum of Art",
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee"
+    ],
+    "markerNames": [
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee",
+      "Kyoto City KYOCERA Museum of Art"
+    ]
+  },
+  {
+    "label": "mobile Escape restores trigger focus",
+    "pass": true,
+    "feedbackCalls": [
+      {
+        "tripworld_region_id": "demo-kyoto",
+        "visited_place_ids": [
+          "a1-mamas",
+          "a1-golf"
+        ],
+        "current_place_ids": [
+          "a1-kyocera",
+          "demo-market",
+          "demo-garden",
+          "a1-weekenders"
+        ],
+        "feedback": [
+          {
+            "place_id": "demo-market",
+            "vote": "like"
+          }
+        ]
+      },
+      {
+        "tripworld_region_id": "demo-kyoto",
+        "visited_place_ids": [
+          "a1-mamas",
+          "a1-golf"
+        ],
+        "current_place_ids": [
+          "a1-kyocera",
+          "demo-market",
+          "demo-garden",
+          "a1-weekenders"
+        ],
+        "feedback": [
+          {
+            "place_id": "demo-market",
+            "vote": "like"
+          },
+          {
+            "place_id": "a1-kyocera",
+            "vote": "dislike"
+          }
+        ]
+      },
+      {
+        "tripworld_region_id": "demo-kyoto",
+        "visited_place_ids": [
+          "a1-mamas",
+          "a1-golf"
+        ],
+        "current_place_ids": [
+          "demo-garden",
+          "demo-market",
+          "a1-weekenders"
+        ],
+        "feedback": [
+          {
+            "place_id": "demo-market",
+            "vote": "like"
+          }
+        ]
+      }
+    ]
+  }
+]

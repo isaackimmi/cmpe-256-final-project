@@ -1,0 +1,153 @@
+[
+  {
+    "label": "Rapid same-place clicks and other vote while pending",
+    "pass": true,
+    "requests": 1,
+    "simulation": "Browser request held to inspect disabled controls; real mouse double click 15ms apart",
+    "allVotesDisabled": true
+  },
+  {
+    "label": "Pending real feedback applied once",
+    "pass": true,
+    "ids": [
+      "a1-kyocera",
+      "demo-market",
+      "demo-garden",
+      "a1-weekenders"
+    ]
+  },
+  {
+    "label": "Simulated 503 retains accepted list without automatic retry",
+    "pass": true,
+    "lastSuccessful": [
+      "Kyoto City KYOCERA Museum of Art",
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee"
+    ]
+  },
+  {
+    "label": "Retry uses live Gemini and applies update",
+    "pass": true,
+    "ids": [
+      "demo-garden",
+      "demo-market",
+      "a1-weekenders"
+    ]
+  },
+  {
+    "label": "Keyboard Tab trapped and Escape restores focus",
+    "pass": true
+  },
+  {
+    "label": "Pan after accepted feedback",
+    "pass": false,
+    "expected": "Liked/disliked feedback remains accepted after background viewport request",
+    "observed": [
+      "Kyoto City KYOCERA Museum of Art",
+      "Nishiki Market",
+      "Maruyama Park",
+      "Weekenders Coffee"
+    ],
+    "responseIDs": [
+      "a1-kyocera",
+      "demo-market",
+      "demo-garden",
+      "a1-weekenders"
+    ]
+  },
+  {
+    "label": "Edit trip and fresh search clear previous feedback",
+    "pass": true,
+    "editRestoredSubmitFocus": true
+  },
+  {
+    "label": "Pending viewport response disables Build itinerary",
+    "pass": true,
+    "simulation": "Only delivery of real viewport response delayed"
+  },
+  {
+    "label": "Late feedback for old scope cannot change restarted trip",
+    "pass": true,
+    "simulation": "Only response delivery delayed; actual Gemini response"
+  },
+  {
+    "label": "Mobile dialog scrolls through all four cards",
+    "pass": true,
+    "height": 464,
+    "content": 516,
+    "top": 52
+  },
+  {
+    "label": "Mobile dark dislike 1",
+    "pass": true,
+    "ids": [
+      "demo-market",
+      "demo-garden",
+      "a1-weekenders"
+    ]
+  },
+  {
+    "label": "Mobile long Undo label layout",
+    "pass": false,
+    "viewport": 390,
+    "dialog": {
+      "left": 9.75,
+      "right": 380.25
+    },
+    "done": {
+      "left": 30.75,
+      "right": 392.671875
+    },
+    "undo": {
+      "left": 30.75,
+      "right": 392.671875
+    },
+    "scrollWidth": 390
+  },
+  {
+    "label": "Mobile dark dislike 2",
+    "pass": true,
+    "ids": [
+      "demo-garden",
+      "a1-weekenders"
+    ]
+  },
+  {
+    "label": "Mobile dark dislike 3",
+    "pass": true,
+    "ids": [
+      "a1-weekenders"
+    ]
+  },
+  {
+    "label": "Mobile dark dislike 4",
+    "pass": true,
+    "ids": []
+  },
+  {
+    "label": "Mobile dark empty state and scrolling",
+    "pass": true,
+    "dimensions": {
+      "client": 144,
+      "scroll": 144,
+      "top": 0
+    },
+    "scrollTop": 0,
+    "horizontalOverflow": false
+  },
+  {
+    "label": "Recover empty itinerary by undo",
+    "pass": true,
+    "ids": [
+      "a1-weekenders"
+    ]
+  },
+  {
+    "label": "Mobile dark recovered sidebar and marker",
+    "pass": true,
+    "ids": [
+      "a1-weekenders"
+    ]
+  }
+]

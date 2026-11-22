@@ -1,0 +1,17 @@
+{
+  "pass": true,
+  "checks": [
+    "Keyboard Enter submits Find places and opens dialog",
+    "ArrowRight/Left move focus between rating choices",
+    "Space submits a successful live like",
+    "Shift+Tab stays in dialog",
+    "Escape restores trigger",
+    "Desktop dark mode"
+  ],
+  "ids": [
+    "a1-kyocera",
+    "demo-market",
+    "demo-garden",
+    "a1-weekenders"
+  ]
+}
