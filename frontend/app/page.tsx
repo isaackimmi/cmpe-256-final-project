@@ -6,7 +6,6 @@ import { PlannerLoading } from "../components/PlannerLoading";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
 } from "../components/ui/Sidebar";
 import { ExploreMenu } from "../components/ExploreMenu";
 import { TripSetup } from "../components/TripSetup";
@@ -80,9 +79,6 @@ export default function Home() {
             />
           )}
         </SidebarContent>
-        <SidebarFooter className="p-0">
-          Interactive prototype · Sample catalog
-        </SidebarFooter>
       </Sidebar>
     </main>
   );
