@@ -11,6 +11,7 @@ body {
   --edge: #d3dbd7;
   --blue: #0865db;
   --tint: #e6effc;
+  --skeleton-fill: #94a3b5;
   --maptext: #60645c;
   --maphalo: #f7f6ed;
   --river: #357d94;
@@ -37,6 +38,7 @@ body {
   --edge: #455057;
   --blue: #80b6ff;
   --tint: #253e5b;
+  --skeleton-fill: #728397;
   --maptext: #bac7c6;
   --maphalo: #252c34;
   --river: #85c8df;
@@ -519,7 +521,7 @@ body {
 }
 
 .loading-placeholder {
-  background: var(--tint);
+  background: var(--skeleton-fill);
   border-radius: 10px;
 }
 .field-placeholder {
