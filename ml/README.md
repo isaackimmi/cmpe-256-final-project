@@ -37,9 +37,11 @@ Once pushed to `main`, each teammate can open their notebook directly in Google 
 
 | Teammate | Branch | Folder They Own | North Star Metric | Outputs |
 | :--- | :--- | :--- | :--- | :--- |
-| **Person 1** (Data & Locality Clues) | `feat/p1-locality` | `ml/features/` | Downstream `NDCG@10` lift | `feat_city_supply.parquet`, `feat_poi_stats.parquet`, `feat_user_locality_taste.parquet` |
+| **Person 1** (Data & Locality Clues) | `feat/p1-locality` | `ml/features/` | Downstream `NDCG@10` lift | `feat_city_supply.parquet`, `feat_poi_stats_foldN.parquet`, `feat_user_locality_taste.parquet` |
 | **Person 2** (Stage 1 Top-100) | `feat/p2-retrieval` | `ml/retrieval/` | **`Recall@100`** | `candidates_*_top100_fold0.parquet`, `poi_embeddings.npy` |
 | **Person 3** (Stage 2 Top-10 + SHAP) | `feat/p3-ranking` | `ml/ranking/` | **`NDCG@10` & `Recall@10`** | `data/preds/*.parquet`, `backend/artifacts/*.joblib`, `reports/leaderboard.csv` |
+
+POI statistics use `feat_poi_stats_foldN.parquet`; build and load the same `--val-fold N`. City supply and user taste remain shared.
 
 **Golden Rules:**
 1. Never edit `ml/data_pipeline.py` or `ml/evaluate.py` without team sign-off—everyone must score on the exact same `cv_folds.parquet`.

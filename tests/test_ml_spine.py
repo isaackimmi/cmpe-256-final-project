@@ -340,3 +340,45 @@ def test_baseline_tiebreak_uses_training_counts_not_raw_totals(tmp_path, monkeyp
     baseline.run_popularity_baseline(val_fold=0, top_k=2)
     with duckdb.connect() as con:
         assert con.sql(f"SELECT * FROM '{candidates}' ORDER BY trip_id, stage1_rank").fetchall() == before
+
+
+def test_feature_build_keeps_each_folds_poi_statistics(tmp_path, monkeypatch):
+    import math
+    import ml.features.build_locality_features as features
+    from ml.features.popularity import create_training_poi_counts
+
+    raw, gold = _write_popularity_inputs(tmp_path)
+    monkeypatch.setattr(features, 'DATA_GOLD_DIR', gold)
+    monkeypatch.setattr(features, 'create_training_poi_counts',
+                        lambda con, fold, **kwargs: create_training_poi_counts(
+                            con, fold, raw_dir=raw, gold_dir=gold))
+    catalog = str(gold / 'pois_clean.parquet').replace("'", "''")
+    history = str(gold / 'trip_history_exploded.parquet').replace("'", "''")
+    targets = str(gold / 'trip_targets_exploded.parquet').replace("'", "''")
+    with duckdb.connect() as con:
+        con.execute(f"""
+            COPY (SELECT poi_id, 'city' AS region_id, 'schema:Museum' AS venue_schema,
+                TRUE AS is_recommendable, TRUE AS has_google_rating,
+                4.0 AS google_rating, 5::BIGINT AS google_num_reviews, 1.0 AS lat, 1.0 AS lon
+                FROM (VALUES ('p1'),('p2'),('validation_only')) AS p(poi_id))
+            TO '{catalog}' (FORMAT PARQUET);
+            COPY (SELECT trip_id, fold, poi_id, TRUE AS is_home,
+                'city' AS source_region_id, 'schema:Museum' AS venue_schema
+                FROM (VALUES (1::BIGINT,1::BIGINT,'p1'),(2,0,'validation_only')) AS h(trip_id,fold,poi_id))
+            TO '{history}' (FORMAT PARQUET);
+            COPY (SELECT * FROM (VALUES ('p2',1::BIGINT),('validation_only',0)) AS t(poi_id,fold))
+            TO '{targets}' (FORMAT PARQUET);
+        """)
+    features.build_locality_features(val_fold=0)
+    fold0 = gold / 'feat_poi_stats_fold0.parquet'
+    fold0_bytes = fold0.read_bytes()
+    features.build_locality_features(val_fold=1)
+    assert fold0.read_bytes() == fold0_bytes
+    fold1 = gold / 'feat_poi_stats_fold1.parquet'
+    assert fold1.is_file()
+    assert not (gold / 'feat_poi_stats.parquet').exists()
+    with duckdb.connect() as con:
+        paths = [str(path).replace("'", "''") for path in (fold0, fold1)]
+        counts = [con.sql(f"SELECT log_n_checkins FROM '{path}' WHERE poi_id='p1'").fetchall()[0][0]
+                  for path in paths]
+    assert counts == pytest.approx([math.log(4), math.log(2)])

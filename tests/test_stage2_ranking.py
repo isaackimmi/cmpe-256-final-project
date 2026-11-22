@@ -89,7 +89,7 @@ def ranking_data(tmp_path: Path) -> tuple[Path, Path, pd.DataFrame]:
     trips.to_parquet(gold / "trips_multicity.parquet", index=False)
     trips[["user_id", "fold"]].drop_duplicates().to_parquet(gold / "cv_folds.parquet", index=False)
     targets.to_parquet(gold / "trip_targets_exploded.parquet", index=False)
-    poi_stats.to_parquet(gold / "feat_poi_stats.parquet", index=False)
+    poi_stats.to_parquet(gold / "feat_poi_stats_fold0.parquet", index=False)
     pd.DataFrame(tastes).to_parquet(gold / "feat_user_locality_taste.parquet", index=False)
     path = gold / "candidates_hybrid_top100_fold0.parquet"
     rows = pd.DataFrame(candidates).sample(frac=1, random_state=42)
@@ -169,7 +169,7 @@ def test_rejects_invalid_candidates(ranking_data, corruption, message):
     [
         ("cv_folds.parquet", "fold", 4, "Gold trip fold disagrees"),
         ("trip_targets_exploded.parquet", "fold", 4, "Gold targets have an invalid fold"),
-        ("feat_poi_stats.parquet", "train_tourist_visits", 1000, "tourist counts outside held-out fold 0"),
+        ("feat_poi_stats_fold0.parquet", "train_tourist_visits", 1000, "tourist counts outside held-out fold 0"),
     ],
 )
 def test_rejects_gold_tables_from_an_inconsistent_split(ranking_data, filename, column, value, message):
@@ -285,3 +285,29 @@ def test_training_export_reload_top10_and_official_evaluator(ranking_data, tmp_p
         joblib.dump({**artifact, "features": artifact["features"][::-1]}, model_path)
         with pytest.raises(ValueError, match="feature names and ordering"):
             load_ranker(model_path)
+
+
+def test_fold_specific_paths_do_not_fall_back_to_shared_statistics(tmp_path):
+    from ml.ranking.features import feature_paths
+
+    assert feature_paths(tmp_path, 0)['poi_stats'].name == 'feat_poi_stats_fold0.parquet'
+    assert feature_paths(tmp_path, 2)['poi_stats'].name == 'feat_poi_stats_fold2.parquet'
+
+
+def test_inference_uses_saved_model_fold(tmp_path, monkeypatch):
+    from ml.ranking import inference
+
+    # An old shared file must not hide a missing file for the model's fold.
+    (tmp_path / 'feat_poi_stats.parquet').write_bytes(b'legacy file')
+    monkeypatch.setattr(inference, 'load_ranker',
+                        lambda _: {'features': [], 'evaluation': {'fold': 2}})
+    with pytest.raises(FileNotFoundError, match='feat_poi_stats_fold2.parquet'):
+        inference.rank_candidates(tmp_path / 'candidates.parquet', tmp_path / 'model.joblib', gold_dir=tmp_path)
+
+
+def test_inference_rejects_model_without_feature_fold(tmp_path, monkeypatch):
+    from ml.ranking import inference
+
+    monkeypatch.setattr(inference, 'load_ranker', lambda _: {'features': []})
+    with pytest.raises(ValueError, match='valid feature fold'):
+        inference.rank_candidates(tmp_path / 'candidates.parquet', tmp_path / 'model.joblib', gold_dir=tmp_path)

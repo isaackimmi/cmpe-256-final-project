@@ -76,8 +76,8 @@ def _validate_training_sources(
     if bad_target_group:
         raise ValueError(f"Gold targets have an invalid fold, POI, or count (trip_id={bad_target_group[0]}).")
 
-    # The Person 1 Parquet has a common filename for all folds. Cross-check its
-    # visit counts before using it so a stale table cannot leak validation visits.
+    # Cross-check the fold-specific table as well; a mislabeled or stale file
+    # must not leak validation visits.
     wrong_poi_stats = con.execute("""
         WITH expected AS (
             SELECT poi_id, COUNT(*) AS n_visits FROM targets WHERE fold <> ? GROUP BY poi_id
@@ -89,7 +89,7 @@ def _validate_training_sources(
     """, [val_fold]).fetchone()
     if wrong_poi_stats:
         raise ValueError(
-            f"feat_poi_stats.parquet does not match tourist counts outside held-out fold {val_fold}. "
+            f"feat_poi_stats_fold{val_fold}.parquet does not match tourist counts outside held-out fold {val_fold}. "
             f"Rebuild it with python -m ml.features.build_locality_features --val-fold {val_fold}."
         )
 
@@ -133,7 +133,7 @@ def _load_ranking_data(
 
     paths = {
         "candidates": candidates_path,
-        **feature_paths(gold_dir),
+        **feature_paths(gold_dir, val_fold),
         "trips": gold_dir / "trips_multicity.parquet",
         "cv_folds": gold_dir / "cv_folds.parquet",
         "targets": gold_dir / "trip_targets_exploded.parquet",
