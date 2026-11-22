@@ -8,7 +8,7 @@
 
 | Directory | Purpose |
 | --- | --- |
-| `frontend/` | Next.js App Router website and server-side health check |
+| `frontend/` | Next.js map planner and server-side API routes |
 | `backend/` | FastAPI service deployed on Render |
 | `backend/artifacts/` | Place for future model exports and matching serving files |
 | `notebooks/` | [Starter KDD notebook](notebooks/tripworld_kdd.ipynb) for Google Colab |
@@ -37,11 +37,23 @@ npm run dev
 
 Open [the app](http://localhost:3000). Open [the connection check](http://localhost:3000/api/health) to verify that Next.js can reach FastAPI. A healthy response is `{"status":"ok"}`. A 503 means the backend URL is missing or the service could not answer successfully.
 
+### Try the local planner
+
+Search past places for **Park** and select **Demo Park**. Choose **Kyoto (demo)**
+as the destination and submit. The stub returns Demo Garden and Demo Market.
+Pan or zoom to narrow the list to places in view. Panning outside Kyoto can
+produce an empty list.
+
+Set `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` in `frontend/.env.local` to use the
+Mapbox street and dark basemaps. Without a token the local map uses MapLibre
+with bundled world land outlines. This preview supports pins, panning and zoom
+without fetching street tiles. Both modes send viewport bounds to FastAPI.
+
 ## Deploy
 
 1. In Render, create a **Blueprint** from this repository. The root `render.yaml` configures the Python web service, build command, start command, and health check. After deployment, open `/health` on its Render URL.
 2. In Vercel, import the same repository as a Next.js project. Set **Root Directory** to `frontend`, use Node.js 24, and keep the framework build defaults.
-3. Set the Vercel environment variable `MODEL_API_URL` to the Render service's HTTPS origin. Set it in each environment that needs the backend, then deploy or redeploy.
+3. Set the Vercel environment variable `MODEL_API_URL` to the Render service's HTTPS origin. Set `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` to a public Mapbox token restricted to your site origins. Set these variables before building the frontend.
 4. Open `/api/health` on the Vercel URL and verify the same JSON response. This checks the full path from the website to the backend.
 
 See the [Render Blueprint reference](https://render.com/docs/blueprint-spec) and [Vercel monorepo guide](https://vercel.com/docs/monorepos).
@@ -55,9 +67,8 @@ The two catalog searches currently use labeled synthetic fixtures. Both accept
 - `GET /destinations/search` searches destination names.
 
 Both return `items` and `next_offset` (null on the last page). In the frontend,
-TanStack Query's `useInfiniteQuery` can use the search type and debounced text
-as the query key, start at offset zero, and pass each next offset as the page
-parameter.
+the search hooks use TanStack Query's `useInfiniteQuery` to request the first
+page after typing settles and pass the returned offset for each subsequent page.
 
 `POST /recommendations` accepts a destination, past places, and optional map
 bounds. Example body:
