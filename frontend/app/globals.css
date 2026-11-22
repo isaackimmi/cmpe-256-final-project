@@ -296,7 +296,9 @@ body {
   margin-bottom: 3px;
 }
 .panel .subtitle {
-  margin: 0 0 17px;
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0 0 6px;
 }
 .rank-list {
   display: grid;
