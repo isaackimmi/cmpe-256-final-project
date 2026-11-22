@@ -50,7 +50,7 @@ export function TripResults({
         {loading && !results.length && <span className="sr-only"> Finding places…</span>}
       </div>
       {resetBounds && (
-        <Button variant="outline" className="reset" onClick={resetBounds}>
+        <Button variant="outline" className="mb-3 border-(--edge) text-(--blue)!" onClick={resetBounds}>
           <Crosshair size={14} /> Search whole destination
         </Button>
       )}

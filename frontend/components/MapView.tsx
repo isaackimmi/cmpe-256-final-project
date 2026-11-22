@@ -28,6 +28,9 @@ interface MapViewProps {
   theme: "light" | "dark";
 }
 
+const controlButtonClass = "h-10 w-[42px] cursor-pointer rounded-none hover:bg-(--tint) focus-visible:outline-2 focus-visible:-outline-offset-3 focus-visible:outline-(--blue) max-[701px]:h-[31px] max-[701px]:w-[33px]";
+const mapCaptionClass = "absolute right-2 rounded bg-(--glass) px-1.5 py-0.5 text-[10px] leading-[1.4] text-(--muted)";
+
 const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 const Marker = token ? Mapbox.Marker : MapLibre.Marker;
 const initialView = { longitude: 135.759, latitude: 35.008, zoom: 13.2 };
@@ -185,7 +188,7 @@ export default function MapView({
   );
 
   return (
-    <div className="trip-map">
+    <div className="relative size-full [container-type:size]">
       {token ? (
         <Mapbox.Map
           {...mapProps}
@@ -209,12 +212,17 @@ export default function MapView({
         </MapLibre.Map>
       )}
       {!camera && !mapFailed && <MapLoading />}
-      <div className="map-tools" role="group" aria-label="Map controls">
+      <div
+        role="group"
+        aria-label="Map controls"
+        className="absolute right-[22px] bottom-10 flex flex-col divide-y divide-(--edge) overflow-hidden rounded-[13px] border border-(--edge) bg-(--glass) shadow-lg backdrop-blur-md max-[701px]:right-2 max-[701px]:bottom-[25px] max-[701px]:flex-row max-[701px]:divide-x max-[701px]:divide-y-0 max-[701px]:rounded-[9px]"
+      >
         <Button
           variant="ghost"
           size="icon"
           type="button"
           aria-label="Zoom in"
+          className={controlButtonClass}
           disabled={!camera}
           onClick={(event) =>
             camera?.zoomIn({}, { originalEvent: event.nativeEvent })
@@ -227,6 +235,7 @@ export default function MapView({
           size="icon"
           type="button"
           aria-label="Zoom out"
+          className={controlButtonClass}
           disabled={!camera}
           onClick={(event) =>
             camera?.zoomOut({}, { originalEvent: event.nativeEvent })
@@ -239,6 +248,7 @@ export default function MapView({
           size="icon"
           type="button"
           aria-label="Reset map"
+          className={controlButtonClass}
           disabled={!camera}
           onClick={resetMap}
         >
@@ -246,7 +256,7 @@ export default function MapView({
         </Button>
       </div>
       {!token && (
-        <div className="map-credits">
+        <div className={`${mapCaptionClass} bottom-[5px] [&_a]:underline`}>
           <span>Offline preview</span> ·{" "}
           {atlas && (
             <>
@@ -262,7 +272,7 @@ export default function MapView({
         </div>
       )}
       {mapFailed && (
-        <span className="map-status" role="status">
+        <span className={`${mapCaptionClass} bottom-6 max-w-60`} role="status">
           Map could not load. Places are available in the list.
         </span>
       )}

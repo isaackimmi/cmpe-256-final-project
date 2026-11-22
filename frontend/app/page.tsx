@@ -77,7 +77,7 @@ export default function Home() {
       <section
         id="trip-map"
         tabIndex={-1}
-        className="map-region"
+        className="absolute inset-0 max-[701px]:relative max-[701px]:inset-auto max-[701px]:h-[calc(34svh+56px)] max-[701px]:min-h-[210px]"
         aria-label="Recommendation map"
       >
         <Suspense fallback={<MapLoading />}>
