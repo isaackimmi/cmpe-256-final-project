@@ -1,82 +1,143 @@
-import { useEffect, useRef } from "react";
-import { ArrowLeft, Crosshair, LoaderCircle, MapPin } from "lucide-react";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, Check, Crosshair, LoaderCircle } from "lucide-react";
 import type { Recommendation } from "../lib/types";
 import { Button } from "./ui/Button";
 
 type Props = {
   destination: string;
   results: Recommendation[];
-  selectedId: string | null;
+  selected?: Recommendation;
   onSelect: (id: string) => void;
   onEdit: () => void;
   resetBounds?: () => void;
   loading: boolean;
   failed: boolean;
   retry: () => void;
-  demo: boolean;
 };
 
-export function TripResults(props: Props) {
-  const { results, selectedId } = props;
+type Vote = "Like" | "Dislike";
+type Votes = Record<string, Vote>;
+const voteKey = "tripworld-session-votes";
+
+export function TripResults({
+  destination,
+  results,
+  selected,
+  onSelect,
+  onEdit,
+  resetBounds,
+  loading,
+  failed,
+  retry,
+}: Props) {
   const title = useRef<HTMLHeadingElement>(null);
-  useEffect(() => { title.current?.focus({ preventScroll: true }); }, []);
+  const [votes, setVotes] = useState<Votes>({});
+  useEffect(() => {
+    title.current?.focus({ preventScroll: true });
+    try {
+      const saved: unknown = JSON.parse(
+        sessionStorage.getItem(voteKey) ?? "{}",
+      );
+      if (saved && typeof saved === "object") {
+        setVotes(
+          Object.fromEntries(
+            Object.entries(saved).filter(
+              ([, v]) => v === "Like" || v === "Dislike",
+            ),
+          ),
+        );
+      }
+    } catch {
+      /* Session storage may be disabled. */
+    }
+  }, []);
+
+  function vote(id: string, value: Vote) {
+    const next = { ...votes };
+    if (next[id] === value) delete next[id];
+    else next[id] = value;
+    setVotes(next);
+    try {
+      sessionStorage.setItem(voteKey, JSON.stringify(next));
+    } catch {
+      /* Keep the vote in memory. */
+    }
+  }
+
   return (
-    <section className="panel-content enter">
-      <Button variant="ghost" className="back" onClick={props.onEdit}>
-        <ArrowLeft size={15} /> Edit trip
+    <section className="enter">
+      <Button variant="ghost" className="edit" onClick={onEdit}>
+        <ArrowLeft size={16} /> Edit trip
       </Button>
-      <div className="heading">
-        <h1 ref={title} tabIndex={-1}>{props.destination}</h1>
-        <p aria-live="polite">
-          {props.failed
-            ? "Recommendations unavailable"
-            : props.loading
-              ? "Finding places…"
-              : `${results.length} ${results.length === 1 ? "place" : "places"} ${props.resetBounds ? "in this map area" : "in this destination"}`}
-        </p>
-      </div>
-      {props.resetBounds && (
-        <Button variant="outline" className="reset" onClick={props.resetBounds}>
-          <Crosshair size={15} /> Search whole destination
+      <h1 ref={title} tabIndex={-1}>
+        Recommended places
+      </h1>
+      <p className="subtitle">For your visit to {destination}</p>
+      {resetBounds && (
+        <Button variant="outline" className="reset" onClick={resetBounds}>
+          <Crosshair size={14} /> Search whole destination
         </Button>
       )}
-      {props.failed && (
+      {failed && (
         <div role="alert" className="notice">
           We couldn’t refresh these recommendations.{" "}
-          <Button variant="ghost" onClick={props.retry}>
+          <Button variant="ghost" onClick={retry}>
             Try again
           </Button>
         </div>
       )}
-      {props.loading && !results.length && (
-        <div className="notice" role="status">
-          <LoaderCircle className="spin" size={18} /> Loading recommendations…
+      {loading && (
+        <div role="status" className="notice">
+          <LoaderCircle className="spin" size={16} /> Finding places…
         </div>
       )}
-      {!props.failed && !props.loading && !results.length && (
-        <div className="notice">
-          <MapPin size={18} /> No matching places in this area.
+      {!failed && !loading && !results.length && (
+        <div role="status" className="notice">
+          No matching places in this area.
         </div>
       )}
-      <ol className="results">
+      <ol className="rank-list">
         {results.map((place) => (
           <li key={place.id}>
             <button
-              className="result"
-              aria-pressed={selectedId === place.id}
-              onClick={() => props.onSelect(place.id)}
+              aria-pressed={selected?.id === place.id}
+              onClick={() => onSelect(place.id)}
             >
               <span className="rank">{place.rank}</span>
               <span>
                 <strong>{place.name}</strong>
-                <small>{place.explanation}</small>
+                <small>
+                  {[place.category, place.locality].filter(Boolean).join(" · ")}
+                </small>
               </span>
             </button>
           </li>
         ))}
       </ol>
-      {props.demo && (
-        <p className="demo-note">Showing sample recommendations.</p>
+      {selected && (
+        <div className="detail" aria-live="polite">
+          <small>About this match</small>
+          <h2>{selected.name}</h2>
+          <p>{selected.explanation}</p>
+          <div
+            className="feedback"
+            role="group"
+            aria-label="Rate this recommendation for this session"
+          >
+            {(["Like", "Dislike"] as const).map((value) => (
+              <Button
+                key={value}
+                variant="outline"
+                aria-pressed={votes[selected.id] === value}
+                onClick={() => vote(selected.id, value)}
+              >
+                {votes[selected.id] === value && <Check size={14} />} {value}
+              </Button>
+            ))}
+          </div>
+        </div>
       )}
     </section>
   );

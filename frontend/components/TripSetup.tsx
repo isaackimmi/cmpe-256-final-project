@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, MapPin, X } from "lucide-react";
+import { ArrowRight, ChevronDown, MapPin, X } from "lucide-react";
 import { useDestinationSearch, usePlaceSearch } from "../hooks/useSearch";
 import type { Destination, Place } from "../lib/types";
 import { SearchField } from "./SearchField";
@@ -11,7 +11,8 @@ type Props = {
   visited: Place[];
   destination: Destination | null;
   setVisited: (places: Place[]) => void;
-  setDestination: (destination: Destination | null) => void;
+  setDestination: (destination: Destination) => void;
+  onInteract: () => void;
   submit: () => void;
 };
 
@@ -20,80 +21,56 @@ export function TripSetup({
   destination,
   setVisited,
   setDestination,
+  onInteract,
   submit,
 }: Props) {
   const [placeText, setPlaceText] = useState("");
   const [destinationText, setDestinationText] = useState("");
-  const places = usePlaceSearch(placeText);
-  const destinations = useDestinationSearch(destinationText);
+  const [editingDestination, setEditingDestination] = useState(false);
+  const [placesOpen, setPlacesOpen] = useState(false);
+  const [destinationsOpen, setDestinationsOpen] = useState(false);
+  const places = usePlaceSearch(placeText, placesOpen);
+  const destinations = useDestinationSearch(destinationText, destinationsOpen);
   const matches = places.data?.pages.flatMap((page) => page.items) ?? [];
 
+  function chooseDestination(item: Destination) {
+    setDestination(item);
+    setEditingDestination(false);
+  }
+
   return (
-    <section className="panel-content enter">
-      <div className="heading">
-        <h1>Explore a destination</h1>
-        <p>Start with places you’ve visited to find where to go next.</p>
-      </div>
-      <SearchField<Place>
-        label="Past places"
-        placeholder="Search past places, e.g. Demo Park"
-        text={placeText}
-        setText={setPlaceText}
-        items={matches.filter(
-          (place) => !visited.some((v) => v.id === place.id),
-        )}
-        detail={(place) => place.tripworld_region_id}
-        loading={
-          places.isPending || (places.isFetching && !places.isFetchingNextPage)
-        }
-        failed={places.isError}
-        retry={() => places.refetch()}
-        hasMore={places.hasNextPage}
-        loadingMore={places.isFetchingNextPage}
-        loadMore={() => places.fetchNextPage()}
-        onSelect={(place) => setVisited([...visited, place])}
-      />
-      {visited.length > 0 && (
-        <ul className="chips">
-          {visited.map((place) => (
-            <li key={place.id}>
-              <span>{place.name}</span>
-              <button
-                type="button"
-                aria-label={`Remove ${place.name}`}
-                onClick={() =>
-                  setVisited(visited.filter((item) => item.id !== place.id))
-                }
-              >
-                <X size={14} />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-      <div className="field-gap">
-        {destination ? (
-          <>
-            <span className="field-label">Destination</span>
-            <div className="chosen">
-              <MapPin size={17} />
-              <strong>{destination.name}</strong>
-              <Button
-                variant="ghost"
-                aria-label="Change destination"
-                onClick={() => setDestination(null)}
-              >
-                <X size={16} />
-              </Button>
-            </div>
-          </>
-        ) : (
+    <section className="enter" onFocusCapture={onInteract}>
+      <h1>Plan your visit</h1>
+      {destination && !editingDestination ? (
+        <>
+          <span className="section-title">Destination</span>
+          <button
+            className="field chosen"
+            aria-label={`Change destination: ${destination.name}`}
+            onClick={() => setEditingDestination(true)}
+          >
+            <MapPin size={18} />
+            <span>
+              {[destination.name, destination.country]
+                .filter(Boolean)
+                .join(", ")}
+            </span>
+            <ChevronDown size={16} />
+          </button>
+        </>
+      ) : (
+        <>
           <SearchField<Destination>
             label="Destination"
-            placeholder="Search a region, e.g. Kyoto"
+            expanded={destinationsOpen}
+            onOpenChange={setDestinationsOpen}
+            placeholder="Search cities or regions"
+            autoFocus={editingDestination}
             text={destinationText}
             setText={setDestinationText}
+            onSelect={chooseDestination}
             items={destinations.data?.pages.flatMap((page) => page.items) ?? []}
+            detail={(city) => city.country ?? ""}
             loading={
               destinations.isPending ||
               (destinations.isFetching && !destinations.isFetchingNextPage)
@@ -103,16 +80,72 @@ export function TripSetup({
             hasMore={destinations.hasNextPage}
             loadingMore={destinations.isFetchingNextPage}
             loadMore={() => destinations.fetchNextPage()}
-            onSelect={setDestination}
           />
-        )}
-      </div>
+          {editingDestination && (
+            <Button
+              variant="ghost"
+              className="cancel"
+              onClick={() => setEditingDestination(false)}
+            >
+              Cancel
+            </Button>
+          )}
+        </>
+      )}
+      <section className="history-section">
+        <h2>Previously visited destinations</h2>
+        <p>Add the specific places you visited on earlier trips.</p>
+        <SearchField<Place>
+          label="Search previously visited places"
+          expanded={placesOpen}
+          onOpenChange={setPlacesOpen}
+          hideLabel
+          placeholder="Search past places"
+          text={placeText}
+          setText={setPlaceText}
+          items={matches.filter(
+            (place) => !visited.some((v) => v.id === place.id),
+          )}
+          detail={(place) => place.locality ?? ""}
+          onSelect={(place) => setVisited([...visited, place])}
+          loading={
+            places.isPending ||
+            (places.isFetching && !places.isFetchingNextPage)
+          }
+          failed={places.isError}
+          retry={() => places.refetch()}
+          hasMore={places.hasNextPage}
+          loadingMore={places.isFetchingNextPage}
+          loadMore={() => places.fetchNextPage()}
+        />
+        <ul className="visits">
+          {visited.map((place) => (
+            <li key={place.id}>
+              <span className="visit-icon">
+                <MapPin size={17} />
+              </span>
+              <div>
+                <strong>{place.name}</strong>
+                {place.locality && <small>{place.locality}</small>}
+              </div>
+              <button
+                aria-label={`Remove ${place.name}`}
+                onClick={() =>
+                  setVisited(visited.filter((item) => item.id !== place.id))
+                }
+              >
+                <X size={15} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
       <Button
-        className="find"
-        disabled={!visited.length || !destination}
+        className="primary"
+        disabled={!visited.length || !destination || editingDestination}
         onClick={submit}
       >
-        Find places <ArrowRight size={17} />
+        Find places <ArrowRight size={18} />
       </Button>
     </section>
   );

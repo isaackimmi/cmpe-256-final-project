@@ -1,9 +1,12 @@
 import type { StyleSpecification } from "maplibre-gl";
+import { atlasCoordinate, type CityAtlas } from "./atlas";
 
-// The local preview uses Natural Earth land outlines distributed by world-atlas.
-// It requires neither an access token nor external tile requests.
-export function previewStyle(dark: boolean): StyleSpecification {
-  return {
+// Keep the world outline visible when the traveler pans beyond the city artwork.
+export function previewStyle(
+  dark: boolean,
+  atlas?: CityAtlas,
+): StyleSpecification {
+  const style: StyleSpecification = {
     version: 8,
     sources: {
       earth: {
@@ -33,4 +36,23 @@ export function previewStyle(dark: boolean): StyleSpecification {
       },
     ],
   };
+  if (atlas) {
+    style.sources.city = {
+      type: "image",
+      url: `/map/atlas/${atlas.slug}-${dark ? "night" : "day"}.webp`,
+      coordinates: [
+        atlasCoordinate(atlas, 0, 0),
+        atlasCoordinate(atlas, 1600, 0),
+        atlasCoordinate(atlas, 1600, 1100),
+        atlasCoordinate(atlas, 0, 1100),
+      ],
+    };
+    style.layers.push({
+      id: "city",
+      type: "raster",
+      source: "city",
+      paint: { "raster-fade-duration": 0 },
+    });
+  }
+  return style;
 }

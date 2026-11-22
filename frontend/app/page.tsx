@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Globe2, Moon, Sun } from "lucide-react";
+import { Compass, Moon, Sun } from "lucide-react";
 import MapView from "../components/MapView";
 import { TripResults } from "../components/TripResults";
 import { TripSetup } from "../components/TripSetup";
 import { Button } from "../components/ui/Button";
+import { useDemoTrip } from "../hooks/useDemoTrip";
 import { useRecommendations } from "../hooks/useRecommendations";
 import { useTheme } from "../hooks/useTheme";
 import type {
@@ -15,15 +16,21 @@ import type {
   RecommendationRequest,
 } from "../lib/types";
 
+type Trip = { destination: Destination | null; visited: Place[] };
+
 export default function Home() {
   const { theme, toggle } = useTheme();
-  const [visited, setVisited] = useState<Place[]>([]);
-  const [destination, setDestination] = useState<Destination | null>(null);
+  const demo = useDemoTrip();
+  const [editedTrip, setEditedTrip] = useState<Trip | null>(null);
+  const trip = editedTrip ?? demo ?? { destination: null, visited: [] };
+  const { destination, visited } = trip;
   const [request, setRequest] = useState<RecommendationRequest | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [cameraRevision, setCameraRevision] = useState(0);
   const recommendations = useRecommendations(request);
   const results = recommendations.data?.results ?? [];
+  const selected =
+    results.find((place) => place.id === selectedId) ?? results[0];
 
   function startTrip() {
     if (!destination || !visited.length) return;
@@ -40,64 +47,72 @@ export default function Home() {
   }
 
   return (
-    <div className="planner">
-      <header className="topbar">
+    <main className={`trip-design ${theme === "dark" ? "night" : "day"}`}>
+      <header className="glass topbar">
         <div className="brand">
-          <span className="brand-symbol">
-            <Globe2 size={23} />
+          <span className="brand-mark">
+            <Compass size={26} />
           </span>
           TripWorld
         </div>
+        <div className="bar-context">
+          <span className="context-dot" />
+          Explore
+        </div>
         <Button
-          variant="outline"
-          className="theme-toggle"
-          aria-label={`Use ${theme === "light" ? "dark" : "light"} theme`}
+          variant="ghost"
+          className="theme"
+          aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
           onClick={toggle}
         >
-          {theme === "light" ? <Moon size={17} /> : <Sun size={17} />}
+          {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
+          <span>{theme === "light" ? "Dark mode" : "Light mode"}</span>
         </Button>
       </header>
-      <main className="workspace">
-        <aside className="sidebar" aria-label="Trip planner">
-          {request && destination ? (
-            <TripResults
-              destination={destination.name}
-              results={results}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-              onEdit={() => {
-                setRequest(null);
-                setSelectedId(null);
-              }}
-              resetBounds={request.bounds ? startTrip : undefined}
-              loading={recommendations.isFetching}
-              failed={recommendations.isError}
-              retry={() => recommendations.refetch()}
-              demo={recommendations.data?.model_version === "stub-v1"}
-            />
-          ) : (
-            <TripSetup
-              visited={visited}
-              destination={destination}
-              setVisited={setVisited}
-              setDestination={setDestination}
-              submit={startTrip}
-            />
-          )}
-        </aside>
-        <section className="map-region" aria-label="Recommendation map">
-          <MapView
-            cameraRevision={cameraRevision}
-            isLoading={recommendations.isFetching}
-            results={request ? results : []}
-            destinationId={request?.tripworld_region_id ?? null}
-            selectedId={selectedId}
+      <section className="map-region" aria-label="Recommendation map">
+        <MapView
+          cameraRevision={cameraRevision}
+          isLoading={recommendations.isFetching}
+          results={request ? results : []}
+          destinationId={request?.tripworld_region_id ?? null}
+          previewDestinationId={destination?.id ?? null}
+          onReset={request?.bounds ? startTrip : undefined}
+          selectedId={selected?.id ?? null}
+          onSelect={setSelectedId}
+          onBoundsChange={changeBounds}
+          theme={theme}
+        />
+      </section>
+      <aside className="glass panel sidebar" aria-label="Trip planner">
+        {request && destination ? (
+          <TripResults
+            destination={destination.name}
+            results={results}
+            selected={selected}
             onSelect={setSelectedId}
-            onBoundsChange={changeBounds}
-            theme={theme}
+            onEdit={() => {
+              setRequest(null);
+              setSelectedId(null);
+            }}
+            resetBounds={request.bounds ? startTrip : undefined}
+            loading={recommendations.isFetching}
+            failed={recommendations.isError}
+            retry={() => recommendations.refetch()}
           />
-        </section>
-      </main>
-    </div>
+        ) : (
+          <TripSetup
+            visited={visited}
+            destination={destination}
+            onInteract={() => setEditedTrip((current) => current ?? trip)}
+            setVisited={(next) => setEditedTrip({ destination, visited: next })}
+            setDestination={(next) =>
+              setEditedTrip({ destination: next, visited })
+            }
+            submit={startTrip}
+          />
+        )}
+        <footer>Interactive prototype · Sample catalog</footer>
+      </aside>
+    </main>
   );
 }

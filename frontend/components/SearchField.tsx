@@ -9,6 +9,10 @@ type Option = { id: string; name: string };
 
 type Props<T extends Option> = {
   label: string;
+  hideLabel?: boolean;
+  autoFocus?: boolean;
+  expanded: boolean;
+  onOpenChange: (open: boolean) => void;
   placeholder: string;
   text: string;
   setText: (text: string) => void;
@@ -27,9 +31,8 @@ export function SearchField<T extends Option>(props: Props<T>) {
   const { items, text, setText, onSelect, detail } = props;
   const id = useId();
   const input = useRef<HTMLInputElement>(null);
-  const [open, setOpen] = useState(false);
+  const { expanded, onOpenChange: setOpen } = props;
   const [active, setActive] = useState(-1);
-  const expanded = open && Boolean(text.trim());
   const optionsId = id + "-options";
 
   // The action button can disappear when the query succeeds or reaches its final page.
@@ -52,10 +55,16 @@ export function SearchField<T extends Option>(props: Props<T>) {
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}
     >
-      <label htmlFor={id}>{props.label}</label>
-      <div className="input-wrap">
+      <label
+        className={props.hideLabel ? "sr-only" : "section-title"}
+        htmlFor={id}
+      >
+        {props.label}
+      </label>
+      <div className="field">
         <Search size={17} aria-hidden />
         <Input
+          autoFocus={props.autoFocus}
           ref={input}
           id={id}
           autoComplete="off"
@@ -69,6 +78,7 @@ export function SearchField<T extends Option>(props: Props<T>) {
           value={text}
           placeholder={props.placeholder}
           onFocus={() => setOpen(true)}
+          onClick={() => setOpen(true)}
           onChange={(event) => {
             setText(event.target.value);
             setActive(-1);

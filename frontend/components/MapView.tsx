@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as Mapbox from "react-map-gl/mapbox";
 import * as MapLibre from "react-map-gl/maplibre";
-import type { Map as MapboxMap } from "mapbox-gl";
-import type { Map as MapLibreMap } from "maplibre-gl";
+import { Crosshair, Minus, Plus } from "lucide-react";
+import { atlasCoordinate, atlases } from "./map/atlas";
+import { showTrip, viewportBounds, type Camera } from "./map/camera";
 import type { Bounds, Recommendation } from "../lib/types";
 import { previewStyle } from "./map/preview-style";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -14,6 +15,8 @@ import "./map/map.css";
 interface MapViewProps {
   results: Recommendation[];
   destinationId: string | null;
+  previewDestinationId?: string | null;
+  onReset?: () => void;
   cameraRevision?: number;
   isLoading?: boolean;
   selectedId: string | null;
@@ -22,75 +25,15 @@ interface MapViewProps {
   theme: "light" | "dark";
 }
 
-type Camera = MapboxMap | MapLibreMap;
-
 const token = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 const Marker = token ? Mapbox.Marker : MapLibre.Marker;
-const Navigation = token
-  ? Mapbox.NavigationControl
-  : MapLibre.NavigationControl;
-const initialView = { longitude: 154, latitude: 30, zoom: 1.7 };
-
-function wrapLongitude(lng: number) {
-  return ((((lng + 180) % 360) + 360) % 360) - 180;
-}
-
-// Fit pins into the visible area beside the floating desktop panel.
-function sidebarInset(map: Camera) {
-  const mapBox = map.getContainer().getBoundingClientRect();
-  const panel = document
-    .querySelector("aside[aria-label='Trip planner']")
-    ?.getBoundingClientRect();
-  if (!panel || panel.top >= mapBox.bottom || panel.bottom <= mapBox.top)
-    return 0;
-  return Math.max(0, Math.min(panel.right - mapBox.left, mapBox.width / 2));
-}
-
-function viewportBounds(map: Camera): Bounds {
-  const bounds = map.getBounds();
-  const west = bounds.getWest();
-  const east = bounds.getEast();
-  const wholeWorld = east - west >= 360;
-  return {
-    west: wholeWorld ? -180 : wrapLongitude(west),
-    east: wholeWorld ? 180 : wrapLongitude(east),
-    north: Math.min(90, bounds.getNorth()),
-    south: Math.max(-90, bounds.getSouth()),
-  };
-}
-
-function fitRecommendations(map: Camera, places: Recommendation[]) {
-  const first = places[0];
-  const lngs = places.map((p) => first.lng + wrapLongitude(p.lng - first.lng));
-  const lats = places.map((p) => p.lat);
-  const padding = Math.min(
-    40,
-    map.getContainer().clientHeight / 6,
-    map.getContainer().clientWidth / 8,
-  );
-  map.fitBounds(
-    [
-      [Math.min(...lngs), Math.min(...lats)],
-      [Math.max(...lngs), Math.max(...lats)],
-    ],
-    {
-      padding: {
-        top: padding,
-        bottom: padding,
-        left: sidebarInset(map) + padding,
-        right: padding,
-      },
-      maxZoom: 14,
-      duration: matchMedia("(prefers-reduced-motion: reduce)").matches
-        ? 0
-        : 400,
-    },
-  );
-}
+const initialView = { longitude: 135.759, latitude: 35.008, zoom: 13.2 };
 
 export default function MapView({
   results,
   destinationId,
+  previewDestinationId,
+  onReset,
   cameraRevision = 0,
   isLoading,
   selectedId,
@@ -101,7 +44,15 @@ export default function MapView({
   const [camera, setCamera] = useState<Camera | null>(null);
   const [mapFailed, setMapFailed] = useState(false);
   const fittedTrip = useRef<string | null>(null);
-  const preview = useMemo(() => previewStyle(theme === "dark"), [theme]);
+  const regionId = destinationId ?? previewDestinationId ?? "demo-kyoto";
+  const atlas = atlases[regionId];
+  const cityLabel = atlas ? atlasCoordinate(atlas, 690, 510) : null;
+  const preview = useMemo(
+    () => previewStyle(theme === "dark", atlas),
+    [theme, atlas],
+  );
+  const [labelZoom, setLabelZoom] = useState(initialView.zoom);
+  const setupCity = useRef<string | null>(null);
   const places = useMemo(
     () =>
       results.filter((p) => Number.isFinite(p.lng) && Number.isFinite(p.lat)),
@@ -109,16 +60,25 @@ export default function MapView({
   );
 
   useEffect(() => {
+    if (!camera) return;
     if (!destinationId) {
       fittedTrip.current = null;
+      if (setupCity.current !== regionId) showTrip(camera, regionId, []);
+      setupCity.current = regionId;
       return;
     }
+    setupCity.current = null;
     const trip = JSON.stringify([destinationId, cameraRevision]);
-    if (!camera || isLoading || !places.length || fittedTrip.current === trip)
-      return;
+    if (isLoading || fittedTrip.current === trip) return;
     fittedTrip.current = trip;
-    fitRecommendations(camera, places);
-  }, [camera, cameraRevision, destinationId, isLoading, places]);
+    showTrip(camera, regionId, places);
+  }, [regionId, camera, cameraRevision, destinationId, isLoading, places]);
+
+  function resetMap() {
+    if (!camera) return;
+    if (destinationId && onReset) onReset();
+    else showTrip(camera, regionId, places);
+  }
 
   const mapProps = {
     initialViewState: initialView,
@@ -134,6 +94,8 @@ export default function MapView({
       if (destinationId && event.originalEvent)
         onBoundsChange(viewportBounds(event.target));
     },
+    onZoomEnd: (event: { target: Camera }) =>
+      setLabelZoom(event.target.getZoom()),
     onIdle: (event: { target: Camera }) => {
       if (event.target.isStyleLoaded()) setMapFailed(false);
     },
@@ -145,7 +107,31 @@ export default function MapView({
 
   const content = (
     <>
-      <Navigation position="top-right" showCompass={false} />
+      {!token && atlas && cityLabel && labelZoom >= 11.5 && (
+        <>
+          <Marker
+            longitude={cityLabel[0]}
+            latitude={cityLabel[1]}
+            style={{ pointerEvents: "none" }}
+          >
+            <span aria-hidden="true" className="map-label city-label">
+              {atlas.name}
+            </span>
+          </Marker>
+          {atlas.labels.map(([name, lng, lat, kind]) => (
+            <Marker
+              key={name}
+              longitude={lng}
+              latitude={lat}
+              style={{ pointerEvents: "none" }}
+            >
+              <span aria-hidden="true" className={`map-label ${kind}`}>
+                {name}
+              </span>
+            </Marker>
+          ))}
+        </>
+      )}
       {places.map((place) => (
         <Marker
           key={place.id}
@@ -161,7 +147,16 @@ export default function MapView({
             aria-pressed={selectedId === place.id}
             onClick={() => onSelect(place.id)}
           >
-            {place.rank}
+            <svg viewBox="7 0 40 46" aria-hidden="true">
+              <circle cx="27" cy="46" r="25" className="pin-halo" />
+              <path
+                d="M27 43C23 37 10 27 10 16a17 17 0 1 1 34 0c0 11-13 21-17 27Z"
+                transform="translate(0 3)"
+              />
+              <text x="27" y="24" textAnchor="middle">
+                {place.rank}
+              </text>
+            </svg>
           </button>
         </Marker>
       ))}
@@ -184,16 +179,64 @@ export default function MapView({
           {content}
         </Mapbox.Map>
       ) : (
-        <MapLibre.Map {...mapProps} mapStyle={preview}>
+        <MapLibre.Map
+          {...mapProps}
+          mapStyle={preview}
+          attributionControl={false}
+        >
           {content}
         </MapLibre.Map>
       )}
-      {mapFailed ? (
+      <div className="map-tools" role="group" aria-label="Map controls">
+        <button
+          type="button"
+          aria-label="Zoom in"
+          disabled={!camera}
+          onClick={(event) =>
+            camera?.zoomIn({}, { originalEvent: event.nativeEvent })
+          }
+        >
+          <Plus size={19} />
+        </button>
+        <button
+          type="button"
+          aria-label="Zoom out"
+          disabled={!camera}
+          onClick={(event) =>
+            camera?.zoomOut({}, { originalEvent: event.nativeEvent })
+          }
+        >
+          <Minus size={19} />
+        </button>
+        <button
+          type="button"
+          aria-label="Reset map"
+          disabled={!camera}
+          onClick={resetMap}
+        >
+          <Crosshair size={17} />
+        </button>
+      </div>
+      {!token && (
+        <div className="map-credits">
+          <span>Offline preview</span> ·{" "}
+          {atlas && (
+            <>
+              <a href="https://openfreemap.org/">OpenFreeMap</a> ·{" "}
+              <a href="https://openmaptiles.org/">OpenMapTiles</a> ·{" "}
+              <a href="https://www.openstreetmap.org/copyright">
+                © OpenStreetMap
+              </a>{" "}
+              ·{" "}
+            </>
+          )}
+          <a href="https://www.naturalearthdata.com/">Natural Earth</a>
+        </div>
+      )}
+      {mapFailed && (
         <span className="map-status" role="status">
           Map could not load. Places are available in the list.
         </span>
-      ) : (
-        !token && <span className="map-status">Offline map preview</span>
       )}
     </div>
   );

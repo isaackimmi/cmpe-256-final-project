@@ -39,15 +39,15 @@ Open [the app](http://localhost:3000). Open [the connection check](http://localh
 
 ### Try the local planner
 
-Search past places for **Park** and select **Demo Park**. Choose **Kyoto (demo)**
-as the destination and submit. The stub returns Demo Garden and Demo Market.
+The A1 planner opens with Kyoto and two sample Maui visits. Select **Find places**
+to see four Kyoto recommendations. Choose a row or pin to inspect its match details.
 Pan or zoom to narrow the list to places in view. Panning outside Kyoto can
 produce an empty list.
 
 Set `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` in `frontend/.env.local` to use the
 Mapbox street and dark basemaps. Without a token the local map uses MapLibre
-with bundled world land outlines. This preview supports pins, panning and zoom
-without fetching street tiles. Both modes send viewport bounds to FastAPI.
+with the supplied day/night street maps for Kyoto and London and a world outline
+elsewhere. This preview supports pins, panning and zoom without a tile service. Both modes send viewport bounds to FastAPI.
 
 ## Deploy
 
@@ -60,7 +60,7 @@ See the [Render Blueprint reference](https://render.com/docs/blueprint-spec) and
 
 ### Current API contract
 
-The two catalog searches currently use labeled synthetic fixtures. Both accept
+The two catalog searches currently use sample fixtures. An empty query lists the catalog. Both accept
 `q`, `limit` (default 20, maximum 100), and `offset` (default 0).
 
 - `GET /places/search` searches past places across regions.
@@ -74,7 +74,7 @@ page after typing settles and pass the returned offset for each subsequent page.
 bounds. Example body:
 
 ```json
-{"tripworld_region_id":"demo-kyoto","visited_place_ids":["demo-park"]}
+{"tripworld_region_id":"demo-kyoto","visited_place_ids":["a1-mamas","a1-golf"]}
 ```
 
 The stub returns up to ten deterministic fixture results and model version
@@ -82,7 +82,7 @@ The stub returns up to ten deterministic fixture results and model version
 `south`, `east`, and `north` fields. Bounds narrow the selected destination.
 
 `POST /feedback` is optional for this milestone and deferred. The recommendation
-flow works without it.
+flow works without it. Like and Dislike mark the selected place locally during a visit.
 
 ### Frontend file naming
 

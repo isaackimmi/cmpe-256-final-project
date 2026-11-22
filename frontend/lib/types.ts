@@ -1,9 +1,12 @@
 export interface Destination {
+  country?: string | null;
   id: string;
   name: string;
 }
 
 export interface Place {
+  category?: string | null;
+  locality?: string | null;
   id: string;
   name: string;
   tripworld_region_id: string;
