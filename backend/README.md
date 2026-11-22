@@ -11,3 +11,7 @@ python3.12 -m venv .venv
 ```
 
 Open [the API docs](http://127.0.0.1:8000/docs) to try an endpoint, or [the health endpoint](http://127.0.0.1:8000/health) to check the service.
+
+For dialog feedback, set `GEMINI_API_KEY` in the backend environment.
+`GEMINI_MODEL` defaults to `gemini-3.5-flash-lite`. Browsing requires no key.
+See the [feedback API contract and request diagrams](../docs/BACKEND_RECOMMENDATIONS_AND_AGENT.md).
