@@ -5,6 +5,7 @@ import { ChevronDown, MapPin, X } from "lucide-react";
 import { useDestinationSearch, usePlaceSearch } from "../hooks/useSearch";
 import type { Destination, Place } from "../lib/types";
 import { SearchField } from "./SearchField";
+import { ScrollArea } from "./ui/ScrollArea";
 import { Button } from "./ui/Button";
 
 type Props = {
@@ -125,28 +126,30 @@ export function TripSetup({
           loadingMore={places.isFetchingNextPage}
           loadMore={() => places.fetchNextPage()}
         />
-        <ul className="visits" aria-label="Selected past places">
-          {visited.map((place) => (
-            <li key={place.id}>
-              <span className="visit-icon">
-                <MapPin size={17} />
-              </span>
-              <div>
-                <strong>{place.name}</strong>
-                {place.locality && <small>{place.locality}</small>}
-              </div>
-              <Button
-                variant="ghost"
-                aria-label={`Remove ${place.name}`}
-                onClick={() =>
-                  setVisited(visited.filter((item) => item.id !== place.id))
-                }
-              >
-                <X size={15} />
-              </Button>
-            </li>
-          ))}
-        </ul>
+        <ScrollArea className="visits">
+          <ul aria-label="Selected past places">
+            {visited.map((place) => (
+              <li key={place.id}>
+                <span className="visit-icon">
+                  <MapPin size={17} />
+                </span>
+                <div>
+                  <strong>{place.name}</strong>
+                  {place.locality && <small>{place.locality}</small>}
+                </div>
+                <Button
+                  variant="ghost"
+                  aria-label={`Remove ${place.name}`}
+                  onClick={() =>
+                    setVisited(visited.filter((item) => item.id !== place.id))
+                  }
+                >
+                  <X size={15} />
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </ScrollArea>
       </section>
     </section>
   );

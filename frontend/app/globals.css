@@ -465,3 +465,32 @@ body {
 .field-placeholder {
   height: 43px;
 }
+
+/* Radix owns scrolling in the viewport, including thumb and keyboard input. */
+.visits[data-slot="scroll-area"],
+.dropdown {
+  overflow: hidden;
+  scrollbar-gutter: auto;
+}
+.dropdown [data-slot="scroll-area-viewport"] {
+  max-height: min(186px, 29svh);
+}
+[data-slot="scroll-area-viewport"] {
+  overscroll-behavior-y: contain;
+}
+[data-slot="scroll-area-thumb"] {
+  background: var(--muted);
+  opacity: 0.48;
+}
+.explore-links {
+  background: white;
+  color: #182424;
+}
+[data-theme="dark"] .explore-links {
+  background: #293137;
+  color: #eef4f2;
+}
+.explore-links [data-highlighted] {
+  background: #0865db;
+  color: white;
+}

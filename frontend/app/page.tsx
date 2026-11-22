@@ -3,14 +3,17 @@
 import { useState } from "react";
 import { Compass, Moon, Sun } from "lucide-react";
 import { PlannerLoading } from "../components/PlannerLoading";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+} from "../components/ui/Sidebar";
+import { ExploreMenu } from "../components/ExploreMenu";
 import { TripSetup } from "../components/TripSetup";
 import { Button } from "../components/ui/Button";
 import { useDemoTrip } from "../hooks/useDemoTrip";
 import { useTheme } from "../hooks/useTheme";
-import type {
-  Destination,
-  Place,
-} from "../lib/types";
+import type { Destination, Place } from "../lib/types";
 
 type Trip = { destination: Destination | null; visited: Place[] };
 
@@ -29,10 +32,7 @@ export default function Home() {
           </span>
           TripWorld
         </div>
-        <div className="bar-context">
-          <span className="context-dot" />
-          Explore
-        </div>
+        <ExploreMenu />
         <Button
           variant="ghost"
           className="theme"
@@ -43,34 +43,47 @@ export default function Home() {
           <span>{theme === "light" ? "Dark mode" : "Light mode"}</span>
         </Button>
       </header>
-      <aside className="glass panel sidebar" aria-label="Trip planner">
-        {!editedTrip && demo.isPending ? (
-          <PlannerLoading />
-        ) : !editedTrip && demo.isError ? (
-          <section>
-            <h1>Plan your visit</h1>
-            <p role="alert">We couldn’t load the sample trip.</p>
-            <Button onClick={() => demo.refetch()}>Try again</Button>
-            <Button
-              variant="ghost"
-              onClick={() => setEditedTrip({ destination: null, visited: [] })}
-            >
-              Start an empty trip
-            </Button>
-          </section>
-        ) : (
-          <TripSetup
-            visited={visited}
-            destination={destination}
-            onInteract={() => setEditedTrip((current) => current ?? trip)}
-            setVisited={(next) => setEditedTrip({ destination, visited: next })}
-            setDestination={(next) =>
-              setEditedTrip({ destination: next, visited })
-            }
-          />
-        )}
-        <footer>Interactive prototype · Sample catalog</footer>
-      </aside>
+      <Sidebar
+        id="trip-planner"
+        tabIndex={-1}
+        className="glass panel sidebar"
+        aria-label="Trip planner"
+      >
+        <SidebarContent className="gap-0 flex-none">
+          {!editedTrip && demo.isPending ? (
+            <PlannerLoading />
+          ) : !editedTrip && demo.isError ? (
+            <section>
+              <h1>Plan your visit</h1>
+              <p role="alert">We couldn’t load the sample trip.</p>
+              <Button onClick={() => demo.refetch()}>Try again</Button>
+              <Button
+                variant="ghost"
+                onClick={() =>
+                  setEditedTrip({ destination: null, visited: [] })
+                }
+              >
+                Start an empty trip
+              </Button>
+            </section>
+          ) : (
+            <TripSetup
+              visited={visited}
+              destination={destination}
+              onInteract={() => setEditedTrip((current) => current ?? trip)}
+              setVisited={(next) =>
+                setEditedTrip({ destination, visited: next })
+              }
+              setDestination={(next) =>
+                setEditedTrip({ destination: next, visited })
+              }
+            />
+          )}
+        </SidebarContent>
+        <SidebarFooter className="p-0">
+          Interactive prototype · Sample catalog
+        </SidebarFooter>
+      </Sidebar>
     </main>
   );
 }

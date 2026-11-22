@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Command as CommandPrimitive } from "cmdk";
 import { cn } from "../../lib/utils";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "./InputGroup";
 import { SearchIcon } from "lucide-react";
 
 function Command({
@@ -30,8 +31,10 @@ function CommandInput({
   expanded: boolean;
 }) {
   return (
-    <div data-slot="command-input-wrapper" className="field">
-      <SearchIcon className="size-4 shrink-0 opacity-50" />
+    <InputGroup className="field">
+      <InputGroupAddon className="p-0">
+        <SearchIcon className="size-4 shrink-0" />
+      </InputGroupAddon>
       <CommandPrimitive.Input
         asChild
         data-slot="command-input"
@@ -41,14 +44,14 @@ function CommandInput({
         )}
         {...props}
       >
-        <input
+        <InputGroupInput
           id={id}
           aria-labelledby={id + "-label"}
           aria-expanded={expanded}
           {...(expanded ? {} : { "aria-controls": undefined })}
         />
       </CommandPrimitive.Input>
-    </div>
+    </InputGroup>
   );
 }
 
