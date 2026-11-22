@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, MapPin, X } from "lucide-react";
+import { ArrowRight, ChevronDown, MapPin, X } from "lucide-react";
 import { useDestinationSearch, usePlaceSearch } from "../hooks/useSearch";
 import type { Destination, Place } from "../lib/types";
 import { SearchField } from "./SearchField";
@@ -13,6 +13,7 @@ type Props = {
   setVisited: (places: Place[]) => void;
   setDestination: (destination: Destination) => void;
   onInteract: () => void;
+  submit: () => void;
 };
 
 export function TripSetup({
@@ -21,6 +22,7 @@ export function TripSetup({
   setVisited,
   setDestination,
   onInteract,
+  submit,
 }: Props) {
   const [placeText, setPlaceText] = useState("");
   const [destinationText, setDestinationText] = useState("");
@@ -146,6 +148,13 @@ export function TripSetup({
           ))}
         </ul>
       </section>
+      <Button
+        className="primary"
+        disabled={!visited.length || !destination || editingDestination}
+        onClick={submit}
+      >
+        Find places <ArrowRight size={18} />
+      </Button>
     </section>
   );
 }

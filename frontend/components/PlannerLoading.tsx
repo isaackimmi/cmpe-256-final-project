@@ -16,6 +16,9 @@ export function PlannerLoading() {
         />
         <div className="visits" aria-hidden="true" />
       </section>
+      <button className="primary" disabled>
+        Find places
+      </button>
     </section>
   );
 }

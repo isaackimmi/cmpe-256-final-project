@@ -37,6 +37,11 @@ npm run dev
 
 Open [the app](http://localhost:3000). Open [the connection check](http://localhost:3000/api/health) to verify that Next.js can reach FastAPI. A healthy response is `{"status":"ok"}`. A 503 means the backend URL is missing or the service could not answer successfully.
 
+### Try the local planner
+
+The A1 planner opens with Kyoto and two sample Maui visits. Select **Find places**
+to see four Kyoto recommendations. Choose a row to inspect its match details.
+
 ## Deploy
 
 1. In Render, create a **Blueprint** from this repository. The root `render.yaml` configures the Python web service, build command, start command, and health check. After deployment, open `/health` on its Render URL.
@@ -70,7 +75,7 @@ The stub returns up to ten deterministic fixture results and model version
 `south`, `east`, and `north` fields. Bounds narrow the selected destination.
 
 `POST /feedback` is optional for this milestone and deferred. The recommendation
-flow works without it.
+flow works without it. Like and Dislike mark the selected place locally during a visit.
 
 ### Frontend file naming
 
