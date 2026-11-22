@@ -16,26 +16,17 @@
 
 ## Run locally
 
-Use Python 3.12 and Node.js 24. From the repository root, start the backend:
+From the repository root on macOS or Linux, with Python 3.12, Node.js 24 and npm installed, run:
 
 ```sh
-cd backend
-python3.12 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn --app-dir .. backend.main:app --reload
+./dev
 ```
 
-In a second terminal, start the frontend from the repository root:
+This installs the dependencies on first use, starts FastAPI and Next.js with reload, and connects them. Press Ctrl+C to stop both. The launcher checks the dependency files on subsequent runs. Use `PORT` to change the web port or `BACKEND_PORT` to change the API port.
 
-```sh
-cd frontend
-cp .env.example .env.local
-npm ci
-npm run dev
-```
+Open [the app](http://localhost:3000) or [the frontend-to-backend health check](http://localhost:3000/api/health). A healthy response is `{"status":"ok"}`.
 
-Open [the app](http://localhost:3000). Open [the connection check](http://localhost:3000/api/health) to verify that Next.js can reach FastAPI. A healthy response is `{"status":"ok"}`. A 503 means the backend URL is missing or the service could not answer successfully.
+For a single service, see the [frontend instructions](frontend/README.md) or [backend instructions](backend/README.md).
 
 ### Try the local planner
 

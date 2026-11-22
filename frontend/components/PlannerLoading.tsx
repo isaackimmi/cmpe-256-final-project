@@ -1,32 +1,28 @@
 import { Button } from "./ui/Button";
 import { plannerStyles } from "./plannerStyles";
 import { Skeleton } from "./ui/Skeleton";
+import { SkeletonRow } from "./SkeletonRow";
+
 export function PlannerLoading() {
   return (
-    <section className="planner-loading">
+    <section className="[--skeleton-fill:#d1d5db]">
       <h1>Plan your visit</h1>
-      <span className="section-title">Destination</span>
+      <span className={plannerStyles.label}>Destination</span>
       <Skeleton
-        className="loading-placeholder field-placeholder"
+        className="h-[43px]"
         aria-hidden="true"
       />
-      <section className="history-section">
+      <section className={plannerStyles.history}>
         <h2>Previously visited destinations</h2>
         <p role="status"><span className="sr-only">Loading your trip…</span></p>
-        <Skeleton aria-hidden="true" className="loading-placeholder mb-3 h-4 w-3/4" />
+        <Skeleton aria-hidden="true" className="mb-3 h-4 w-3/4" />
         <Skeleton
-          className="loading-placeholder field-placeholder"
+          className="h-[43px]"
           aria-hidden="true"
         />
-        <div className="visits" aria-hidden="true">
+        <div className={plannerStyles.visits} aria-hidden="true">
           {[0, 1].map((row) => (
-            <div key={row} className="flex h-14 items-center gap-3">
-              <Skeleton className="loading-placeholder size-8" />
-              <div className="grid flex-1 gap-1.5">
-                <Skeleton className="loading-placeholder h-3.5 w-3/5" />
-                <Skeleton className="loading-placeholder h-3 w-2/5" />
-              </div>
-            </div>
+            <SkeletonRow key={row} className="h-14 gap-3" iconClassName="size-8" />
           ))}
         </div>
       </section>
