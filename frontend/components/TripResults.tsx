@@ -10,6 +10,7 @@ import { Button } from "./ui/Button";
 import { plannerStyles } from "./plannerStyles";
 
 type Props = {
+  itinerary: React.ReactNode;
   destination: string;
   recommendations: ReturnType<typeof useRecommendations>;
   selected?: Recommendation;
@@ -19,6 +20,7 @@ type Props = {
 };
 
 export function TripResults({
+  itinerary,
   destination,
   recommendations,
   selected,
@@ -53,6 +55,7 @@ export function TripResults({
             : `For your visit to ${destination}`}
         {isFetching && !results.length && <span className="sr-only"> Finding places…</span>}
       </div>
+      <div className="mt-2 mb-4">{itinerary}</div>
       {resetBounds && (
         <Button variant="outline" className="mb-3 border-(--edge) text-(--blue)!" onClick={resetBounds}>
           <Crosshair size={14} /> Search whole destination
