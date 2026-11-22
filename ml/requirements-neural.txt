@@ -1,0 +1,8 @@
+# Extra dependencies for Person 2 (Embeddings, FAISS, Two-Tower) and Person 3 (AutoML, SHAP)
+sentence-transformers>=3.0.0
+faiss-cpu>=1.8.0
+torch>=2.2.0
+catboost>=1.2.5
+optuna>=3.6.0
+shap>=0.46.0
+mlflow>=2.16.0
