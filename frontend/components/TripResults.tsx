@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, Check, LoaderCircle } from "lucide-react";
+import { useEffect, useRef } from "react";
+import { ArrowLeft } from "lucide-react";
 import type { Recommendation } from "../lib/types";
 import { Skeleton } from "./ui/Skeleton";
 import { ScrollArea } from "./ui/ScrollArea";
-import { Toggle } from "./ui/Toggle";
 import { Button } from "./ui/Button";
 
 type Props = {
@@ -19,10 +18,6 @@ type Props = {
   retry: () => void;
 };
 
-type Vote = "Like" | "Dislike";
-type Votes = Record<string, Vote>;
-const voteKey = "tripworld-session-votes";
-
 export function TripResults({
   destination,
   results,
@@ -34,38 +29,9 @@ export function TripResults({
   retry,
 }: Props) {
   const title = useRef<HTMLHeadingElement>(null);
-  const [votes, setVotes] = useState<Votes>({});
   useEffect(() => {
     title.current?.focus({ preventScroll: true });
-    try {
-      const saved: unknown = JSON.parse(
-        sessionStorage.getItem(voteKey) ?? "{}",
-      );
-      if (saved && typeof saved === "object") {
-        setVotes(
-          Object.fromEntries(
-            Object.entries(saved).filter(
-              ([, v]) => v === "Like" || v === "Dislike",
-            ),
-          ),
-        );
-      }
-    } catch {
-      /* Session storage may be disabled. */
-    }
   }, []);
-
-  function vote(id: string, value: Vote) {
-    const next = { ...votes };
-    if (next[id] === value) delete next[id];
-    else next[id] = value;
-    setVotes(next);
-    try {
-      sessionStorage.setItem(voteKey, JSON.stringify(next));
-    } catch {
-      /* Keep the vote in memory. */
-    }
-  }
 
   return (
     <section className="enter">
@@ -75,18 +41,14 @@ export function TripResults({
       <h1 ref={title} tabIndex={-1}>
         Recommended places
       </h1>
-      <p className="subtitle" role="status">
+      <div className="subtitle" role="status">
         {loading ? (
           <>
-            <LoaderCircle className="spin inline" size={14} />{" "}
-            {results.length
-              ? "Updating places in this map area…"
-              : "Finding places…"}
+            <span className="sr-only">{results.length ? "Updating places in this map area…" : "Finding places…"}</span>
+            <Skeleton aria-hidden="true" className="loading-placeholder my-1 h-4 w-36" />
           </>
-        ) : (
-          <>For your visit to {destination}</>
-        )}
-      </p>
+        ) : <>For your visit to {destination}</>}
+      </div>
       {failed && (
         <div role="alert" className="notice">
           {results.length
@@ -108,7 +70,13 @@ export function TripResults({
             !results.length &&
             [0, 1, 2, 3].map((row) => (
               <li key={row} aria-hidden="true">
-                <Skeleton className="loading-placeholder result-placeholder" />
+                <div className="flex min-h-12 items-center gap-[11px] p-2">
+                  <Skeleton className="loading-placeholder size-[25px] rounded-full" />
+                  <div className="grid flex-1 gap-1.5">
+                    <Skeleton className="loading-placeholder h-3.5 w-3/5" />
+                    <Skeleton className="loading-placeholder h-3 w-2/5" />
+                  </div>
+                </div>
               </li>
             ))}
           {results.map((place) => (
@@ -133,29 +101,6 @@ export function TripResults({
           ))}
         </ol>
       </ScrollArea>
-      {selected && (
-        <div className="detail" aria-live="polite">
-          <small>About this match</small>
-          <h2>{selected.name}</h2>
-          <p>{selected.explanation}</p>
-          <div
-            className="feedback"
-            role="group"
-            aria-label="Rate this recommendation for this session"
-          >
-            {(["Like", "Dislike"] as const).map((value) => (
-              <Toggle
-                key={value}
-                variant="outline"
-                pressed={votes[selected.id] === value}
-                onPressedChange={() => vote(selected.id, value)}
-              >
-                {votes[selected.id] === value && <Check size={14} />} {value}
-              </Toggle>
-            ))}
-          </div>
-        </div>
-      )}
     </section>
   );
 }
