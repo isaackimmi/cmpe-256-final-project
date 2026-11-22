@@ -5,7 +5,7 @@ function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="skeleton"
       className={cn(
-        "rounded-md bg-accent",
+        "rounded-[10px] bg-(--skeleton-fill)",
         className,
       )}
       {...props}

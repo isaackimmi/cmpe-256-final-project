@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef } from "react";
 import type { UseInfiniteQueryResult } from "@tanstack/react-query";
 import { SEARCH_TERM_MAX_LENGTH } from "../hooks/useSearch";
+import { plannerStyles } from "./plannerStyles";
 import { Skeleton } from "./ui/Skeleton";
 import { Command, CommandInput, CommandList, CommandItem } from "./ui/Command";
 import { Label } from "./ui/Label";
@@ -61,13 +62,13 @@ export function SearchField<T extends Option>(props: Props<T>) {
     <Command
       label={props.label}
       shouldFilter={false}
-      className="search-field h-auto overflow-visible"
+      className="relative h-auto overflow-visible [--skeleton-fill:#d1d5db]"
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
       }}
     >
       <Label
-        className={props.hideLabel ? "sr-only" : "section-title"}
+        className={props.hideLabel ? "sr-only" : plannerStyles.label}
         id={id + "-label"}
         htmlFor={id}
       >
@@ -98,18 +99,20 @@ export function SearchField<T extends Option>(props: Props<T>) {
         }}
       />
       {expanded && (
-        <div className="dropdown">
-          <ScrollArea>
+        <div className="absolute inset-x-0 top-full z-3 mt-[5px] overflow-hidden rounded-[10px] border border-(--edge) bg-(--surface) shadow-[0_6px_18px_#172e3520]">
+          <ScrollArea viewportClassName="max-h-[min(186px,29svh)]" thumbClassName="mx-auto flex-none basis-[3px]">
             <CommandList label={props.label} className="max-h-none overflow-visible">
               {items.map((item) => (
                 <CommandItem
                   key={item.id}
+                  className="relative block cursor-pointer px-2.5 py-[9px] pr-[30px] text-sm leading-[1.4] font-[630] hover:bg-(--tint) data-[selected=true]:bg-(--tint)"
                   value={item.id}
                   onMouseDown={(event) => event.preventDefault()}
                   onSelect={() => choose(item)}
                 >
                   <span>{item.name}</span>
-                  {detail && <small>{detail(item)}</small>}
+                  {detail && <small className="block text-xs leading-[1.4] font-normal text-(--muted)">{detail(item)}</small>}
+                  <span aria-hidden="true" className="absolute top-1/2 right-[11px] -translate-y-1/2 text-base font-normal text-(--muted)">+</span>
                 </CommandItem>
               ))}
             </CommandList>
@@ -119,11 +122,11 @@ export function SearchField<T extends Option>(props: Props<T>) {
               }}
             >
               {query.isPaused ? (
-                <div className="dropdown-note" role="status">
+                <div className={plannerStyles.notice} role="status">
                   Search will resume when you’re online.
                 </div>
               ) : query.isError && !query.isFetching ? (
-                <div className="dropdown-note" role="status">
+                <div className={plannerStyles.notice} role="status">
                   Search failed.{" "}
                   <Button
                     variant="ghost"
@@ -143,14 +146,14 @@ export function SearchField<T extends Option>(props: Props<T>) {
                   </span>
                   {[0, 1, 2].map((row) => (
                     <div key={row} aria-hidden="true" className="grid h-14 content-center gap-2 px-2.5">
-                      <Skeleton className="loading-placeholder h-3.5 w-3/5" />
-                      <Skeleton className="loading-placeholder h-3 w-1/3" />
+                      <Skeleton className="h-3.5 w-3/5" />
+                      <Skeleton className="h-3 w-1/3" />
                     </div>
                   ))}
                 </div>
               ) : (
                 !items.length && !query.hasNextPage && (
-                  <div className="dropdown-note" role="status">
+                  <div className={plannerStyles.notice} role="status">
                     No matches.
                   </div>
                 )
