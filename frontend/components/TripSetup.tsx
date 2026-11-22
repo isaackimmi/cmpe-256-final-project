@@ -42,7 +42,8 @@ export function TripSetup({
       {destination && !editingDestination ? (
         <>
           <span className="section-title">Destination</span>
-          <button
+          <Button
+            variant="ghost"
             className="field chosen"
             aria-label={`Change destination: ${destination.name}`}
             onClick={() => setEditingDestination(true)}
@@ -54,7 +55,7 @@ export function TripSetup({
                 .join(", ")}
             </span>
             <ChevronDown size={16} />
-          </button>
+          </Button>
         </>
       ) : (
         <div className="destination-picker">
@@ -134,14 +135,15 @@ export function TripSetup({
                 <strong>{place.name}</strong>
                 {place.locality && <small>{place.locality}</small>}
               </div>
-              <button
+              <Button
+                variant="ghost"
                 aria-label={`Remove ${place.name}`}
                 onClick={() =>
                   setVisited(visited.filter((item) => item.id !== place.id))
                 }
               >
                 <X size={15} />
-              </button>
+              </Button>
             </li>
           ))}
         </ul>

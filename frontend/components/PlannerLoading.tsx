@@ -1,16 +1,17 @@
+import { Skeleton } from "./ui/Skeleton";
 export function PlannerLoading() {
   return (
     <section>
       <h1>Plan your visit</h1>
       <span className="section-title">Destination</span>
-      <div
+      <Skeleton
         className="loading-placeholder field-placeholder"
         aria-hidden="true"
       />
       <section className="history-section">
         <h2>Previously visited destinations</h2>
         <p role="status">Loading your trip…</p>
-        <div
+        <Skeleton
           className="loading-placeholder field-placeholder"
           aria-hidden="true"
         />
