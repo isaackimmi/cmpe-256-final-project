@@ -40,7 +40,7 @@ Open [the app](http://localhost:3000). Open [the connection check](http://localh
 ### Try the local planner
 
 The A1 planner opens with Kyoto and two sample Maui visits. Select **Find places**
-to see four Kyoto recommendations. Choose a row to inspect its match details.
+to see four Kyoto recommendations. Select a row to highlight it.
 
 ## Deploy
 
@@ -74,8 +74,7 @@ The stub returns up to ten deterministic fixture results and model version
 `stub-v1`. For viewport searches, add a `bounds` object with numeric `west`,
 `south`, `east`, and `north` fields. Bounds narrow the selected destination.
 
-`POST /feedback` is optional for this milestone and deferred. The recommendation
-flow works without it. Like and Dislike mark the selected place locally during a visit.
+`POST /feedback` is optional for this milestone and deferred.
 
 ### Frontend file naming
 

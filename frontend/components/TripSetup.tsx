@@ -7,6 +7,7 @@ import type { Destination, Place } from "../lib/types";
 import { SearchField } from "./SearchField";
 import { ScrollArea } from "./ui/ScrollArea";
 import { Button } from "./ui/Button";
+import { plannerStyles } from "./plannerStyles";
 
 type Props = {
   visited: Place[];
@@ -15,6 +16,7 @@ type Props = {
   setDestination: (destination: Destination) => void;
   onInteract: () => void;
   submit: () => void;
+  autoFocusSubmit: boolean;
 };
 
 export function TripSetup({
@@ -24,6 +26,7 @@ export function TripSetup({
   setDestination,
   onInteract,
   submit,
+  autoFocusSubmit,
 }: Props) {
   const [placeText, setPlaceText] = useState("");
   const [destinationText, setDestinationText] = useState("");
@@ -154,7 +157,8 @@ export function TripSetup({
         </ScrollArea>
       </section>
       <Button
-        className="primary"
+        className={plannerStyles.primaryButton}
+        autoFocus={autoFocusSubmit}
         disabled={!visited.length || !destination || editingDestination}
         onClick={submit}
       >

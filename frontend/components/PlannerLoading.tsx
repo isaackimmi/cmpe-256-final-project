@@ -1,4 +1,5 @@
 import { Button } from "./ui/Button";
+import { plannerStyles } from "./plannerStyles";
 import { Skeleton } from "./ui/Skeleton";
 export function PlannerLoading() {
   return (
@@ -29,7 +30,7 @@ export function PlannerLoading() {
           ))}
         </div>
       </section>
-      <Button className="primary" disabled>
+      <Button className={plannerStyles.primaryButton} disabled>
         Find places
       </Button>
     </section>

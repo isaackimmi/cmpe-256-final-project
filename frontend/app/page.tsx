@@ -24,6 +24,7 @@ export default function Home() {
   const [editedTrip, setEditedTrip] = useState<Trip | null>(null);
   const trip = editedTrip ?? demo.data ?? { destination: null, visited: [] };
   const { destination, visited } = trip;
+  const [restoreSubmitFocus, setRestoreSubmitFocus] = useState(false);
   const [request, setRequest] = useState<RecommendationRequest | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const recommendations = useRecommendations(request);
@@ -70,16 +71,14 @@ export default function Home() {
           {request && destination ? (
             <TripResults
               destination={destination.name}
-              results={results}
+              recommendations={recommendations}
               selected={selected}
               onSelect={setSelectedId}
               onEdit={() => {
+                setRestoreSubmitFocus(true);
                 setRequest(null);
                 setSelectedId(null);
               }}
-              loading={recommendations.isFetching}
-              failed={recommendations.isError}
-              retry={() => recommendations.refetch()}
             />
           ) : !editedTrip && demo.isPending ? (
             <PlannerLoading />
@@ -109,6 +108,7 @@ export default function Home() {
                 setEditedTrip({ destination: next, visited })
               }
               submit={startTrip}
+              autoFocusSubmit={restoreSubmitFocus}
             />
           )}
         </SidebarContent>
