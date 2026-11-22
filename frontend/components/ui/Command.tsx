@@ -23,19 +23,31 @@ function Command({
 
 function CommandInput({
   className,
+  id,
+  expanded,
   ...props
-}: React.ComponentProps<typeof CommandPrimitive.Input>) {
+}: React.ComponentProps<typeof CommandPrimitive.Input> & {
+  expanded: boolean;
+}) {
   return (
     <div data-slot="command-input-wrapper" className="field">
       <SearchIcon className="size-4 shrink-0 opacity-50" />
       <CommandPrimitive.Input
+        asChild
         data-slot="command-input"
         className={cn(
           "flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
           className,
         )}
         {...props}
-      />
+      >
+        <input
+          id={id}
+          aria-labelledby={id + "-label"}
+          aria-expanded={expanded}
+          {...(expanded ? {} : { "aria-controls": undefined })}
+        />
+      </CommandPrimitive.Input>
     </div>
   );
 }

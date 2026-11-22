@@ -57,6 +57,7 @@ export function SearchField<T extends Option>(props: Props<T>) {
     >
       <Label
         className={props.hideLabel ? "sr-only" : "section-title"}
+        id={id + "-label"}
         htmlFor={id}
       >
         {props.label}
@@ -66,7 +67,7 @@ export function SearchField<T extends Option>(props: Props<T>) {
         ref={input}
         id={id}
         aria-label={props.label}
-        aria-expanded={expanded}
+        expanded={expanded}
         value={text}
         placeholder={props.placeholder}
         onValueChange={(value) => {
@@ -99,37 +100,43 @@ export function SearchField<T extends Option>(props: Props<T>) {
               </CommandItem>
             ))}
           </CommandList>
-          {props.failed ? (
-            <div className="dropdown-note" role="status">
-              Search failed.{" "}
+          <div
+            onKeyDown={(event) => {
+              if (event.key === "Enter") event.stopPropagation();
+            }}
+          >
+            {props.failed ? (
+              <div className="dropdown-note" role="status">
+                Search failed.{" "}
+                <Button
+                  variant="ghost"
+                  onClick={() => runSearchAction(props.retry)}
+                >
+                  Try again
+                </Button>
+              </div>
+            ) : props.loading ? (
+              <div className="dropdown-note" role="status">
+                <LoaderCircle className="spin" size={14} /> Searching…
+              </div>
+            ) : (
+              !items.length && (
+                <div className="dropdown-note" role="status">
+                  No matches.
+                </div>
+              )
+            )}
+            {props.hasMore && !props.failed && (
               <Button
                 variant="ghost"
-                onClick={() => runSearchAction(props.retry)}
+                className="more"
+                disabled={props.loadingMore}
+                onClick={() => runSearchAction(props.loadMore)}
               >
-                Try again
+                {props.loadingMore ? "Loading…" : "Load more"}
               </Button>
-            </div>
-          ) : props.loading ? (
-            <div className="dropdown-note" role="status">
-              <LoaderCircle className="spin" size={14} /> Searching…
-            </div>
-          ) : (
-            !items.length && (
-              <div className="dropdown-note" role="status">
-                No matches.
-              </div>
-            )
-          )}
-          {props.hasMore && !props.failed && (
-            <Button
-              variant="ghost"
-              className="more"
-              disabled={props.loadingMore}
-              onClick={() => runSearchAction(props.loadMore)}
-            >
-              {props.loadingMore ? "Loading…" : "Load more"}
-            </Button>
-          )}
+            )}
+          </div>
         </div>
       )}
     </Command>
