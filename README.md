@@ -48,22 +48,21 @@ See the [Render Blueprint reference](https://render.com/docs/blueprint-spec) and
 
 ### Current API contract
 
-The two catalog searches currently use labeled synthetic fixtures. Both accept
+The two catalog searches currently use sample fixtures. An empty query lists the catalog. Both accept
 `q`, `limit` (default 20, maximum 100), and `offset` (default 0).
 
 - `GET /places/search` searches past places across regions.
 - `GET /destinations/search` searches destination names.
 
 Both return `items` and `next_offset` (null on the last page). In the frontend,
-TanStack Query's `useInfiniteQuery` can use the search type and debounced text
-as the query key, start at offset zero, and pass each next offset as the page
-parameter.
+the search hooks use TanStack Query's `useInfiniteQuery` to request the first
+page after typing settles and pass the returned offset for each subsequent page.
 
 `POST /recommendations` accepts a destination, past places, and optional map
 bounds. Example body:
 
 ```json
-{"tripworld_region_id":"demo-kyoto","visited_place_ids":["demo-park"]}
+{"tripworld_region_id":"demo-kyoto","visited_place_ids":["a1-mamas","a1-golf"]}
 ```
 
 The stub returns up to ten deterministic fixture results and model version
