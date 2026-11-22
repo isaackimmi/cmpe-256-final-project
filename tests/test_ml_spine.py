@@ -295,3 +295,48 @@ def test_training_popularity_rejects_invalid_folds(fold):
     with duckdb.connect() as con:
         with pytest.raises(ValueError, match='val_fold'):
             create_training_poi_counts(con, fold)
+
+
+def test_baseline_tiebreak_uses_training_counts_not_raw_totals(tmp_path, monkeypatch):
+    import ml.retrieval.baseline_popularity as baseline
+    from ml.features.popularity import create_training_poi_counts
+
+    raw, gold = _write_popularity_inputs(tmp_path)
+    preds = tmp_path / 'preds'
+    monkeypatch.setattr(baseline, 'DATA_GOLD_DIR', gold)
+    monkeypatch.setattr(baseline, 'PREDS_DIR', preds)
+    monkeypatch.setattr(baseline, 'create_training_poi_counts',
+                        lambda con, fold, **kwargs: create_training_poi_counts(
+                            con, fold, raw_dir=raw, gold_dir=gold))
+    catalog = str(gold / 'pois_clean.parquet').replace("'", "''")
+    trips = str(gold / 'trips_multicity.parquet').replace("'", "''")
+    targets = str(gold / 'trip_targets_exploded.parquet').replace("'", "''")
+    with duckdb.connect() as con:
+        con.execute(f"""
+            COPY (SELECT poi_id, 'city' AS region_id, TRUE AS is_recommendable,
+                10::BIGINT AS google_num_reviews, 4.0 AS google_rating, n_checkins
+                FROM (VALUES ('p1',1::BIGINT),('p2',999999),('validation_only',9999999)) AS p(poi_id,n_checkins))
+            TO '{catalog}' (FORMAT PARQUET);
+            COPY (SELECT trip_id, user_id, fold, 'city' AS dest_region_id,
+                1 AS dest_month, 1 AS n_history_cities, 3 AS n_history_pois
+                FROM (VALUES (1::BIGINT,3::BIGINT,0::BIGINT),(2,1,1)) AS t(trip_id,user_id,fold))
+            TO '{trips}' (FORMAT PARQUET);
+            COPY (SELECT 'validation_only' AS poi_id, 0::BIGINT AS fold)
+            TO '{targets}' (FORMAT PARQUET);
+        """)
+    baseline.run_popularity_baseline(val_fold=0, top_k=2)
+    candidates = str(gold / 'candidates_popularity_top2_fold0.parquet').replace("'", "''")
+    predictions = str(preds / 'baseline_popularity_fold0.parquet').replace("'", "''")
+    with duckdb.connect() as con:
+        before = con.sql(f"SELECT * FROM '{candidates}' ORDER BY trip_id, stage1_rank").fetchall()
+        assert con.sql(f"SELECT poi_id, stage1_rank FROM '{candidates}' WHERE fold=0 ORDER BY stage1_rank").fetchall() == [
+            ('p1', 1), ('p2', 2),
+        ]
+        assert con.sql(f"SELECT * FROM '{predictions}' ORDER BY poi_id").columns == ['trip_id', 'poi_id', 'score']
+        # Alter the raw popularity totals; they must not change selection/ranking.
+        con.execute(f"CREATE TABLE updated AS SELECT * REPLACE (0::BIGINT AS n_checkins) FROM '{catalog}'")
+        con.execute(f"COPY updated TO '{catalog}' (FORMAT PARQUET)")
+    _write_popularity_inputs(tmp_path, validation_copies=100)
+    baseline.run_popularity_baseline(val_fold=0, top_k=2)
+    with duckdb.connect() as con:
+        assert con.sql(f"SELECT * FROM '{candidates}' ORDER BY trip_id, stage1_rank").fetchall() == before

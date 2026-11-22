@@ -17,12 +17,14 @@ import time
 import duckdb
 
 from ml.config import DATA_GOLD_DIR, DEFAULT_TOP_K, PREDS_DIR
+from ml.features.popularity import create_training_poi_counts
 
 
 def run_popularity_baseline(val_fold: int = 0, top_k: int = DEFAULT_TOP_K, all_folds_for_training: bool = True) -> None:
     t0 = time.perf_counter()
     PREDS_DIR.mkdir(parents=True, exist_ok=True)
     con = duckdb.connect()
+    create_training_poi_counts(con, val_fold, gold_dir=DATA_GOLD_DIR)
 
     pois_path = DATA_GOLD_DIR / "pois_clean.parquet"
     trips_path = DATA_GOLD_DIR / "trips_multicity.parquet"
@@ -51,11 +53,12 @@ def run_popularity_baseline(val_fold: int = 0, top_k: int = DEFAULT_TOP_K, all_f
                     PARTITION BY p.region_id
                     ORDER BY COALESCE(tp.train_tourist_visits, 0) DESC,
                              p.google_num_reviews DESC,
-                             p.n_checkins DESC,
+                             COALESCE(pc.checkins, 0) DESC,
                              p.poi_id ASC
                 ) AS stage1_rank
             FROM '{pois_path}' p
             LEFT JOIN train_pop tp ON p.poi_id = tp.poi_id
+            LEFT JOIN training_poi_counts pc ON p.poi_id = pc.poi_id
             WHERE p.is_recommendable = TRUE
         )
         SELECT dest_region_id, poi_id, stage1_score, stage1_rank
