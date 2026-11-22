@@ -1,3 +1,4 @@
+import unicodedata
 from typing import TypeVar
 
 from .models import Destination, Place
@@ -38,9 +39,14 @@ places = [
 ]
 
 
+def search_text(value: str) -> str:
+    folded = unicodedata.normalize("NFKD", value.casefold())
+    return "".join(c for c in folded if not unicodedata.combining(c) and c not in "'’ʻ")
+
+
 def search(items: list[CatalogItem], params: SearchParams) -> SearchPage[CatalogItem]:
-    term = params.q.strip().casefold()
-    matches = sorted((item for item in items if term in item.name.casefold()),
+    term = search_text(params.q.strip())
+    matches = sorted((item for item in items if term in search_text(item.name)),
                      key=lambda item: (item.name.casefold(), item.id))
     end = params.offset + params.limit
     return SearchPage(
