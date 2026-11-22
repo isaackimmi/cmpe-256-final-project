@@ -1,0 +1,67 @@
+#!/usr/bin/env python3.12
+"""Start the local API and web app together on macOS or Linux."""
+
+import hashlib
+import os
+from pathlib import Path
+import signal
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parent
+BACKEND = ROOT / "backend"
+FRONTEND = ROOT / "frontend"
+
+
+def install_if_changed(manifest, stamp, command):
+    digest = hashlib.sha256(manifest.read_bytes()).hexdigest()
+    if stamp.is_file() and stamp.read_text() == digest:
+        return
+    subprocess.run(command, cwd=manifest.parent, check=True)
+    stamp.write_text(digest)
+
+
+def main():
+    python = BACKEND / ".venv/bin/python"
+    if not python.exists():
+        subprocess.run([sys.executable, "-m", "venv", BACKEND / ".venv"], check=True)
+    install_if_changed(BACKEND / "requirements.txt", BACKEND / ".venv/.requirements-hash",
+                       [python, "-m", "pip", "install", "-r", "requirements.txt"])
+    install_if_changed(FRONTEND / "package-lock.json", FRONTEND / "node_modules/.dev-lock-hash",
+                       ["npm", "ci"])
+
+    api_port = os.environ.get("BACKEND_PORT", "8000")
+    web_port = os.environ.get("PORT", "3000")
+    env = {**os.environ, "MODEL_API_URL": f"http://127.0.0.1:{api_port}"}
+    processes = []
+    try:
+        processes.append(subprocess.Popen(
+            [python, "-m", "uvicorn", "backend.main:app", "--reload", "--reload-dir",
+             "backend", "--host", "127.0.0.1", "--port", api_port],
+            cwd=ROOT, start_new_session=True,
+        ))
+        processes.append(subprocess.Popen(
+            ["node", "node_modules/next/dist/bin/next", "dev", "--port", web_port],
+            cwd=FRONTEND, env=env, start_new_session=True,
+        ))
+        print(f"TripWorld: http://localhost:{web_port}  |  API: {env['MODEL_API_URL']}", flush=True)
+        _, status = os.wait()
+        return os.waitstatus_to_exitcode(status)
+    finally:
+        for process in processes:
+            try:
+                os.killpg(process.pid, signal.SIGTERM)
+            except ProcessLookupError:
+                pass
+        for process in processes:
+            process.wait()
+
+
+if __name__ == "__main__":
+    signal.signal(signal.SIGTERM, signal.default_int_handler)
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(130)
+    except (OSError, subprocess.CalledProcessError) as error:
+        sys.exit(str(error))

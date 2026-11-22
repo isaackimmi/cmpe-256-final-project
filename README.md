@@ -16,26 +16,17 @@
 
 ## Run locally
 
-Use Python 3.12 and Node.js 24. From the repository root, start the backend:
+From the repository root on macOS or Linux, with Python 3.12, Node.js 24 and npm installed, run:
 
 ```sh
-cd backend
-python3.12 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --reload
-```
-
-In a second terminal, start the frontend from the repository root:
-
-```sh
-cd frontend
-cp .env.example .env.local
-npm ci
 npm run dev
 ```
 
-Open [the app](http://localhost:3000). Open [the connection check](http://localhost:3000/api/health) to verify that Next.js can reach FastAPI. A healthy response is `{"status":"ok"}`. A 503 means the backend URL is missing or the service could not answer successfully.
+This installs the dependencies on first use, starts FastAPI and Next.js with reload, and connects them. Press Ctrl+C to stop both. The launcher checks the dependency files on subsequent runs. Use `PORT` to change the web port or `BACKEND_PORT` to change the API port.
+
+Open [the app](http://localhost:3000) or [the frontend-to-backend health check](http://localhost:3000/api/health). A healthy response is `{"status":"ok"}`.
+
+For a single service, see the [frontend instructions](frontend/README.md) or [backend instructions](backend/README.md).
 
 ## Deploy
 
@@ -45,3 +36,30 @@ Open [the app](http://localhost:3000). Open [the connection check](http://localh
 4. Open `/api/health` on the Vercel URL and verify the same JSON response. This checks the full path from the website to the backend.
 
 See the [Render Blueprint reference](https://render.com/docs/blueprint-spec) and [Vercel monorepo guide](https://vercel.com/docs/monorepos).
+
+### Current API contract
+
+The two catalog searches currently use labeled synthetic fixtures. Both accept
+`q`, `limit` (default 20, maximum 100), and `offset` (default 0).
+
+- `GET /places/search` searches past places across regions.
+- `GET /destinations/search` searches destination names.
+
+Both return `items` and `next_offset` (null on the last page). In the frontend,
+TanStack Query's `useInfiniteQuery` can use the search type and debounced text
+as the query key, start at offset zero, and pass each next offset as the page
+parameter.
+
+`POST /recommendations` accepts a destination, past places, and optional map
+bounds. Example body:
+
+```json
+{"tripworld_region_id":"demo-kyoto","visited_place_ids":["demo-park"]}
+```
+
+The stub returns up to ten deterministic fixture results and model version
+`stub-v1`. For viewport searches, add a `bounds` object with numeric `west`,
+`south`, `east`, and `north` fields. Bounds narrow the selected destination.
+
+`POST /feedback` is optional for this milestone and deferred. The recommendation
+flow works without it.
