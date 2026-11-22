@@ -1,6 +1,6 @@
 # TripWorld frontend
 
-For the full app, follow the [root startup instructions](../README.md#run-locally).
+To start both services, run `npm run dev` from the repository root. See the [root startup instructions](../README.md#run-locally).
 
 To run just Next.js, use Node.js 24 and run these commands from `frontend/`:
 
