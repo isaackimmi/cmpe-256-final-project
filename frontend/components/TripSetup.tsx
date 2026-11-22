@@ -59,7 +59,7 @@ export function TripSetup({
           </button>
         </>
       ) : (
-        <>
+        <div className="destination-picker">
           <SearchField<Destination>
             label="Destination"
             expanded={destinationsOpen}
@@ -90,7 +90,7 @@ export function TripSetup({
               Cancel
             </Button>
           )}
-        </>
+        </div>
       )}
       <section className="history-section">
         <h2>Previously visited destinations</h2>
@@ -118,7 +118,7 @@ export function TripSetup({
           loadingMore={places.isFetchingNextPage}
           loadMore={() => places.fetchNextPage()}
         />
-        <ul className="visits">
+        <ul className="visits" aria-label="Selected past places">
           {visited.map((place) => (
             <li key={place.id}>
               <span className="visit-icon">

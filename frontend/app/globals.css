@@ -209,6 +209,10 @@ body {
   padding-top: 20px;
 }
 .visits {
+  block-size: 7rem;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  overscroll-behavior-y: contain;
   list-style: none;
   padding: 0;
   margin: 10px 0 18px;
@@ -293,6 +297,9 @@ body {
   margin: 0 0 17px;
 }
 .rank-list {
+  max-height: min(15rem, 38svh);
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
   display: grid;
   gap: 4px;
 }
@@ -371,19 +378,35 @@ body {
   flex: 1;
   color: var(--ink);
 }
+.destination-picker,
+.search-field {
+  position: relative;
+}
+.destination-picker > .cancel {
+  position: absolute;
+  top: -4px;
+  right: 0;
+  height: 26px;
+}
 .dropdown {
+  position: absolute;
+  z-index: 3;
+  inset-inline: 0;
+  top: 100%;
+  max-height: min(190px, 30svh);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  overscroll-behavior-y: contain;
+  box-shadow: 0 6px 18px #172e3520;
   margin-top: 5px;
   background: var(--surface);
   border: 1px solid var(--edge);
   border-radius: 10px;
-  overflow: hidden;
 }
 .dropdown ul {
   list-style: none;
   padding: 0;
   margin: 0;
-  max-height: 190px;
-  overflow-y: auto;
 }
 .dropdown li {
   position: relative;
