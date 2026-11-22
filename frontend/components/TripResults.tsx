@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Check, Crosshair, LoaderCircle } from "lucide-react";
 import type { Recommendation } from "../lib/types";
+import { Skeleton } from "./ui/Skeleton";
+import { Toggle } from "./ui/Toggle";
 import { Button } from "./ui/Button";
 
 type Props = {
@@ -110,15 +112,15 @@ export function TripResults({
         {loading &&
           !results.length &&
           [0, 1, 2, 3].map((row) => (
-            <li
-              key={row}
-              className="loading-placeholder result-placeholder"
-              aria-hidden="true"
-            />
+            <li key={row} aria-hidden="true">
+              <Skeleton className="loading-placeholder result-placeholder" />
+            </li>
           ))}
         {results.map((place) => (
           <li key={place.id}>
-            <button
+            <Button
+              variant="ghost"
+              className="h-auto justify-start whitespace-normal"
               aria-pressed={selected?.id === place.id}
               onClick={() => onSelect(place.id)}
             >
@@ -129,7 +131,7 @@ export function TripResults({
                   {[place.category, place.locality].filter(Boolean).join(" · ")}
                 </small>
               </span>
-            </button>
+            </Button>
           </li>
         ))}
       </ol>
@@ -144,14 +146,14 @@ export function TripResults({
             aria-label="Rate this recommendation for this session"
           >
             {(["Like", "Dislike"] as const).map((value) => (
-              <Button
+              <Toggle
                 key={value}
                 variant="outline"
-                aria-pressed={votes[selected.id] === value}
-                onClick={() => vote(selected.id, value)}
+                pressed={votes[selected.id] === value}
+                onPressedChange={() => vote(selected.id, value)}
               >
                 {votes[selected.id] === value && <Check size={14} />} {value}
-              </Button>
+              </Toggle>
             ))}
           </div>
         </div>
