@@ -39,5 +39,7 @@ class Recommendation(Place):
 
 
 class RecommendationResponse(BaseModel):
+    # TODO(model-serving): Accept the loaded ranker artifact's version and pass it
+    # through both responses when a real scoring adapter replaces the fixture.
     model_version: Literal["stub-v1"] = "stub-v1"
     results: list[Recommendation]

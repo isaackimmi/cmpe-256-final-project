@@ -7,6 +7,8 @@ from .schemas.search import SearchPage, SearchParams
 CatalogItem = TypeVar("CatalogItem", Destination, Place)
 
 
+# TODO(model-serving): Supply both search endpoints and retrieval with the same
+# canonical POI and region IDs when replacing these A1 display fixtures.
 # Display records for the A1 sample experience. Coordinates are illustrative.
 destinations = [
     Destination(id="demo-kyoto", name="Kyoto", country="Japan"),
