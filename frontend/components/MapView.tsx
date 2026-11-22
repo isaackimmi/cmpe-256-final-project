@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as Mapbox from "react-map-gl/mapbox";
 import * as MapLibre from "react-map-gl/maplibre";
+import { Button } from "./ui/Button";
 import { Crosshair, Minus, Plus } from "lucide-react";
 import { atlasCoordinate, atlases } from "./map/atlas";
 import { showTrip, viewportBounds, type Camera } from "./map/camera";
@@ -140,8 +141,10 @@ export default function MapView({
           anchor="bottom"
           style={{ zIndex: selectedId === place.id ? 2 : 1 }}
         >
-          <button
-            className="map-pin"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="map-pin p-0 hover:bg-transparent [&_svg]:size-full"
             type="button"
             aria-label={`Select ${place.name} on map`}
             aria-pressed={selectedId === place.id}
@@ -157,7 +160,7 @@ export default function MapView({
                 {place.rank}
               </text>
             </svg>
-          </button>
+          </Button>
         </Marker>
       ))}
     </>
@@ -188,7 +191,9 @@ export default function MapView({
         </MapLibre.Map>
       )}
       <div className="map-tools" role="group" aria-label="Map controls">
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           type="button"
           aria-label="Zoom in"
           disabled={!camera}
@@ -197,8 +202,10 @@ export default function MapView({
           }
         >
           <Plus size={19} />
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
           type="button"
           aria-label="Zoom out"
           disabled={!camera}
@@ -207,15 +214,17 @@ export default function MapView({
           }
         >
           <Minus size={19} />
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
           type="button"
           aria-label="Reset map"
           disabled={!camera}
           onClick={resetMap}
         >
           <Crosshair size={17} />
-        </button>
+        </Button>
       </div>
       {!token && (
         <div className="map-credits">
