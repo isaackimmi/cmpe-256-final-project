@@ -3,10 +3,13 @@
 **Project:** CMPE 256 Final Project — Trip Location Recommender  
 **Owner:** Person #3 — Personalized Ranking and Explainability  
 **Version:** 1.2 — Hybrid Parquet Implementation Kickoff  
-**Status:** Ready for scoped implementation after hybrid data/schema and label-source checks  
+**Status:** Stage 2 ranker implemented and fixture-tested.
+
 **Proposed repository path:** `docs/STAGE2_RANKING_ARCHITECTURE.md`
 
-**New integration information (from Person #2):** The hybrid candidate export is expected at `data/gold/candidates_hybrid_top100_fold0.parquet`. The team provided a command to invoke the existing ranker using this input. The presence, schema, and contents of the file have **not** yet been independently verified.
+Person #2's exporter writes `data/gold/candidates_hybrid_top100_fold0.parquet`. That file and its matching Gold tables are absent from this checkout. The real benchmark and Parquet audit remain pending.
+
+See the [Stage 2 runbook](../ml/ranking/README.md) for the implemented contract, data preparation, and fold-0 training, evaluation, and inference commands.
 
 ---
 
