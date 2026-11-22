@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Command as CommandPrimitive } from "cmdk";
+import { plannerStyles } from "../plannerStyles";
 import { cn } from "../../lib/utils";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "./InputGroup";
 import { SearchIcon } from "lucide-react";
@@ -31,7 +32,7 @@ function CommandInput({
   expanded: boolean;
 }) {
   return (
-    <InputGroup className="field">
+    <InputGroup className={cn(plannerStyles.field, "focus-within:outline-2 focus-within:outline-offset-1 focus-within:outline-(--blue)")}>
       <InputGroupAddon className="p-0">
         <SearchIcon className="size-4 shrink-0" />
       </InputGroupAddon>
@@ -45,6 +46,7 @@ function CommandInput({
         {...props}
       >
         <InputGroupInput
+          className="h-auto min-h-[41px] rounded-none p-0! text-[15px] text-(--ink) placeholder:text-(--muted) focus-visible:outline-none! max-[700px]:text-base"
           id={id}
           aria-labelledby={id + "-label"}
           aria-expanded={expanded}

@@ -7,8 +7,10 @@ import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 function ScrollArea({
   className,
   children,
+  viewportClassName,
+  thumbClassName,
   ...props
-}: React.ComponentProps<typeof ScrollAreaPrimitive.Root>) {
+}: React.ComponentProps<typeof ScrollAreaPrimitive.Root> & { viewportClassName?: string; thumbClassName?: string }) {
   return (
     <ScrollAreaPrimitive.Root
       data-slot="scroll-area"
@@ -17,11 +19,11 @@ function ScrollArea({
     >
       <ScrollAreaPrimitive.Viewport
         data-slot="scroll-area-viewport"
-        className="size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
+        className={cn("size-full rounded-[inherit] overscroll-y-contain transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1", viewportClassName)}
       >
         {children}
       </ScrollAreaPrimitive.Viewport>
-      <ScrollBar />
+      <ScrollBar thumbClassName={thumbClassName} />
       <ScrollAreaPrimitive.Corner />
     </ScrollAreaPrimitive.Root>
   );
@@ -30,8 +32,9 @@ function ScrollArea({
 function ScrollBar({
   className,
   orientation = "vertical",
+  thumbClassName,
   ...props
-}: React.ComponentProps<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>) {
+}: React.ComponentProps<typeof ScrollAreaPrimitive.ScrollAreaScrollbar> & { thumbClassName?: string }) {
   return (
     <ScrollAreaPrimitive.ScrollAreaScrollbar
       data-slot="scroll-area-scrollbar"
@@ -48,7 +51,7 @@ function ScrollBar({
     >
       <ScrollAreaPrimitive.ScrollAreaThumb
         data-slot="scroll-area-thumb"
-        className="relative flex-1 rounded-full bg-border"
+        className={cn("relative flex-1 rounded-full bg-(--muted) opacity-[0.48]", thumbClassName)}
       />
     </ScrollAreaPrimitive.ScrollAreaScrollbar>
   );
