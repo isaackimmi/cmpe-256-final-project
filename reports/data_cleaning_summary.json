@@ -1,0 +1,228 @@
+{
+  "generated_at_utc": "2026-11-22T04:30:34.980405+00:00",
+  "status": "validated",
+  "raw_audit": {
+    "tables": {
+      "pois": {
+        "rows": 687173,
+        "null_counts": {
+          "fsq_place_id": 0,
+          "locality": 0,
+          "venue_category": 0,
+          "venue_schema": 0,
+          "n_checkins": 0,
+          "n_users_visited": 0,
+          "google_cid": 120375,
+          "google_name": 120375,
+          "google_full_address": 120681,
+          "google_address": 120765,
+          "google_website": 312719,
+          "google_rating": 161600,
+          "google_num_reviews": 161806,
+          "google_categories": 124945,
+          "google_place_id": 120375,
+          "google_gmaps_url": 120375,
+          "google_meta_source": 0,
+          "has_google_metadata": 0,
+          "n_reviews": 0,
+          "n_reviews_with_text": 0,
+          "review_source": 162643,
+          "has_reviews": 0
+        },
+        "missing_ids": {
+          "fsq_place_id": 0,
+          "locality": 0
+        },
+        "duplicate_key_rows": 0
+      },
+      "metadata": {
+        "rows": 687173,
+        "null_counts": {
+          "fsq_place_id": 0,
+          "benchmark_name": 81592,
+          "benchmark_locality": 37092,
+          "benchmark_venue_category": 37092,
+          "benchmark_venue_schema": 37092,
+          "fsq_name": 8,
+          "fsq_latitude": 8,
+          "fsq_longitude": 8,
+          "fsq_address": 118031,
+          "fsq_locality": 78483,
+          "fsq_region": 105146,
+          "fsq_country": 19,
+          "fsq_postcode": 159958,
+          "fsq_formatted_address": 375925,
+          "fsq_category_ids": 170,
+          "fsq_category_labels": 173,
+          "fsq_website": 473245,
+          "fsq_date_created": 38854,
+          "fsq_date_refreshed": 38854,
+          "fsq_date_closed": 653296,
+          "fsq_meta_source": 0,
+          "has_fsq_metadata": 0,
+          "google_cid": 120375,
+          "google_name": 120375,
+          "google_full_address": 120681,
+          "google_address": 120765,
+          "google_website": 312719,
+          "google_rating": 161600,
+          "google_num_reviews": 161806,
+          "google_categories": 124945,
+          "google_place_id": 120375,
+          "google_gmaps_url": 120375,
+          "google_meta_source": 0,
+          "has_google_metadata": 0
+        },
+        "missing_ids": {
+          "fsq_place_id": 0
+        },
+        "duplicate_key_rows": 0
+      },
+      "regions": {
+        "rows": 1173,
+        "null_counts": {
+          "region_id": 0,
+          "city_name": 0,
+          "country_qid": 0,
+          "country_name": 9
+        },
+        "missing_ids": {
+          "region_id": 0
+        },
+        "duplicate_key_rows": 0
+      },
+      "travel": {
+        "rows": 518567,
+        "null_counts": {
+          "user_id": 0,
+          "r_h": 0,
+          "r_o": 0,
+          "n_home_ci": 0,
+          "n_travel_ci": 0,
+          "c_h": 0,
+          "c_o": 0
+        },
+        "missing_ids": {
+          "user_id": 0,
+          "r_h": 0,
+          "r_o": 0
+        }
+      }
+    },
+    "unmatched_references": {
+      "pois_without_metadata": 0,
+      "metadata_without_pois": 0,
+      "pois_without_region_label": 13755,
+      "travel_home_without_region_label": 0,
+      "travel_destination_without_region_label": 0
+    },
+    "visits": {
+      "c_h": {
+        "rows": 26316178,
+        "missing_poi_ids": 0,
+        "missing_timestamps": 0,
+        "unmatched_poi_ids": 0,
+        "empty_lists": 0
+      },
+      "c_o": {
+        "rows": 2764448,
+        "missing_poi_ids": 0,
+        "missing_timestamps": 0,
+        "unmatched_poi_ids": 0,
+        "empty_lists": 0
+      }
+    }
+  },
+  "cleaning": {
+    "pois": {
+      "input_rows": 687173,
+      "catalog_rows": 687173,
+      "recommendable_rows": 535862,
+      "noise_flagged": 120045,
+      "closed_flagged": 33877,
+      "missing_coordinates": 8
+    },
+    "trip_stages": {
+      "raw_records": 518567,
+      "cross_city_records": 518567,
+      "enough_eligible_targets": 454771,
+      "enough_history_final": 444818
+    },
+    "missing_value_handling": {
+      "names_normalized": 0,
+      "poi_id_name_fallbacks": 3,
+      "missing_ratings_preserved": 161600,
+      "missing_google_counts_zero_filled_existing_policy": 161806,
+      "external_review_count_discrepancies_reported_only": 15810
+    },
+    "output_users": 136958,
+    "fold_trip_counts": {
+      "0": 89201,
+      "1": 88857,
+      "2": 87954,
+      "3": 90255,
+      "4": 88551
+    },
+    "validation": {
+      "poi_fold_trip_schemas_passed": true,
+      "poi_value_checks": {
+        "blank_names": 0,
+        "blank_categories": 0,
+        "invalid_latitudes": 0,
+        "invalid_longitudes": 0,
+        "invalid_ratings": 0,
+        "negative_counts": 0,
+        "visitors_exceed_checkins": 0,
+        "text_reviews_exceed_reviews": 0
+      },
+      "invalid_output_references": 0,
+      "history_target_overlap": 0,
+      "users_in_multiple_folds": 0
+    }
+  },
+  "settings": {
+    "noise_schemas": [
+      "schema:ATM",
+      "schema:AdministrativeArea",
+      "schema:Airport",
+      "schema:ApartmentComplex",
+      "schema:AutoDealer",
+      "schema:AutoRepair",
+      "schema:BankOrCreditUnion",
+      "schema:BusStation",
+      "schema:City",
+      "schema:ConvenienceStore",
+      "schema:Country",
+      "schema:Dentist",
+      "schema:DryCleaningOrLaundry",
+      "schema:ElementarySchool",
+      "schema:FireStation",
+      "schema:GasStation",
+      "schema:GovernmentOffice",
+      "schema:HighSchool",
+      "schema:Hospital",
+      "schema:House",
+      "schema:MedicalClinic",
+      "schema:MovingCompany",
+      "schema:Office",
+      "schema:ParkingFacility",
+      "schema:Pharmacy",
+      "schema:PoliceStation",
+      "schema:PostOffice",
+      "schema:Residence",
+      "schema:School",
+      "schema:State",
+      "schema:SubwayStation",
+      "schema:TrainStation",
+      "schema:TransitMap"
+    ],
+    "min_history_pois": 3,
+    "min_target_pois": 1,
+    "n_folds": 5
+  },
+  "notes": [
+    "Audit counts describe source rows, not unique visits across trip records.",
+    "POI exclusion flags overlap; do not add their counts together.",
+    "Audit-only status does not establish that cleaning or validation succeeded."
+  ]
+}
