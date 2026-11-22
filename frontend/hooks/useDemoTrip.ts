@@ -20,24 +20,17 @@ async function findSample<T extends { id: string }>(
 }
 
 export function useDemoTrip() {
-  return (
-    useQuery({
-      queryKey: ["a1-sample-trip"],
-      staleTime: Infinity,
-      queryFn: async ({ signal }) => {
-        const [destination, fishHouse, golfCourse] = await Promise.all([
-          findSample<Destination>(
-            "destinations",
-            "Kyoto",
-            "demo-kyoto",
-            signal,
-          ),
-          findSample<Place>("places", "Fish House", "a1-mamas", signal),
-          findSample<Place>("places", "Gold Course", "a1-golf", signal),
-        ]);
-        if (!destination || !fishHouse || !golfCourse) return null;
-        return { destination, visited: [fishHouse, golfCourse] };
-      },
-    }).data ?? undefined
-  );
+  return useQuery({
+    queryKey: ["a1-sample-trip"],
+    staleTime: Infinity,
+    queryFn: async ({ signal }) => {
+      const [destination, fishHouse, golfCourse] = await Promise.all([
+        findSample<Destination>("destinations", "Kyoto", "demo-kyoto", signal),
+        findSample<Place>("places", "Fish House", "a1-mamas", signal),
+        findSample<Place>("places", "Gold Course", "a1-golf", signal),
+      ]);
+      if (!destination || !fishHouse || !golfCourse) return null;
+      return { destination, visited: [fishHouse, golfCourse] };
+    },
+  });
 }

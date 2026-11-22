@@ -76,7 +76,11 @@ export function TripSetup({
               (destinations.isFetching && !destinations.isFetchingNextPage)
             }
             failed={destinations.isError}
-            retry={() => destinations.refetch()}
+            retry={() =>
+              destinations.isFetchNextPageError
+                ? destinations.fetchNextPage()
+                : destinations.refetch()
+            }
             hasMore={destinations.hasNextPage}
             loadingMore={destinations.isFetchingNextPage}
             loadMore={() => destinations.fetchNextPage()}
@@ -113,7 +117,11 @@ export function TripSetup({
             (places.isFetching && !places.isFetchingNextPage)
           }
           failed={places.isError}
-          retry={() => places.refetch()}
+          retry={() =>
+            places.isFetchNextPageError
+              ? places.fetchNextPage()
+              : places.refetch()
+          }
           hasMore={places.hasNextPage}
           loadingMore={places.isFetchingNextPage}
           loadMore={() => places.fetchNextPage()}

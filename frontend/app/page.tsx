@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Compass, Moon, Sun } from "lucide-react";
-import MapView from "../components/MapView";
+import { PlannerLoading } from "../components/PlannerLoading";
 import { TripResults } from "../components/TripResults";
 import { TripSetup } from "../components/TripSetup";
 import { Button } from "../components/ui/Button";
@@ -16,13 +16,15 @@ import type {
   RecommendationRequest,
 } from "../lib/types";
 
+const MapView = lazy(() => import("../components/MapView"));
+
 type Trip = { destination: Destination | null; visited: Place[] };
 
 export default function Home() {
   const { theme, toggle } = useTheme();
   const demo = useDemoTrip();
   const [editedTrip, setEditedTrip] = useState<Trip | null>(null);
-  const trip = editedTrip ?? demo ?? { destination: null, visited: [] };
+  const trip = editedTrip ?? demo.data ?? { destination: null, visited: [] };
   const { destination, visited } = trip;
   const [request, setRequest] = useState<RecommendationRequest | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -70,18 +72,26 @@ export default function Home() {
         </Button>
       </header>
       <section className="map-region" aria-label="Recommendation map">
-        <MapView
-          cameraRevision={cameraRevision}
-          isLoading={recommendations.isFetching}
-          results={request ? results : []}
-          destinationId={request?.tripworld_region_id ?? null}
-          previewDestinationId={destination?.id ?? null}
-          onReset={request?.bounds ? startTrip : undefined}
-          selectedId={selected?.id ?? null}
-          onSelect={setSelectedId}
-          onBoundsChange={changeBounds}
-          theme={theme}
-        />
+        <Suspense
+          fallback={
+            <div className="notice" role="status">
+              Loading map…
+            </div>
+          }
+        >
+          <MapView
+            cameraRevision={cameraRevision}
+            isLoading={recommendations.isFetching}
+            results={request ? results : []}
+            destinationId={request?.tripworld_region_id ?? null}
+            previewDestinationId={destination?.id ?? null}
+            onReset={request?.bounds ? startTrip : undefined}
+            selectedId={selected?.id ?? null}
+            onSelect={setSelectedId}
+            onBoundsChange={changeBounds}
+            theme={theme}
+          />
+        </Suspense>
       </section>
       <aside className="glass panel sidebar" aria-label="Trip planner">
         {request && destination ? (
@@ -99,6 +109,20 @@ export default function Home() {
             failed={recommendations.isError}
             retry={() => recommendations.refetch()}
           />
+        ) : !editedTrip && demo.isPending ? (
+          <PlannerLoading />
+        ) : !editedTrip && demo.isError ? (
+          <section>
+            <h1>Plan your visit</h1>
+            <p role="alert">We couldn’t load the sample trip.</p>
+            <Button onClick={() => demo.refetch()}>Try again</Button>
+            <Button
+              variant="ghost"
+              onClick={() => setEditedTrip({ destination: null, visited: [] })}
+            >
+              Start an empty trip
+            </Button>
+          </section>
         ) : (
           <TripSetup
             visited={visited}

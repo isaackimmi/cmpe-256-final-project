@@ -559,3 +559,14 @@ body {
     font-size: 16px;
   }
 }
+
+.loading-placeholder {
+  background: var(--tint);
+  border-radius: 10px;
+}
+.field-placeholder {
+  height: 43px;
+}
+.result-placeholder {
+  height: 46px;
+}

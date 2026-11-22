@@ -74,7 +74,18 @@ export function TripResults({
       <h1 ref={title} tabIndex={-1}>
         Recommended places
       </h1>
-      <p className="subtitle">For your visit to {destination}</p>
+      <p className="subtitle" role="status">
+        {loading ? (
+          <>
+            <LoaderCircle className="spin inline" size={14} />{" "}
+            {results.length
+              ? "Updating places in this map area…"
+              : "Finding places…"}
+          </>
+        ) : (
+          <>For your visit to {destination}</>
+        )}
+      </p>
       {resetBounds && (
         <Button variant="outline" className="reset" onClick={resetBounds}>
           <Crosshair size={14} /> Search whole destination
@@ -82,15 +93,12 @@ export function TripResults({
       )}
       {failed && (
         <div role="alert" className="notice">
-          We couldn’t refresh these recommendations.{" "}
+          {results.length
+            ? "Couldn’t update this map area. Showing the last available places."
+            : "Couldn’t load recommendations."}{" "}
           <Button variant="ghost" onClick={retry}>
             Try again
           </Button>
-        </div>
-      )}
-      {loading && (
-        <div role="status" className="notice">
-          <LoaderCircle className="spin" size={16} /> Finding places…
         </div>
       )}
       {!failed && !loading && !results.length && (
@@ -98,7 +106,16 @@ export function TripResults({
           No matching places in this area.
         </div>
       )}
-      <ol className="rank-list">
+      <ol className="rank-list" aria-busy={loading}>
+        {loading &&
+          !results.length &&
+          [0, 1, 2, 3].map((row) => (
+            <li
+              key={row}
+              className="loading-placeholder result-placeholder"
+              aria-hidden="true"
+            />
+          ))}
         {results.map((place) => (
           <li key={place.id}>
             <button

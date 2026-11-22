@@ -145,7 +145,7 @@ export function SearchField<T extends Option>(props: Props<T>) {
               </div>
             )
           )}
-          {props.hasMore && (
+          {props.hasMore && !props.failed && (
             <Button
               variant="ghost"
               className="more"
