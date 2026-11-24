@@ -1,0 +1,131 @@
+{
+  "git_commit": "099644c7e6e9593bddab6db78854c539ec18827e",
+  "working_tree": "?? notebooks/tripworld_feature_experiments.ipynb\n?? reports/feature_experiments/\n",
+  "folds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "training_trip_sample": 10000,
+  "parameters": {
+    "objective": "lambdarank",
+    "metric": "ndcg",
+    "lambdarank_truncation_level": 13,
+    "n_estimators": 300,
+    "learning_rate": 0.05,
+    "num_leaves": 63,
+    "subsample_for_bin": 100000,
+    "colsample_bytree": 0.8,
+    "random_state": 42,
+    "n_jobs": -1,
+    "verbosity": -1
+  },
+  "variants": [
+    "full",
+    "without_place_context"
+  ],
+  "groups": {
+    "place_context": [
+      "tourist_ratio",
+      "dist_to_center_km",
+      "dest_cat_supply_share",
+      "dest_city_total_pois"
+    ]
+  },
+  "candidate_pattern": "candidates_popularity_top100_fold{fold}.parquet",
+  "versions": {
+    "lightgbm": "4.7.0",
+    "pandas": "3.1.1",
+    "duckdb": "2.0.1",
+    "numpy": "2.5.5"
+  },
+  "inputs": {
+    "catalog": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/pois_clean.parquet",
+      "bytes": 37859165,
+      "modified_ns": 1795321822607093528
+    },
+    "trips": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/trips_multicity.parquet",
+      "bytes": 60175242,
+      "modified_ns": 1795321831931102533
+    },
+    "folds": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/cv_folds.parquet",
+      "bytes": 237446,
+      "modified_ns": 1795321822626467519
+    },
+    "targets": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/trip_targets_exploded.parquet",
+      "bytes": 17412943,
+      "modified_ns": 1795321832913676606
+    },
+    "history": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/trip_history_exploded.parquet",
+      "bytes": 73126431,
+      "modified_ns": 1795321832836538100
+    },
+    "supply": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/feat_city_supply.parquet",
+      "bytes": 390552,
+      "modified_ns": 1795491888673645063
+    },
+    "taste": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/feat_user_locality_taste.parquet",
+      "bytes": 106557953,
+      "modified_ns": 1795491893857962867
+    },
+    "poi_stats_fold0": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/feat_poi_stats_fold0.parquet",
+      "bytes": 21574670,
+      "modified_ns": 1795483896653232474
+    },
+    "candidates_fold0": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/candidates_popularity_top100_fold0.parquet",
+      "bytes": 423059001,
+      "modified_ns": 1795489774162732261
+    },
+    "poi_stats_fold1": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/feat_poi_stats_fold1.parquet",
+      "bytes": 21554592,
+      "modified_ns": 1795491851111298161
+    },
+    "candidates_fold1": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/candidates_popularity_top100_fold1.parquet",
+      "bytes": 423957340,
+      "modified_ns": 1795491862384944397
+    },
+    "poi_stats_fold2": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/feat_poi_stats_fold2.parquet",
+      "bytes": 21591865,
+      "modified_ns": 1795491864595930320
+    },
+    "candidates_fold2": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/candidates_popularity_top100_fold2.parquet",
+      "bytes": 423562967,
+      "modified_ns": 1795491874532465036
+    },
+    "poi_stats_fold3": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/feat_poi_stats_fold3.parquet",
+      "bytes": 21575431,
+      "modified_ns": 1795491876762266144
+    },
+    "candidates_fold3": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/candidates_popularity_top100_fold3.parquet",
+      "bytes": 424552889,
+      "modified_ns": 1795491886575486254
+    },
+    "poi_stats_fold4": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/feat_poi_stats_fold4.parquet",
+      "bytes": 21550264,
+      "modified_ns": 1795491888868168357
+    },
+    "candidates_fold4": {
+      "path": "/Users/liliya/sjsu/1_term/Recommender Systems/cmpe-256-final-project/data/gold/candidates_popularity_top100_fold4.parquet",
+      "bytes": 424115305,
+      "modified_ns": 1795491898641489754
+    }
+  }
+}
