@@ -173,13 +173,19 @@ def build_locality_features(val_fold: int = 0) -> None:
                 SELECT DISTINCT trip_id, source_region_id
                 FROM '{hist_path}'
             ),
+            trip_city_counts AS (
+                SELECT trip_id, COUNT(*) AS n_cities
+                FROM trip_cities GROUP BY trip_id
+            ),
             user_opportunity AS (
                 SELECT
                     tc.trip_id,
                     cs.venue_schema,
-                    AVG(cs.city_supply_share) AS avg_hist_supply_share,
+                    -- Missing categories contribute zero, but their cities still count.
+                    SUM(cs.city_supply_share) / MAX(tcc.n_cities) AS avg_hist_supply_share,
                     MAX(cs.city_cat_pois) AS max_hist_cat_pois
                 FROM trip_cities tc
+                JOIN trip_city_counts tcc ON tc.trip_id = tcc.trip_id
                 JOIN '{supply_out}' cs ON tc.source_region_id = cs.region_id
                 GROUP BY tc.trip_id, cs.venue_schema
             )
