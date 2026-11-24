@@ -41,8 +41,9 @@ FEATURE_COLS = [
     *CANDIDATE_FEATURES,
     *[name for name in POI_DEFAULTS if name not in {
         "tourist_ratio", "dist_to_center_km", "dest_cat_supply_share", "dest_city_total_pois",
+        "log_n_users",
     }],
-    *TASTE_DEFAULTS,
+    *[name for name in TASTE_DEFAULTS if name != "was_available_in_history"],
 ]
 CANDIDATE_SCHEMA_VERSION = 1
 SEMANTIC_WEIGHTS = {"sem_sim_mean": 0.5, "sem_sim_top3": 0.5}

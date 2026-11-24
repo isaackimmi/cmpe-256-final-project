@@ -314,9 +314,10 @@ def test_inference_rejects_model_without_feature_fold(tmp_path, monkeypatch):
 
 
 
-def test_place_context_columns_do_not_reach_ranker(ranking_data):
+def test_removed_columns_do_not_reach_ranker(ranking_data):
     gold, path, _ = ranking_data
-    excluded = {"tourist_ratio", "dist_to_center_km", "dest_cat_supply_share", "dest_city_total_pois"}
+    excluded = {"tourist_ratio", "dist_to_center_km", "dest_cat_supply_share", "dest_city_total_pois",
+                "log_n_users", "was_available_in_history"}
     train_before, val_before, features = train_ranker.load_joined_matrix(path, 0, 5, gold_dir=gold)
     assert excluded.isdisjoint(features)
     assert excluded.isdisjoint(train_before.columns)
@@ -326,9 +327,13 @@ def test_place_context_columns_do_not_reach_ranker(ranking_data):
     # either training or inference matrices through the model feature list.
     stats_path = gold / "feat_poi_stats_fold0.parquet"
     stats = pd.read_parquet(stats_path)
-    for column in excluded:
+    for column in excluded - {"was_available_in_history"}:
         stats[column] = np.nan
     stats.to_parquet(stats_path, index=False)
+    taste_path = gold / "feat_user_locality_taste.parquet"
+    taste = pd.read_parquet(taste_path)
+    taste["was_available_in_history"] = False
+    taste.to_parquet(taste_path, index=False)
     train_after, val_after, features_after = train_ranker.load_joined_matrix(path, 0, 5, gold_dir=gold)
     assert features_after == features
     pd.testing.assert_frame_equal(train_before, train_after)
