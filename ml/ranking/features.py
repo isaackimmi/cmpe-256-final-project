@@ -36,7 +36,14 @@ TASTE_DEFAULTS = {
     "was_available_in_history": 0.0,
     "user_cat_diversity": 1.0,
 }
-FEATURE_COLS = [*CANDIDATE_FEATURES, *POI_DEFAULTS, *TASTE_DEFAULTS]
+# Keep these columns in the data contract, but exclude them from model inputs.
+FEATURE_COLS = [
+    *CANDIDATE_FEATURES,
+    *[name for name in POI_DEFAULTS if name not in {
+        "tourist_ratio", "dist_to_center_km", "dest_cat_supply_share", "dest_city_total_pois",
+    }],
+    *TASTE_DEFAULTS,
+]
 CANDIDATE_SCHEMA_VERSION = 1
 SEMANTIC_WEIGHTS = {"sem_sim_mean": 0.5, "sem_sim_top3": 0.5}
 PREPROCESSING = {
