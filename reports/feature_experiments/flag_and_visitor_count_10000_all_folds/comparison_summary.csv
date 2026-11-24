@@ -1,0 +1,2 @@
+comparison,ndcg_difference,low_95,high_95,folds_improved,folds_tested,evidence
+without_flag_and_visitor_count,-0.00025495633740272634,-0.000498942227335854,-2.3812006925594645e-05,1,5,supports comparison

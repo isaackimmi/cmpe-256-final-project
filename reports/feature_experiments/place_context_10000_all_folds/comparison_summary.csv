@@ -1,0 +1,2 @@
+comparison,ndcg_difference,low_95,high_95,folds_improved,folds_tested,evidence
+without_place_context,6.039492709994517e-05,-0.00023261332118386106,0.0003324001013147668,2,5,uncertain
