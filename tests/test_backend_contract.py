@@ -13,7 +13,15 @@ class BackendContractTests(unittest.TestCase):
     def test_last_page_has_no_next_offset(self):
         for path in ("/places/search", "/destinations/search"):
             with self.subTest(path=path):
-                full = self.client.get(path, params={"limit": 100}).json()["items"]
+                full = []
+                offset = 0
+                while True:
+                    page = self.client.get(path, params={"limit": 100, "offset": offset}).json()
+                    full.extend(page["items"])
+                    if page["next_offset"] is None:
+                        break
+                    self.assertGreater(page["next_offset"], offset)
+                    offset = page["next_offset"]
                 self.assertGreater(len(full), 1)
                 last = self.client.get(path, params={"limit": 1, "offset": len(full) - 1})
                 self.assertEqual(last.status_code, 200)

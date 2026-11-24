@@ -21,11 +21,11 @@ async function findSample<T extends { id: string }>(
 
 export function useDemoTrip() {
   return useQuery({
-    queryKey: ["a1-sample-trip"],
+    queryKey: ["a1-sample-trip", "tripworld-region-ids"],
     staleTime: Infinity,
     queryFn: async ({ signal }) => {
       const [destination, fishHouse, golfCourse] = await Promise.all([
-        findSample<Destination>("destinations", "Kyoto", "demo-kyoto", signal),
+        findSample<Destination>("destinations", "Kyoto", "Q35765", signal),
         findSample<Place>("places", "Fish House", "a1-mamas", signal),
         findSample<Place>("places", "Gold Course", "a1-golf", signal),
       ]);

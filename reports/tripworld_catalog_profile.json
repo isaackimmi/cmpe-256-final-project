@@ -1,0 +1,10 @@
+{
+  "source_trip_records": 518567,
+  "invalid_destination_records": 0,
+  "source_destination_count": 1165,
+  "label_source_rows": 1173,
+  "distinct_label_records": 1173,
+  "label_conflicts": [],
+  "destinations_missing_label_rows": [],
+  "exact_label_duplicates_removed": 0
+}

@@ -5,6 +5,9 @@ class Destination(BaseModel):
     id: str
     name: str
     country: str | None = None
+    canonical_name: str | None = None
+    canonical_metro_label: str | None = None
+    matched_alias: str | None = None
 
 
 class Place(BaseModel):

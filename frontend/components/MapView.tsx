@@ -52,7 +52,7 @@ export default function MapView({
   const [mapFailed, setMapFailed] = useState(false);
   const resizeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const framedRevision = useRef<number | null>(null);
-  const regionId = destinationId ?? previewDestinationId ?? "demo-kyoto";
+  const regionId = destinationId ?? previewDestinationId ?? "Q35765";
   const atlas = atlases[regionId];
   const cityLabel = atlas ? atlasCoordinate(atlas, 690, 510) : null;
   const preview = useMemo(
