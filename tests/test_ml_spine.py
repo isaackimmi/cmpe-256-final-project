@@ -382,3 +382,52 @@ def test_feature_build_keeps_each_folds_poi_statistics(tmp_path, monkeypatch):
         counts = [con.sql(f"SELECT log_n_checkins FROM '{path}' WHERE poi_id='p1'").fetchall()[0][0]
                   for path in paths]
     assert counts == pytest.approx([math.log(4), math.log(2)])
+
+
+def test_category_availability_counts_cities_without_the_category(tmp_path, monkeypatch):
+    import ml.features.build_locality_features as features
+
+    gold = tmp_path / 'gold'
+    gold.mkdir()
+    monkeypatch.setattr(features, 'DATA_GOLD_DIR', gold)
+
+    def no_popularity(con, *args, **kwargs):
+        con.execute('CREATE TEMP TABLE training_poi_counts (poi_id VARCHAR, checkins BIGINT, users BIGINT)')
+    monkeypatch.setattr(features, 'create_training_poi_counts', no_popularity)
+    with duckdb.connect() as con:
+        catalog = str(gold / 'pois_clean.parquet')
+        history = str(gold / 'trip_history_exploded.parquet')
+        targets = str(gold / 'trip_targets_exploded.parquet')
+        con.execute(f"""
+            COPY (SELECT poi_id, region_id, venue_schema, TRUE AS is_recommendable,
+                TRUE AS has_google_rating, 4.0 AS google_rating, 5::BIGINT AS google_num_reviews,
+                1.0 AS lat, 1.0 AS lon
+                FROM (VALUES ('m1','A','Museum'),('m2','A','Museum'),
+                    ('p1','A','Park'),('p2','A','Park'),
+                    ('p3','B','Park'),('c1','C','Cafe')) AS p(poi_id,region_id,venue_schema))
+            TO '{catalog}' (FORMAT PARQUET);
+            COPY (SELECT trip_id, poi_id, source_region_id, venue_schema,
+                1::BIGINT AS fold, TRUE AS is_home
+                FROM (VALUES (1::BIGINT,'m1','A','Museum'),(1,'m2','A','Museum'),
+                    (1,'p3','B','Park'),(1,'c1','C','Cafe'),
+                    (2,'m1','A','Museum'),(2,'m2','A','Museum'))
+                    AS h(trip_id,poi_id,source_region_id,venue_schema))
+            TO '{history}' (FORMAT PARQUET);
+            COPY (SELECT 'm1' AS poi_id, 1::BIGINT AS fold) TO '{targets}' (FORMAT PARQUET);
+        """)
+    features.build_locality_features(val_fold=0)
+    with duckdb.connect() as con:
+        taste = str(gold / 'feat_user_locality_taste.parquet')
+        rows = con.sql(f"""
+            SELECT trip_id, avg_hist_supply_share, user_cat_share, opportunity_lift,
+                was_available_in_history FROM '{taste}' WHERE venue_schema='Museum' ORDER BY trip_id
+        """).fetchall()
+        assert con.sql(f"SELECT COUNT(*) FROM (SELECT trip_id,venue_schema FROM '{taste}' GROUP BY ALL HAVING COUNT(*)>1)").fetchall()[0][0] == 0
+    # A offers 50% museums; B and C offer none. Two A visits still count as one city.
+    assert rows[0][0] == 1
+    assert rows[0][1:4] == pytest.approx((0.5 / 3, 0.5, 0.5 / (0.5 / 3 + 0.005)))
+    assert rows[0][4] is True
+    # With only A in history, the original 50% availability remains unchanged.
+    assert rows[1][0] == 2
+    assert rows[1][1:4] == pytest.approx((0.5, 1.0, 1.0 / (0.5 + 0.005)))
+    assert rows[1][4] is True
