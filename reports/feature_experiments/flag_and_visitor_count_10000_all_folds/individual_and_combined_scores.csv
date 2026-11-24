@@ -1,0 +1,5 @@
+change,ndcg_10,recall_10
+Keep both,0.276192,0.357404
+Remove availability flag,0.276192,0.357494
+Remove visitor count,0.27630600000000005,0.357778
+Remove both,0.276446,0.35746599999999995

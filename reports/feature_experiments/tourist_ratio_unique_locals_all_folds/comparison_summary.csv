@@ -1,3 +1,0 @@
-comparison,ndcg_difference,low_95,high_95,folds_improved,folds_tested,evidence
-full,-0.000326839957511675,-0.0006662557133852838,3.579363385082941e-05,2,5,uncertain
-without_tourist_ratio,-0.000713765532614517,-0.001100195560926318,-0.000359511615636098,3,5,supports comparison
